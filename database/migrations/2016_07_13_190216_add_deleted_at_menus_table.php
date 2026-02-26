@@ -14,7 +14,7 @@ class AddDeletedAtMenusTable extends Migration {
 	{
 		Schema::table('menus', function(Blueprint $table)
 		{
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 		});
 	}
 

@@ -1,13 +1,13 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
 class InvoiceBill extends Model {
 
 
     protected $table ='invoice_bills';
-    use SoftDeletes;
+    use SoftDeletingTrait;
 
     protected $fillable = array
     (

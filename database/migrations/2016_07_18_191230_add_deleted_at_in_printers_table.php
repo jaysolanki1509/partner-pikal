@@ -14,7 +14,7 @@ class AddDeletedAtInPrintersTable extends Migration {
 	{
 		Schema::table('printers', function(Blueprint $table)
 		{
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 		});
 	}
 
@@ -27,7 +27,7 @@ class AddDeletedAtInPrintersTable extends Migration {
 	{
 		Schema::table('printers', function(Blueprint $table)
 		{
-			$table->dropSoftDeletes();
+			$table->dropSoftDeletingTrait();
 		});
 	}
 

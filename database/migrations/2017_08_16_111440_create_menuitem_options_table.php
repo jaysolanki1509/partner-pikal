@@ -21,7 +21,7 @@ class CreateMenuitemOptionsTable extends Migration {
                 $table->integer('created_by');
                 $table->integer('updated_by');
                 $table->timestamps();
-                $table->softDeletes();
+                $table->SoftDeletingTrait();
 
                 $table->index('parent_item_id');
                 $table->index('option_item_id');

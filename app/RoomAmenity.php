@@ -1,11 +1,11 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
 class RoomAmenity extends Model {
 
-	use SoftDeletes;
+	use SoftDeletingTrait;
 
     public static function getAmenitisByOutletId($outlet_id){
 

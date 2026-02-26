@@ -82,7 +82,7 @@ return [
 
 	'key' => env('APP_KEY', 'SomeRandomString'),
 
-	'cipher' => MCRYPT_RIJNDAEL_128,
+	'cipher' => 'AES-128-CBC',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -139,7 +139,7 @@ return [
 		'Illuminate\Translation\TranslationServiceProvider',
 		'Illuminate\Validation\ValidationServiceProvider',
 		'Illuminate\View\ViewServiceProvider',
-
+		'Illuminate\Broadcasting\BroadcastServiceProvider',
 		/*
 		 * Application Service Providers...
 		 */
@@ -157,7 +157,8 @@ return [
         'Illuminate\Translation\TranslationServiceProvider',
 		'Bican\Roles\RolesServiceProvider',
 		'Devfactory\Minify\MinifyServiceProvider',
-		"Savitriya\Icici_upi\IciciUpiServiceProvider"
+		"Savitriya\Icici_upi\IciciUpiServiceProvider",
+		"App\Providers\AuthServiceProvider",
 
 	],
 
@@ -213,7 +214,10 @@ return [
         'Imagine' => 'Orchestra\Imagine\Facade',
         'PushNotification' => 'Piyushpatil\Androidpushnotification\Facades\PushNotification',
         'Excel' => 'Maatwebsite\Excel\Facades\Excel',
-		'Minify' => 'Devfactory\Minify\Facades\MinifyFacade'
+		'Minify' => 'Devfactory\Minify\Facades\MinifyFacade',
+		'Gate' => 'Illuminate\Support\Facades\Gate::class',
+
+
 
 
 

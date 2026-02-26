@@ -1,12 +1,12 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
 class StockAge extends Model {
 
     protected $table ='stock_age';
-    use SoftDeletes;
+    use SoftDeletingTrait;
 
     protected $softDelete = true;
 

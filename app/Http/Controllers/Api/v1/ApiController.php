@@ -671,7 +671,7 @@ class Apicontroller extends Controller
                 $orderid=OrderItem::insertmenuitemoforders($saveorder['id'],$asd);
             }
 
-            // Queue::push('App\Commands\MailNotification@getorderdetails', array('orderdetails'=>$saveorder));
+            // Queue::push('App\Jobs\MailNotification@getorderdetails', array('orderdetails'=>$saveorder));
 
             $date = $saveorder['order_date'];
             $date = str_replace('/', '-', $date);
@@ -681,7 +681,7 @@ class Apicontroller extends Controller
 
 
 
-            Queue::push('App\Commands\OwnerNotification@getownernotification', array('outlet_id'=>$order['restaurant_id']));
+            Queue::push('App\Jobs\OwnerNotification@getownernotification', array('outlet_id'=>$order['restaurant_id']));
             if( isset($flag) && $flag == 'webapp_order' ){
                 return 'success';
             }else{
@@ -1736,9 +1736,9 @@ class Apicontroller extends Controller
 
 
         if($useragent=="android"){
-            Queue::push('App\Commands\OrderNotification@getordersnotification', array('fields'=>$f));
+            Queue::push('App\Jobs\OrderNotification@getordersnotification', array('fields'=>$f));
         }else{
-            Queue::push('App\Commands\IOS\OrderNotification@getordersnotification', array('fields'=>$f));
+            Queue::push('App\Jobs\IOS\OrderNotification@getordersnotification', array('fields'=>$f));
         }
         return Response::json(array(
                 'message' => 'ok',
@@ -2482,7 +2482,7 @@ class Apicontroller extends Controller
             $message->subject('Foodklub Report');
             $message->attach(app_path().'/../storage/exports/foodklub_report.xls', ['as' => 'foodklub_report.xls', 'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ]);
         });
-        //Queue::push('App\Commands\GenerateReport@generatereport', array('restaurant_name'=>$restaurant_name));
+        //Queue::push('App\Jobs\GenerateReport@generatereport', array('restaurant_name'=>$restaurant_name));
 
         return Response::json(array(
             'message' => 'Report sent successfully',
@@ -2563,7 +2563,7 @@ class Apicontroller extends Controller
         $ordercancellation->save();
         $orderdetails=order_details::where('suborder_id',$order_id)->where('created_at',$orderdate)->get();
         $cancel=array('device_id'=>$orderdetails[0]->device_id,'order_id'=>$order_id,'reason'=>$reason,'created_at'=>$orderdate);
-        Queue::push('App\Commands\CancelOrderNotification@getcancelorder', array('cancellation'=>$cancel));
+        Queue::push('App\Jobs\CancelOrderNotification@getcancelorder', array('cancellation'=>$cancel));
         return Response::json(array(
             'message' => 'Order Cancelled Successfully',
             'status' => 'success',
@@ -2988,7 +2988,7 @@ class Apicontroller extends Controller
                         $orderid = OrderItem::insertmenuitemoforders($saveorder['id'], $asd);
                     }
 
-                    // Queue::push('App\Commands\MailNotification@getorderdetails', array('orderdetails'=>$saveorder));
+                    // Queue::push('App\Jobs\MailNotification@getorderdetails', array('orderdetails'=>$saveorder));
 
                     // $date = $saveorder['order_date'];
                     // $date = str_replace('/', '-', $date);
@@ -3026,7 +3026,7 @@ class Apicontroller extends Controller
         $outlet=Outlet::where('id',$outlet_id)->first();
         //  $emails=explode(',',$outlet->report_emails);
 
-        Queue::push('App\Commands\ReportsMail@sendmails', array('outlet_id'=>$outlet_id,'amount_byuser'=>$amount_byuser,'amount_fromdb'=>$amount_fromdb,'total'=>$amount,"total_hours"=>$total_hours,"start_time"=>$start_time,"end_time"=>$end_time,'start_date'=>Input::json('start_date'),'end_date'=>Input::json('close_date'),'remark'=>$remarks));
+        Queue::push('App\Jobs\ReportsMail@sendmails', array('outlet_id'=>$outlet_id,'amount_byuser'=>$amount_byuser,'amount_fromdb'=>$amount_fromdb,'total'=>$amount,"total_hours"=>$total_hours,"start_time"=>$start_time,"end_time"=>$end_time,'start_date'=>Input::json('start_date'),'end_date'=>Input::json('close_date'),'remark'=>$remarks));
         return Response::json(array(
             'message' => 'Counter closed successfully',
             'status' => 'success',

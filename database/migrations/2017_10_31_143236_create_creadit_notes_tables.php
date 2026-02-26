@@ -51,7 +51,7 @@ class CreateCreaditNotesTables extends Migration {
             $table->foreign('updated_by')->references('id')->on('owners');
             $table->integer('deleted_by')->nullable();
             $table->timestamps();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
 
 
             $table->index('cn_unique_id');
@@ -103,7 +103,7 @@ class CreateCreaditNotesTables extends Migration {
             $table->integer('category_id');
             $table->string('category_name');
             $table->integer('deleted_by')->nullable();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
 
             $table->index('cn_id');
             $table->index('hsn_code');
@@ -135,7 +135,7 @@ class CreateCreaditNotesTables extends Migration {
             $table->foreign('updated_by')->references('id')->on('owners');
             $table->integer('deleted_by')->nullable();
             $table->timestamps();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
 
             $table->index('cn_id');
             $table->index('order_id');

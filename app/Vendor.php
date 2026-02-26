@@ -1,12 +1,12 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
 class Vendor extends Model {
 
     protected $table ='vendors';
-    use SoftDeletes;
+    use SoftDeletingTrait;
 
     protected $softDelete = true;
 

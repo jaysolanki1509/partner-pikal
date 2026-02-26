@@ -798,14 +798,14 @@ class Apicontroller extends Controller
                 }
             }
 
-            // Queue::push('App\Commands\MailNotification@getorderdetails', array('orderdetails'=>$saveorder));
+            // Queue::push('App\Jobs\MailNotification@getorderdetails', array('orderdetails'=>$saveorder));
 
             $date = $saveorder['order_date'];
             $date = str_replace('/', '-', $date);
 
             $orddate=date("F j, Y g:i a",strtotime($date));
 
-            //Queue::push('App\Commands\OwnerNotification@getownernotification', array('outlet_id'=>$order['restaurant_id'],'order_id'=>$order_id,'table_no'=>$order['table']));
+            //Queue::push('App\Jobs\OwnerNotification@getownernotification', array('outlet_id'=>$order['restaurant_id'],'order_id'=>$order_id,'table_no'=>$order['table']));
             if( isset($flag) && $flag == 'webapp_order' ){
                 return 'success';
             }else{
@@ -2154,9 +2154,9 @@ class Apicontroller extends Controller
 
 
         if($useragent=="android"){
-            //Queue::push('App\Commands\OrderNotification@getordersnotification', array('fields'=>$f));
+            //Queue::push('App\Jobs\OrderNotification@getordersnotification', array('fields'=>$f));
         }else{
-            //Queue::push('App\Commands\IOS\OrderNotification@getordersnotification', array('fields'=>$f));
+            //Queue::push('App\Jobs\IOS\OrderNotification@getordersnotification', array('fields'=>$f));
         }
         return Response::json(array(
             'message' => 'ok',
@@ -3104,7 +3104,7 @@ class Apicontroller extends Controller
             $message->subject('Pikal Report');
             $message->attach(app_path().'/../storage/exports/pikal_report.xls', ['as' => 'pikal_report.xls', 'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ]);
         });
-        //Queue::push('App\Commands\GenerateReport@generatereport', array('restaurant_name'=>$restaurant_name));
+        //Queue::push('App\Jobs\GenerateReport@generatereport', array('restaurant_name'=>$restaurant_name));
 
         return Response::json(array(
             'message' => 'Report sent successfully',
@@ -3186,7 +3186,7 @@ class Apicontroller extends Controller
         $ordercancellation->save();
         $orderdetails=order_details::where('order_id',$neworder_id)->get();
         $cancel=array('device_id'=>$orderdetails[0]->device_id,'order_id'=>$order_id,'reason'=>$reason,'created_at'=>$orderdate);
-        Queue::push('App\Commands\CancelOrderNotification@getcancelorder', array('cancellation'=>$cancel));
+        Queue::push('App\Jobs\CancelOrderNotification@getcancelorder', array('cancellation'=>$cancel));
         return Response::json(array(
             'message' => 'Order Cancelled Successfully',
             'status' => 'success',
@@ -3699,7 +3699,7 @@ class Apicontroller extends Controller
                     //make table as close and update status of kot
                     Kot::where('order_unique_id',$order['orderuniqueid'])->update(['status'=>'close']);
 
-                    // Queue::push('App\Commands\MailNotification@getorderdetails', array('orderdetails'=>$saveorder));
+                    // Queue::push('App\Jobs\MailNotification@getorderdetails', array('orderdetails'=>$saveorder));
 
                     $order_arr[] = order_details::select('invoice','invoice_no','suborder_id','order_unique_id')->where('order_id',$saveorder['id'])->first();
 
@@ -3922,7 +3922,7 @@ class Apicontroller extends Controller
 
         //  $emails=explode(',',$outlet->report_emails);
 
-        /*Queue::push('App\Commands\ReportsMail@sendmails', array('outlet_id'=>$outlet_id,'amount_byuser'=>$amount_byuser,'amount_fromdb'=>$amount_fromdb,'total'=>$amount,"total_hours"=>$total_hours,"start_time"=>$start_time,"end_time"=>$end_time,'start_date'=>Input::json('start_date'),'end_date'=>Input::json('close_date'),'remark'=>$remarks));*/
+        /*Queue::push('App\Jobs\ReportsMail@sendmails', array('outlet_id'=>$outlet_id,'amount_byuser'=>$amount_byuser,'amount_fromdb'=>$amount_fromdb,'total'=>$amount,"total_hours"=>$total_hours,"start_time"=>$start_time,"end_time"=>$end_time,'start_date'=>Input::json('start_date'),'end_date'=>Input::json('close_date'),'remark'=>$remarks));*/
 
     }
 
@@ -4471,7 +4471,7 @@ class Apicontroller extends Controller
 
                         $result = Kot::where('id',$kt['server_id'])->update(['price'=>$kt['kot_item_price'],'quantity'=>$kt['kot_item_qty'],'print_count'=>$kt['print_count'],'reason'=>$kt['kot_cancel_reason'],'deleted_at'=>$kt['kot_date_time']]);
                         if ( isset($kt['item_unique_id']) && $kt['item_unique_id'] != 0  && $type == 'dine_in') {
-                            //Queue::push('App\Commands\CancelOrderNotification@toConsumerRemoveKotNotification', array('order_id'=>$kt['order_id'],'item_id'=>$kt['kot_item_id'],'item_name'=>$kt['kot_item_name'],'reason'=>$kt['kot_cancel_reason'],'item_unique_id'=>$kt['item_unique_id']));
+                            //Queue::push('App\Jobs\CancelOrderNotification@toConsumerRemoveKotNotification', array('order_id'=>$kt['order_id'],'item_id'=>$kt['kot_item_id'],'item_name'=>$kt['kot_item_name'],'reason'=>$kt['kot_cancel_reason'],'item_unique_id'=>$kt['item_unique_id']));
                         }
 
                     } else {
@@ -4503,7 +4503,7 @@ class Apicontroller extends Controller
                     if ( isset($kt['kot_item_is_cancelled']) && $kt['kot_item_is_cancelled'] == 'yes') {
                         $kot->deleted_at = $kt['kot_date_time'];
                         if ( isset($kt['item_unique_id']) && $kt['item_unique_id'] != 0 ) {
-                            //Queue::push('App\Commands\CancelOrderNotification@toConsumerRemoveKotNotification', array('order_id' => $kt['order_id'], 'item_id' => $kt['kot_item_id'], 'item_name' => $kt['kot_item_name'], 'reason' => $kt['kot_cancel_reason'],'item_unique_id'=>$kt['item_unique_id']));
+                            //Queue::push('App\Jobs\CancelOrderNotification@toConsumerRemoveKotNotification', array('order_id' => $kt['order_id'], 'item_id' => $kt['kot_item_id'], 'item_name' => $kt['kot_item_name'], 'reason' => $kt['kot_cancel_reason'],'item_unique_id'=>$kt['item_unique_id']));
                         }
                     } else {
                         $kot_unique_arr[] = $kt['item_unique_id'];
@@ -4532,7 +4532,7 @@ class Apicontroller extends Controller
 
 
             if ( isset($kot_unique_arr) && sizeof($kot_unique_arr) > 0 && $order_id != 0 && $type == 'dine_in') {
-                //Queue::push('App\Commands\OwnerNotification@toConsumerAcceptKotNotification', array('order_id' => $order_id, 'kot_items' => $kot_unique_arr));
+                //Queue::push('App\Jobs\OwnerNotification@toConsumerAcceptKotNotification', array('order_id' => $order_id, 'kot_items' => $kot_unique_arr));
             }
         }
 
@@ -4552,7 +4552,7 @@ class Apicontroller extends Controller
         $table_no = Input::json('table_no');
         $outlet_id = Input::json('outlet_id');
 
-        //Queue::push('App\Commands\OwnerNotification@attendNotification', array('outlet_id'=>$outlet_id,'table_no'=>$table_no));
+        //Queue::push('App\Jobs\OwnerNotification@attendNotification', array('outlet_id'=>$outlet_id,'table_no'=>$table_no));
 
         return Response::json(array(
             'status' => 'success',
@@ -4565,7 +4565,7 @@ class Apicontroller extends Controller
         $table_no = Input::json('table_no');
         $outlet_id = Input::json('outlet_id');
 
-        //Queue::push('App\Commands\OwnerNotification@payBillNotification', array('outlet_id'=>$outlet_id,'table_no'=>$table_no));
+        //Queue::push('App\Jobs\OwnerNotification@payBillNotification', array('outlet_id'=>$outlet_id,'table_no'=>$table_no));
 
         return Response::json(array(
             'status' => 'success',
@@ -4686,7 +4686,7 @@ class Apicontroller extends Controller
                     foreach( $order_items as $itm ) {
                         $itm_arr[] = $itm->item_unique_id;
                     }
-                    //Queue::push('App\Commands\CancelOrderNotification@toConsumerCancelOrderNotification', array('order_id'=>$order_id,'order_items'=>$itm_arr,'reason'=>$reason));
+                    //Queue::push('App\Jobs\CancelOrderNotification@toConsumerCancelOrderNotification', array('order_id'=>$order_id,'order_items'=>$itm_arr,'reason'=>$reason));
 
                     return Response::json(array(
                         'message'=>'Order cancelled successfully',
@@ -5481,7 +5481,7 @@ class Apicontroller extends Controller
 
                 DB::commit();
             }
-            Queue::push('App\Commands\OwnerNotification@sendresponsedeviation', array('transaction_id'=>$transaction_id,'user_id'=>$user_id));
+            Queue::push('App\Jobs\OwnerNotification@sendresponsedeviation', array('transaction_id'=>$transaction_id,'user_id'=>$user_id));
 
             return Response::json(array(
                 'message'=>'Request processed successfully.',
@@ -5548,7 +5548,7 @@ class Apicontroller extends Controller
             $log_level->save();
         }
 
-        $send = Queue::push('App\Commands\LogNotification@logNotifications', array('fields'=>$fields));
+        $send = Queue::push('App\Jobs\LogNotification@logNotifications', array('fields'=>$fields));
 
         if($send && $fields['device_id']!='') {
             return Response::json(array(
@@ -5969,7 +5969,7 @@ class Apicontroller extends Controller
                 $check_mobile->email = $email;
                 $check_mobile->save();
 
-                Queue::push('App\Commands\OwnerNotification@sendCampaignDetail', array('owner_name'=>$ow_name,'outlet_name'=>$ot_name,'mobile'=>$mobile,'email'=>$email,'address'=>$address));
+                Queue::push('App\Jobs\OwnerNotification@sendCampaignDetail', array('owner_name'=>$ow_name,'outlet_name'=>$ot_name,'mobile'=>$mobile,'email'=>$email,'address'=>$address));
 
             }
 

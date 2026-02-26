@@ -14,7 +14,7 @@ class AddDeletedAtColumnItemRequestTable extends Migration {
 	{
 		Schema::table('item_request', function(Blueprint $table)
 		{
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 		});
 	}
 

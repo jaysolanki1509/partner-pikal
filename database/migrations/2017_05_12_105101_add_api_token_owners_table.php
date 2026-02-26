@@ -14,7 +14,8 @@ class AddApiTokenOwnersTable extends Migration {
 	{
 		Schema::table('owners', function(Blueprint $table)
 		{
-			$table->string('api_token')->after('remember_token')->nullable();
+			// $table->string('api_token')->after('remember_token')->nullable();
+			    $table->string('remember_token', 100)->nullable();
 		});
 	}
 

@@ -22,7 +22,7 @@ class CreateStaffingTable extends Migration {
 			$table->integer('created_by');
 			$table->integer('updated_by');
 			$table->timestamps();
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 
 			$table->index('qty');
 			$table->index('outlet_id');

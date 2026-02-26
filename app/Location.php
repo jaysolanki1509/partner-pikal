@@ -1,14 +1,14 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class Location extends Model {
 
     protected $table ='locations';
-    use SoftDeletes;
+    use SoftDeletingTrait;
 
     protected $softDelete = true;
 

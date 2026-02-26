@@ -23,7 +23,7 @@ class CreateLogDetailTable extends Migration {
             $table->string('device_os')->nullable();
             $table->string('app_version')->nullable();
             $table->string('path');
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
             $table->timestamps();
 
             $table->index('device_os');

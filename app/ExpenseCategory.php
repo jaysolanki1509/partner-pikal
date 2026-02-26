@@ -1,11 +1,11 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
 class ExpenseCategory extends Model {
 
-    use SoftDeletes;
+    use SoftDeletingTrait;
     protected $table = 'expense_categories';
     protected $softDelete = true;
 

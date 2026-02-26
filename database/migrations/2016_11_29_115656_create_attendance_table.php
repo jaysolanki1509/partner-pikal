@@ -21,7 +21,7 @@ class CreateAttendanceTable extends Migration {
 			$table->integer('created_by');
 			$table->integer('updated_by');
 			$table->timestamps();
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 
 			$table->index('staff_id');
 			$table->index('outlet_id');

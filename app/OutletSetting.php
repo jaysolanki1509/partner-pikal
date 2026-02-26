@@ -1,13 +1,13 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
 class OutletSetting extends Model {
 
     protected $table = 'outlet_settings';
 
-    use SoftDeletes;
+    use SoftDeletingTrait;
     protected $softDelete = true;
 
     protected $fillable = array
@@ -36,7 +36,7 @@ class OutletSetting extends Model {
 
         $settings = array();
 
-        $master = SettingsMaster::lists('id');
+        $master = SettingsMaster::lists('id')->all();
         for($i=0; $i<sizeof($master); $i++){
             $outlet_setting = OutletSetting::select('setting_value')
                 ->where('outlet_id',$outlet_id)->where('setting_id',$master[$i])->first();

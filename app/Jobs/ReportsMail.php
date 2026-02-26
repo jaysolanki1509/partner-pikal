@@ -1,5 +1,5 @@
-<?php namespace App\Commands;
-use App\Commands\Command;
+<?php namespace App\Jobs;
+use App\Jobs\Command;
 use App\DailyReportPdf;
 use App\Http\Controllers\Api\v1\Apicontroller;
 use App\Http\Controllers\ReportController;
@@ -16,7 +16,7 @@ use Carbon\Carbon;
 use App\OrderItem;
 use Maatwebsite\Excel\Facades\Excel;
 use TCPDF;
-use Throwable;
+use Exception;
 
 class ReportsMail extends Command {
     use InteractsWithQueue, SerializesModels;
@@ -350,7 +350,7 @@ class ReportsMail extends Command {
                                 });
                                Log::info('Mail Sent to : ' . $email);
 
-                            //} catch (Throwable $e) {
+                            //} catch (Exception $e) {
                                // $message = 'error';
                                //Log::info('Data : ' . $e->getMessage());
                             //}

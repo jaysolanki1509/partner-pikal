@@ -19,7 +19,7 @@ class CreateShiftMasterTable extends Migration {
 			$table->string('timing');
 			$table->integer('created_by');
 			$table->integer('updated_by');
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 			$table->timestamps();
 		});
 	}

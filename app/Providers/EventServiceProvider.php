@@ -2,10 +2,10 @@
 
 use App\Events\OrderItemConfirmEvent;
 use App\Events\OrderNotificationEvent;
-use App\Handlers\Events\ConsumerOrderNotificationToOwnerHandler;
-use App\Handlers\Events\OrderItemConfirmHandler;
+use App\Listeners\Events\ConsumerOrderNotificationToOwnerHandler;
+use App\Listeners\Events\OrderItemConfirmHandler;
 use Savitriya\Icici_upi\UpiTransactionStatusChangeEvent;
-use App\Handlers\Events\UpiTransactionStatusChangeHandler;
+use App\Listeners\Events\UpiTransactionStatusChangeHandler;
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 

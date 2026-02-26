@@ -1,13 +1,13 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
 class ItemOptionGroup extends Model {
 
     protected $table ='item_option_groups';
 
-    use SoftDeletes;
+    use SoftDeletingTrait;
     protected $softDelete = true;
 
     public function itemGroupOptions()

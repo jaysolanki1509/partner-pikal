@@ -2,13 +2,13 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
 class ItemRequest extends Model {
 
 
     protected $table = 'item_request';
-    use SoftDeletes;
+    use SoftDeletingTrait;
 
     protected $fillable = array(
         'what_item_id',

@@ -21,7 +21,7 @@ class CreateTableLogLevel extends Migration {
             $table->integer('created_by');
             $table->integer('updated_by');
             $table->timestamps();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
 
             $table->index('outlet_id');
             $table->index('owner_id');

@@ -1,12 +1,12 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
 class FeedbackQuestion extends Model {
 
     protected $table ='feedback_questions';
-    use SoftDeletes;
+    use SoftDeletingTrait;
 
     protected $softDelete = true;
 

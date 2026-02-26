@@ -26,7 +26,7 @@ class CreateBankMasterTable extends Migration {
             $table->index('created_by');
             $table->index('updated_by');
             $table->timestamps();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
 		});
 	}
 

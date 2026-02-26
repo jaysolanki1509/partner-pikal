@@ -17,7 +17,7 @@ class CreateExpenseCategoriesTable extends Migration {
             $table->increments('id');
             $table->string('name');
             $table->timestamps();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
 
         });
         Schema::table('expense_categories', function(Blueprint $table)

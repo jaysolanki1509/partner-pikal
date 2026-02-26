@@ -24,7 +24,7 @@ class CreateTableBooking extends Migration {
             $table->string('reason', 150)->nullable();
             $table->timestamp('start_time');
             $table->timestamp('end_time')->nullable();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
             $table->timestamps();
 		});
 	}

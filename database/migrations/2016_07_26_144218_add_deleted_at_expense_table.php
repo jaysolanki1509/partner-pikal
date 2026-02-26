@@ -22,7 +22,7 @@ class AddDeletedAtExpenseTable extends Migration {
 			$table->index('created_at');
 			$table->index('updated_at');
 			$table->index('expense_date');
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 		});
 	}
 

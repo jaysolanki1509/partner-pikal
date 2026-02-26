@@ -21,7 +21,7 @@ class CreateFeedbackQuestionsTable extends Migration {
             $table->integer('updated_by');
             $table->integer('deleted_by')->nullable();
             $table->timestamps();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
 
             $table->index('outlet_id');
             $table->index('created_by');
@@ -43,7 +43,7 @@ class CreateFeedbackQuestionsTable extends Migration {
             $table->integer('updated_by');
             $table->integer('deleted_by')->nullable();
             $table->timestamps();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
         });
 	}
 

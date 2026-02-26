@@ -1,5 +1,5 @@
-<?php namespace App\Commands;
-use App\Commands\Command;
+<?php namespace App\Jobs;
+use App\Jobs\Command;
 use App\OutletMapper;
 use App\Owner;
 use App\ResponseDeviation;

@@ -1,5 +1,5 @@
-<?php namespace App\Commands;
-use App\Commands\Command;
+<?php namespace App\Jobs;
+use App\Jobs\Command;
 use App\Http\Controllers\Api\v1\Apicontroller;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;

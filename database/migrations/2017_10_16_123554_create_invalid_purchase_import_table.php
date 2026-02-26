@@ -32,7 +32,7 @@ class CreateInvalidPurchaseImportTable extends Migration {
             $table->integer('deleted_by')->unsigned()->nullable();
             $table->foreign('deleted_by')->references('id')->on('owners');
             $table->timestamps();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
 
             $table->index('item_code');
             $table->index('invoice_id');

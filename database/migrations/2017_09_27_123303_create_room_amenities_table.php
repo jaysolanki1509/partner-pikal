@@ -26,7 +26,7 @@ class CreateRoomAmenitiesTable extends Migration {
             $table->integer('deleted_by')->unsigned()->nullable();
             $table->foreign('deleted_by')->references('id')->on('owners');
             $table->timestamps();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
 
             $table->index('name');
 		});

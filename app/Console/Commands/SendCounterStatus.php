@@ -454,7 +454,7 @@ class SendCounterStatus extends Command {
                             });
                             //Log::info('Mail Sent to : ' . $email);
 
-                            //} catch (Throwable $e) {
+                            //} catch (Exception $e) {
                             // $message = 'error';
                             //Log::info('Data : ' . $e->getMessage());
                             //}

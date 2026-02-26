@@ -1,13 +1,13 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 use Illuminate\Support\Facades\Auth;
 
 class ItemAttribute extends Model {
 
     protected $table ='item_attributes';
-    use SoftDeletes;
+    use SoftDeletingTrait;
 
     protected $softDelete = true;
 

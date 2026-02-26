@@ -25,7 +25,7 @@ class CreateTablesTable extends Migration {
 			$table->integer('created_by')->unsigned();
 			$table->integer('updated_by')->unsigned();
 			$table->string('request_from')->nullable();
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 			$table->timestamps();
 
 			$table->index('table_no');

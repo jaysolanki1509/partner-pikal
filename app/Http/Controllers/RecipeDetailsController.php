@@ -539,7 +539,7 @@ class RecipeDetailsController extends Controller {
 
         /*Unit array*/
         $units = ['' => 'Select Unit'];
-        $unit_list = Unit::lists('name','id');
+        $unit_list = Unit::lists('name','id')->all();
         if( isset($unit_list) && sizeof($unit_list) > 0 ) {
             foreach ( $unit_list as $u => $u_val ) {
                 $units[$u] = $u_val;

@@ -29,7 +29,7 @@ class CreateRoomsTable extends Migration {
             $table->foreign('updated_by')->references('id')->on('owners');
             $table->integer('deleted_by')->unsigned()->nullable();
             $table->foreign('deleted_by')->references('id')->on('owners');
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
 			$table->timestamps();
 
             $table->index("name");

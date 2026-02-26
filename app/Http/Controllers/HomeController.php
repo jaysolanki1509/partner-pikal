@@ -54,7 +54,9 @@ use stdClass;
 use View;
 
 use Illuminate\Contracts\Auth\Guard;
+// use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Contracts\Validation\Validator;
+// use Illuminate\Validation\Validator;
 use App\Owner;
 use Illuminate\Support\Facades\Auth;
 
@@ -290,7 +292,7 @@ class HomeController extends Controller {
 
     public function updateMapper(){
         exit;
-        $outlets=Outlet::lists('name','id');
+        $outlets=Outlet::lists('name','id')->all();
         //print_r($outlet);exit;
 
         foreach($outlets as $outlet_id=>$value){
@@ -754,7 +756,7 @@ return;
 
         }
 
-        $accounts = Account::lists('name','id');
+        $accounts = Account::lists('name','id')->all();
         $accounts[''] = 'Select Account Name';
 
         return view('Outlets.settings',array('accounts'=>$accounts));

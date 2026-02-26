@@ -26,7 +26,7 @@ class CreateInvoiceBillsTable extends Migration {
 			$table->date('verified_date')->nullable();
 			$table->integer('created_by');
 			$table->integer('updated_by');
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 			$table->timestamps();
 
 			$table->index('verified');
@@ -59,7 +59,7 @@ class CreateInvoiceBillsTable extends Migration {
 			$table->date('received_date')->nullable();
 			$table->date('manufacture_date')->nullable();
 			$table->date('expiry_date')->nullable();
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 
 			$table->unique('purchase_unique_id');
 			$table->index('invoice_id');

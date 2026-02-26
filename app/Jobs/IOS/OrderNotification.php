@@ -1,6 +1,6 @@
-<?php namespace App\Commands\IOS;
+<?php namespace App\Jobs\IOS;
 
-use App\Commands\Command;
+use App\Jobs\Command;
 
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;

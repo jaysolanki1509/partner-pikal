@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers\Auth;
 
+use Validator;
 use App\Account;
 use App\City;
 use App\Http\Controllers\Controller;
@@ -7,9 +8,10 @@ use App\Language;
 use App\OutletMapper;
 use App\State;
 use Illuminate\Http\Request;
-
 use Illuminate\Contracts\Auth\Guard;
 use App\Services\Registrar;
+
+
 
 use Illuminate\Support\Facades\Session;
 use View;
@@ -47,7 +49,7 @@ class AuthController extends Controller  {
     |
     */
 
-    //use AuthenticatesAndRegistersUsers;
+    use AuthenticatesAndRegistersUsers;
 
     /**
      * Create a new authentication controller instance.
@@ -56,16 +58,16 @@ class AuthController extends Controller  {
      * @param  \Illuminate\Contracts\Auth\Registrar  $registrar
      * @return void
      */
-
     public function __construct(Guard $auth, Registrar $registrar)
     {
         $this->auth = $auth;
         $this->registrar = $registrar;
-
         $this->middleware('guest', ['except' => 'getLogout']);
     }
-
-
+    // public function __construct()
+    // {
+    //     $this->middleware('guest', ['except' => 'getLogout']);
+    // }
 
     /**
      * Show the application registration form.

@@ -271,7 +271,7 @@ class PurchasesController extends Controller {
         }
 
         /*Unit array*/
-        $units = Unit::lists('name','id');
+        $units = Unit::lists('name','id')->all();
         $units['0'] = 'Select Unit';
 
         return view('purchases.create',array('selected_location' => $selected_location,'action'=>'add',
@@ -546,7 +546,7 @@ class PurchasesController extends Controller {
 
             /*Unit array*/
             $units = array('0' => 'Select Unit');
-            $unit_list = Unit::lists('name','id');
+            $unit_list = Unit::lists('name','id')->all();
             $units = array_merge($units,$unit_list);
 
             $invoice_bill = InvoiceBill::leftjoin('vendors', 'vendors.id', '=', 'invoice_bills.vendor_id')
@@ -1777,7 +1777,7 @@ class PurchasesController extends Controller {
 
         /*Unit array*/
         $units = array('0' => 'Select Unit');
-        $unit_list = Unit::lists('name','id');
+        $unit_list = Unit::lists('name','id')->all();
         $units = array_merge($units,$unit_list);
 
         $invoice_bill = InvalidPurchaseImport::leftjoin('invoice_bills', 'invoice_bills.id', '=', 'invalid_purchase_import.invoice_id')

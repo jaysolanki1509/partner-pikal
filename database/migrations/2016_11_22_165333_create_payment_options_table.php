@@ -19,7 +19,7 @@ class CreatePaymentOptionsTable extends Migration {
 			$table->integer('created_by');
 			$table->integer('updated_by');
 			$table->timestamps();
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 		});
 	}
 

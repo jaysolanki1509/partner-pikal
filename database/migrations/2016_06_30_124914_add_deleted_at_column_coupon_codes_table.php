@@ -14,7 +14,7 @@ class AddDeletedAtColumnCouponCodesTable extends Migration {
 	{
 		Schema::table('coupon_codes', function(Blueprint $table)
 		{
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 		});
 	}
 

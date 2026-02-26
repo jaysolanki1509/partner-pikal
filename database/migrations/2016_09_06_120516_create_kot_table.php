@@ -35,14 +35,14 @@ class CreateKotTable extends Migration {
 			$table->index('item_id');
 			$table->index('item_name');
 
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 			$table->timestamps();
 		});
 
 		Schema::table('recipeDetails', function(Blueprint $table)
 		{
 			$table->integer('updated_by')->nullable();
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 		});
 
 		Schema::table('kot', function(Blueprint $table)

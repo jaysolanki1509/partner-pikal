@@ -20,7 +20,7 @@ class CreateItemAttributesTable extends Migration {
 			$table->index('created_by');
 			$table->index('updated_by');
 			$table->timestamps();
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 		});
 		Schema::create('outlet_item_attributes_mapper', function (Blueprint $table) {
 			$table->increments('id');

@@ -22,7 +22,7 @@ class CreateRewardPointsTable extends Migration {
             $table->double('credit')->default('0.00');
             $table->double('balance')->default('0.00');
             $table->text('desc')->nullable();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
 			$table->timestamps();
 		});
 	}

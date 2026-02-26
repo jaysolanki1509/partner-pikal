@@ -1,11 +1,11 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
 class BookingRooms extends Model {
 
-	use SoftDeletes;
+	use SoftDeletingTrait;
     protected $softDelete = true;
 
     public function booking()

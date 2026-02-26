@@ -1,7 +1,7 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -11,7 +11,7 @@ class LogLevel extends Model
 
 
     protected $table = 'log_level';
-    use SoftDeletes;
+    use SoftDeletingTrait;
     protected $softDelete = true;
 
     public function insertRecord($outlet_id,$owner_id,$level){

@@ -22,7 +22,7 @@ class CreateSettingsTable extends Migration {
             $table->index('created_by');
             $table->index('updated_by');
             $table->timestamps();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
         });
 
 		Schema::create('outlet_settings', function(Blueprint $table)
@@ -37,7 +37,7 @@ class CreateSettingsTable extends Migration {
             $table->index('created_by');
             $table->index('updated_by');
 			$table->timestamps();
-            $table->softDeletes();
+            $table->SoftDeletingTrait();
 		});
 	}
 

@@ -28,7 +28,7 @@ class CreatePurchasesTable extends Migration {
 			$table->foreign('created_by')->references('id')->on('owners')->nullable();
 			$table->foreign('updated_by')->references('id')->on('owners')->nullable();
 			$table->timestamps();
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 		});
 	}
 

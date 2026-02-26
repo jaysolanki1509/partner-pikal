@@ -1,4 +1,4 @@
-<?php namespace App\Handlers\Events;
+<?php namespace App\Listeners\Events;
 
 
 use Illuminate\Queue\InteractsWithQueue;
@@ -27,7 +27,7 @@ class UpiTransactionStatusChangeHandler {
 	public function handle(UpiTransactionStatusChangeEvent $event)
 	{
 
-		Queue::push('App\Commands\OwnerNotification@upiTransactionStatusChange', array('txnId'=>$event->txnId,'billNumber'=>$event->billNumber,'oldStatus'=>$event->oldStatus,'oldStatusString'=>$event->oldStatusString,'status'=>$event->status,'statusString'=>$event->statusString,'amount'=>$event->amount,'playerVa'=>$event->playerVa,'note'=>$event->note,'initDate'=>$event->initDate));
+		Queue::push('App\Jobs\OwnerNotification@upiTransactionStatusChange', array('txnId'=>$event->txnId,'billNumber'=>$event->billNumber,'oldStatus'=>$event->oldStatus,'oldStatusString'=>$event->oldStatusString,'status'=>$event->status,'statusString'=>$event->statusString,'amount'=>$event->amount,'playerVa'=>$event->playerVa,'note'=>$event->note,'initDate'=>$event->initDate));
 
 	}
 

@@ -252,7 +252,7 @@ class StocksController extends Controller {
         }
 
         $units = ['' => 'Select Unit'];
-        $units_arr = Unit::lists('name','id');
+        $units_arr = Unit::lists('name','id')->all();
 
         if ( isset($units_arr) && sizeof($units_arr) > 0 ) {
             foreach( $units_arr as $id=>$uni ) {

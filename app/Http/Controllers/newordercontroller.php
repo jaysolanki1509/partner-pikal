@@ -1422,7 +1422,7 @@ class newordercontroller extends Controller {
 
             $payment_options = $outlet->payment_options;
             //$sources_array = Sources::lists('name','id');
-            $po_array = PaymentOption::lists('name','id');
+            $po_array = PaymentOption::lists('name','id')->all();
             $outlet_options_arr = array();
             $outlet_source_arr = array();
 

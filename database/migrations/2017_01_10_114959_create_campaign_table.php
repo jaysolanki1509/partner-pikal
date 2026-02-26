@@ -24,7 +24,7 @@ class CreateCampaignTable extends Migration {
 			$table->text('address')->nullable();
 			$table->text('path')->nullable();
 			$table->timestamps();
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 
 		});
 	}

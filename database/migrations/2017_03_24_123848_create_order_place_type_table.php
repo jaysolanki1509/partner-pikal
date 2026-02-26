@@ -20,7 +20,7 @@ class CreateOrderPlaceTypeTable extends Migration {
 			$table->integer('created_by');
 			$table->integer('updated_by');
 			$table->timestamps();
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 
 			$table->index('name');
 			$table->index('outlet_id');

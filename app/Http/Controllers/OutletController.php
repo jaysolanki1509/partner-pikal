@@ -98,8 +98,8 @@ class OutletController extends Controller {
         $logged_in_user = Auth::user();
         //$users[''] = 'Select User';
         if($logged_in_user->user_name == "govind"){
-            $admin_user_list = Owner::lists('user_name','id');
-            $users = Owner::lists('user_name','id');
+            $admin_user_list = Owner::lists('user_name','id')-all();
+            $users = Owner::lists('user_name','id')-all();
         }else if($created_by==''){
             $users=DB::table('owners')->where('created_by',Auth::id())->lists('user_name','id');
             $users[Auth::id()]= Auth::user()->user_name;
@@ -649,7 +649,7 @@ class OutletController extends Controller {
             ->where('outlet_id',$id)
             ->select('outlet_settings.setting_id','setting_master.setting_name','outlet_settings.setting_value')
             ->get();*/
-        $master = SettingsMaster::lists('id');
+        $master = SettingsMaster::lists('id')->all();
         for($i=0; $i<sizeof($master); $i++){
             $outlet_setting = OutletSetting::select('setting_value')
                 ->where('outlet_id',$id)->where('setting_id',$master[$i])->first();
@@ -846,8 +846,8 @@ class OutletController extends Controller {
         $outlet_mapper = OutletMapper::where("outlet_id",$id)->lists("owner_id");
 
         if($logged_in_user->user_name == "govind"){
-            $admin_user_list = Owner::lists('user_name','id');
-            $users = Owner::lists('user_name','id');
+            $admin_user_list = Owner::lists('user_name','id')->all();
+            $users = Owner::lists('user_name','id')->all();
         }else if($created_by==''){
             $users=DB::table('owners')->where('created_by',Auth::id())->lists('user_name','id');
             $users[Auth::id()]= Auth::user()->user_name;
@@ -2582,7 +2582,7 @@ class OutletController extends Controller {
                 ->where('outlet_id',$id)
                 ->select('outlet_settings.setting_id','setting_master.setting_name','outlet_settings.setting_value')
                 ->get();*/
-            $master = SettingsMaster::lists('id');
+            $master = SettingsMaster::lists('id')->all();
             for($i=0; $i<sizeof($master); $i++){
                 $outlet_setting = OutletSetting::select('setting_value')
                     ->where('outlet_id',$outlet_id)->where('setting_id',$master[$i])->first();
@@ -2733,7 +2733,7 @@ class OutletController extends Controller {
         }
 
         $outlets[] = "Select Outlet";
-        $outlets_arr = Outlet::lists('name','id');
+        $outlets_arr = Outlet::lists('name','id')->all();
 
         $result_outlet = array_add($outlets_arr,"","Select Outlet");
 

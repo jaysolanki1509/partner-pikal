@@ -1,14 +1,14 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
 class SettingsMaster extends Model
 {
 
     protected $table = 'setting_master';
 
-    use SoftDeletes;
+    use SoftDeletingTrait;
     protected $softDelete = true;
 
     protected $fillable = array

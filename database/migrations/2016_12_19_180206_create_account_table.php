@@ -19,7 +19,7 @@ class CreateAccountTable extends Migration {
 			$table->string('name');
 			$table->boolean('enable_inventory')->default(false);
 			$table->timestamps();
-			$table->softDeletes();
+			$table->SoftDeletingTrait();
 
 			$table->index('name');
 			$table->index('enable_inventory');

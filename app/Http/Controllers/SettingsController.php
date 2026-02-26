@@ -123,7 +123,7 @@ class SettingsController extends Controller {
 
         $settings = array();
 
-        $master = SettingsMaster::lists('id');
+        $master = SettingsMaster::lists('id')->all();
         for($i=0; $i<sizeof($master); $i++){
             $outlet_setting = OutletSetting::select('setting_value')
                 ->where('outlet_id',$outlet_id)->where('setting_id',$master[$i])->first();
