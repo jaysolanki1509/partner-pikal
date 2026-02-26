@@ -1,0 +1,21 @@
+.dataTables_filter {
+    display: none;
+}
+
+.field-input input {
+    border: 1px solid #ccc;
+    padding: 5px;
+    width: 100% !important;
+    font-weight: normal;
+}
+
+.field-input select {
+    border: 1px solid #ccc;
+    padding: 5px;
+    width: 100% !important;
+    font-weight: normal;
+}
+
+.table-bordered > thead > tr > th, .table-bordered > thead > tr > td {
+    border-bottom-width: 0;
+}
