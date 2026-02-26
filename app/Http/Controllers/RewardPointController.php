@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\RewardPoint;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
@@ -59,12 +59,12 @@ class RewardPointController extends Controller {
 	{
 
         $outlet_id = Session::get('outlet_session');
-        $perform = Input::get('perform');
+        $perform = Request::get('perform');
 
         $rp = new RewardPoint();
-        $rp->txn_date=Input::get('txn_date');
+        $rp->txn_date=Request::get('txn_date');
 
-        $rp->user_id = Input::get('user_id');
+        $rp->user_id = Request::get('user_id');
 
         $rp->outlet_id = $outlet_id;
 
@@ -72,7 +72,7 @@ class RewardPointController extends Controller {
 
         if($perform=='debit')
         {
-            $rp->debit = Input::get('reward_points');
+            $rp->debit = Request::get('reward_points');
             $rp->balance = $data['points'];
             if($rp->debit>$rp->balance)
             {
@@ -84,11 +84,11 @@ class RewardPointController extends Controller {
         }
         elseif ($perform=='credit'){
 
-            $rp->credit = Input::get('reward_points');
+            $rp->credit = Request::get('reward_points');
             $rp->balance = $data['points'] + $rp->credit;
         }
 
-        $rp->desc = Input::get('desc');
+        $rp->desc = Request::get('desc');
         $rp->save();
 
         Session::flash('success', 'Reward points updated successfully.');
@@ -148,20 +148,20 @@ class RewardPointController extends Controller {
         $rewardpoint = RewardPoint::findOrFail($id);
         $rewardpoint->update($request->all());
 
-        $editperform = Input::get('perform');
+        $editperform = Request::get('perform');
 
         $rewardpoint = RewardPoint::findOrFail($id);
         $d=$rewardpoint->debit;
         $c=$rewardpoint->credit;
-        $rewardpoint->txn_date =Input::get('txn_date');
-        $rewardpoint->user_id = Input::get('user_id');
+        $rewardpoint->txn_date =Request::get('txn_date');
+        $rewardpoint->user_id = Request::get('user_id');
         $rewardpoint->outlet_id = $outlet_id;
         $data = $this->getRewardPoints();
 
         if($editperform =='debit')
         {
 
-            $rewardpoint->debit = Input::get('reward_points');
+            $rewardpoint->debit = Request::get('reward_points');
 
             if($d>0)
             {
@@ -199,7 +199,7 @@ class RewardPointController extends Controller {
 
 
         else if ($editperform ='credit'){
-            $rewardpoint->credit = Input::get('reward_points');
+            $rewardpoint->credit = Request::get('reward_points');
             if($d>0)
             {
                 $rewardpoint->debit=0;
@@ -216,7 +216,7 @@ class RewardPointController extends Controller {
 
 
         }
-        $rewardpoint->desc = Input::get('desc');
+        $rewardpoint->desc = Request::get('desc');
 
         $rewardpoint->save();
 
@@ -239,7 +239,7 @@ class RewardPointController extends Controller {
 
     public function getRewardPoints() {
 
-        $customer_id = Input::get('user_id');
+        $customer_id = Request::get('user_id');
 
         if($customer_id != "") {
 
@@ -274,7 +274,7 @@ class RewardPointController extends Controller {
 
     public function getTransaction() {
 
-        $customer_id = Input::get('customer_id');
+        $customer_id = Request::get('customer_id');
 
         if($customer_id != "") {
 
@@ -306,7 +306,7 @@ class RewardPointController extends Controller {
         if ($request->ajax())
         {
 
-            $input = Input::all();
+            $input = Request::all();
             $response = array();
 
             $search = $input['sSearch'];

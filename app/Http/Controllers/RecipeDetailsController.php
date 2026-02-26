@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 //use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use App\Http\Requests\CreateRecipeDetailsRequest;
 //use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Config;
@@ -98,7 +98,7 @@ class RecipeDetailsController extends Controller {
         $user=Auth::user();
 
         $Outlet_details=Outlet::getoutletbyownerid($owner_id);
-        $input = Input::all();
+        $input = Request::all();
 
 
             $recipeDetails = new RecipeDetails();
@@ -170,7 +170,7 @@ class RecipeDetailsController extends Controller {
     //print_r($id);exit;
         $owner_id=Auth::user()->id;
 
-        $temp=RecipeDetails::where('id',$id)->lists('menu_item_id');
+        $temp=RecipeDetails::where('id',$id)->pluck('menu_item_id');
         $items=[];
         foreach($temp as $item){
             $items[$item]=Menu::where('id',$item)->first()->item;
@@ -232,7 +232,7 @@ class RecipeDetailsController extends Controller {
     {
         $owner_id=Auth::id();
 
-        $input = Input::all();
+        $input = Request::all();
 
         $recipeDetails = RecipeDetails::find($id);
         if (isset($owner_id)) {
@@ -328,7 +328,7 @@ class RecipeDetailsController extends Controller {
 
     public function ajaxRecipeList()
     {
-        $outlet_id = Input::get('outlet_id');
+        $outlet_id = Request::get('outlet_id');
         $recipes = RecipeDetails::getRecipeDetailsByOutletId($outlet_id);
         //print_r($recipes);exit;
 
@@ -348,10 +348,10 @@ class RecipeDetailsController extends Controller {
 
     public function ajaxQtyUnit()
     {
-        $recipe_id = Input::get('recipe_id');
+        $recipe_id = Request::get('recipe_id');
         $recipe = RecipeDetails::getRecipeDetailsById($recipe_id);
         //print_r($recipe_id);
-        $needed_qty = Input::get('needed_qty');
+        $needed_qty = Request::get('needed_qty');
 
         //print_r($needed_qty);exit;
         $unit = Unit::getUnitbyId(Menu::find($recipe->menu_item_id)->unit_id);
@@ -412,9 +412,9 @@ class RecipeDetailsController extends Controller {
 
     public function checkRecipe()
     {
-        $outlet_id = Input::get('outlet_id');
-        $recipe = Input::get('recipe_id');
-        $qty = Input::get('qty');
+        $outlet_id = Request::get('outlet_id');
+        $recipe = Request::get('recipe_id');
+        $qty = Request::get('qty');
 
         $recipeDetails = RecipeDetails::getRecipeDetailsById($recipe);
 
@@ -448,13 +448,13 @@ class RecipeDetailsController extends Controller {
     public function findRecipe()
     {
 //    print_r("here");exit;
-        $qty = Input::get('qty');
+        $qty = Request::get('qty');
         $recipes=array_fill_keys(array(''),'No Items');
 
-        $recipe_id = Input::get('recipe');
+        $recipe_id = Request::get('recipe');
         //print_r($recipe_id);exit;
         if($recipe_id==""){
-            return Redirect::back()->withInput(Input::all())->with('error','Recipe Item is require');
+            return Redirect::back()->withInput(Request::all())->with('error','Recipe Item is require');
         }else{
             $recipes=RecipeDetails::where('owner_id',Auth::id())->join('menus','menus.id','=','recipeDetails.menu_item_id')
                 ->select('menus.item','menus.id')->get();
@@ -511,7 +511,7 @@ class RecipeDetailsController extends Controller {
     }
 
     public function ajaxGetItemUnit(){
-        $item_id=Input::get("item_id");
+        $item_id=Request::get("item_id");
         $unit=DB::table('menus')
             ->leftJoin('unit','unit.id','=','menus.unit_id')
             ->select('unit.name as unit_name','menus.unit_id')
@@ -529,7 +529,7 @@ class RecipeDetailsController extends Controller {
 
 
         $locations = [ '' => 'Select Location'];
-        $locations_list = Location::where('created_by',$owner_id)->lists('name','id');
+        $locations_list = Location::where('created_by',$owner_id)->pluck('name','id');
 
         if( isset($locations_list) && sizeof($locations_list) > 0 ) {
             foreach ( $locations_list as $loc => $loc_val ) {
@@ -554,8 +554,8 @@ class RecipeDetailsController extends Controller {
     public function getRecipe() {
 
         $owner_id = Auth::id();
-        $rec_id = Input::get('recipe_id');
-        $qty = Input::get('qty');
+        $rec_id = Request::get('recipe_id');
+        $qty = Request::get('qty');
         $ingrd = array();
 
         $rec_detail = RecipeDetails::getRecipeDetailsById($rec_id);
@@ -577,7 +577,7 @@ class RecipeDetailsController extends Controller {
         }
 
         //locations
-        $locations = Location::where('created_by',$owner_id)->lists('name','id');
+        $locations = Location::where('created_by',$owner_id)->pluck('name','id');
 
         return view('recipeDetails.prepareRecipeItems',array('ingred'=>$ingrd,'locations'=>$locations));
 
@@ -585,15 +585,15 @@ class RecipeDetailsController extends Controller {
 
     public function processPrepareItem() {
 
-        $input = Input::all();
+        $input = Request::all();
         $owner_id = Auth::id();
         $response = array();
 
         $error = false;$error_msg = '';
 
-        $rec_id = Input::get('recipe_id');
-        $rec_qty = Input::get('qty');
-        $for_loc = Input::get('for_loc');
+        $rec_id = Request::get('recipe_id');
+        $rec_qty = Request::get('qty');
+        $for_loc = Request::get('for_loc');
 
         if ( isset($rec_id) && $rec_id != '' && isset($rec_qty) && $rec_qty != '' && isset($for_loc) && $for_loc != '') {
 

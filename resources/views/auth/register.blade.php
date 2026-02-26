@@ -50,7 +50,7 @@
                                 <label class="icon-left" for="email">
                                     <i class="zmdi zmdi-account"></i>
                                 </label>
-                                <input class="form-control login-frm-input"  type="text" name="account" id="account" value="{{ Input::old('account') }}" placeholder="Account name">
+                                <input class="form-control login-frm-input"  type="text" name="account" id="account" value="{{ Request::old('account') }}" placeholder="Account name">
                             </div>
                         </div>
                         <!-- end login -->
@@ -61,7 +61,7 @@
                                 <label class="icon-left" for="email">
                                     <i class="zmdi zmdi-account"></i>
                                 </label>
-                                <input class="form-control login-frm-input"  type="text" maxlength="15" name="user_name" id="user_name" value="{{ Input::old('user_name') }}" placeholder="Username">
+                                <input class="form-control login-frm-input"  type="text" maxlength="15" name="user_name" id="user_name" value="{{ Request::old('user_name') }}" placeholder="Username">
                             </div>
                         </div>
                         <!-- end login -->
@@ -72,7 +72,7 @@
                                 <label class="icon-left" for="email">
                                     <i class="zmdi zmdi-email"></i>
                                 </label>
-                                <input class="form-control login-frm-input"  type="email" name="email" id="email" value="{{ Input::old('email') }}" placeholder="Email">
+                                <input class="form-control login-frm-input"  type="email" name="email" id="email" value="{{ Request::old('email') }}" placeholder="Email">
                             </div>
                         </div>
                         <!-- end login -->
@@ -106,7 +106,7 @@
                                 <label class="icon-left" for="email">
                                     <i class="zmdi zmdi-phone"></i>
                                 </label>
-                                <input class="form-control login-frm-input"  type="number" name="contact_no" id="contact_no" value="{{ Input::old('contact_no') }}" placeholder="Contact no">
+                                <input class="form-control login-frm-input"  type="number" name="contact_no" id="contact_no" value="{{ Request::old('contact_no') }}" placeholder="Contact no">
                             </div>
                         </div>
                         <!-- end login -->

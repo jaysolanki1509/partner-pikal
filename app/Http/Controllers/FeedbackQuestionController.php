@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -61,8 +61,8 @@ class FeedbackQuestionController extends Controller {
         if (isset($p) && $p->passes())
         {
             $owner_id = Auth::id();
-            $save_continue = Input::get('saveContinue');
-            $quest = Input::get('question');
+            $save_continue = Request::get('saveContinue');
+            $quest = Request::get('question');
 
             $qst = new FeedbackQuestion();
             $qst->question= $quest;
@@ -81,7 +81,7 @@ class FeedbackQuestionController extends Controller {
             }
 
         } else {
-            return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+            return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
         }
 	}
 
@@ -121,7 +121,7 @@ class FeedbackQuestionController extends Controller {
             'question.required' => 'Name is required!',
         ];
 
-        $p = Validator::make(Input::all(), [
+        $p = Validator::make(Request::all(), [
             'question' => 'required',
         ],$messages);
 
@@ -129,7 +129,7 @@ class FeedbackQuestionController extends Controller {
         {
             $owner_id = Auth::id();
 
-            $quest = Input::get('question');
+            $quest = Request::get('question');
             $outlet_id = Session::get('outlet_session');
 
             $qst = FeedbackQuestion::find($id);
@@ -142,7 +142,7 @@ class FeedbackQuestionController extends Controller {
             }
 
         } else {
-            return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+            return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
         }
 	}
 

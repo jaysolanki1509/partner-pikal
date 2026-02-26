@@ -53,14 +53,14 @@ class Menu extends Model {
         if($cat_id == 'all'){
 
             $menu_owner = Owner::menuOwner();
-            $all_menu_titles_id = MenuTitle::getMenuTitleByCreatedBy($menu_owner)->lists('id');
+            $all_menu_titles_id = MenuTitle::getMenuTitleByCreatedBy($menu_owner)->pluck('id');
 
-            /*$menu_items_list = Menu::getMenuByUserId($menu_owner)->lists('id');
+            /*$menu_items_list = Menu::getMenuByUserId($menu_owner)->pluck('id');
 
             $request_false = StockLevel::where('request_item','=','false')
                         ->where('location_id',$location_id)
                         ->wherein('item_id',$menu_items_list)
-                        ->lists('item_id');*/
+                        ->pluck('item_id');*/
 
             $menus = Menu::wherein('menus.menu_title_id',$all_menu_titles_id)
                 ->join('menu_titles','menu_titles.id','=','menus.menu_title_id')
@@ -134,11 +134,11 @@ class Menu extends Model {
 
         } else {
 
-            /*$menu_items_list = Menu::getMenuByUserId($menu_owner)->lists('id');
+            /*$menu_items_list = Menu::getMenuByUserId($menu_owner)->pluck('id');
 
             $request_false = StockLevel::where('request_item','=','false')
                 ->where('location_id',$location_id)
-                ->wherein('item_id',$menu_items_list)->lists('item_id');*/
+                ->wherein('item_id',$menu_items_list)->pluck('item_id');*/
 
             $menus = Menu::leftjoin('unit as u','u.id','=','menus.unit_id')
                 ->leftjoin('stock_level as sl','sl.item_id','=','menus.id')

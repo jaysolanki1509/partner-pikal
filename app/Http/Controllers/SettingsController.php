@@ -12,7 +12,7 @@ use App\SettingsMaster;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 
@@ -79,8 +79,8 @@ class SettingsController extends Controller {
         {
             $user_id = Auth::id();
             $data = array();
-            $setting_name = Input::get('setting_name');
-            $setting_default = Input::get('setting_default');
+            $setting_name = Request::get('setting_name');
+            $setting_default = Request::get('setting_default');
 
             if(isset($setting_name) && $setting_name != '' && isset($setting_default) && $setting_default != '') {
 
@@ -118,7 +118,7 @@ class SettingsController extends Controller {
 
 	public function getSettings(){
 
-	    $outlet_id = Input::get('outlet_id');
+	    $outlet_id = Request::get('outlet_id');
         $master_settings = SettingsMaster::getMasterSettings();
 
         $settings = array();
@@ -186,8 +186,8 @@ class SettingsController extends Controller {
 	public function update()
 	{
         $user_id = Auth::id();
-        $outlet_id = Input::get('outlet_id');
-        $setting = Input::get('settings');
+        $outlet_id = Request::get('outlet_id');
+        $setting = Request::get('settings');
         $settings = isset($setting)?$setting:array();
 
         $outlet_settings = OutletSetting::getOutletSettings($outlet_id);
@@ -284,9 +284,9 @@ class SettingsController extends Controller {
         if (isset($p) && $p->passes())
         {
             $owner_id = Auth::id();
-            $save_continue = Input::get('saveContinue');
-            $name = Input::get('name');
-            $without_source = Input::get('without_source');
+            $save_continue = Request::get('saveContinue');
+            $name = Request::get('name');
+            $without_source = Request::get('without_source');
 
             $opt = new PaymentOption();
             $opt->name = $name;
@@ -308,22 +308,22 @@ class SettingsController extends Controller {
             }
 
         } else {
-            return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+            return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
         }
     }
 
     public function paymentOptionsUpdate($id) {
 
 
-        $p = Validator::make(Input::all(), [
+        $p = Validator::make(Request::all(), [
             'name' => 'required|unique:payment_options,name,'.$id
         ]);
 
         if (isset($p) && $p->passes())
         {
             $owner_id = Auth::id();
-            $name = Input::get('name');
-            $without_source = Input::get('without_source');
+            $name = Request::get('name');
+            $without_source = Request::get('without_source');
 
             $payment_option = PaymentOption::find($id);
             $payment_option->updated_by = $owner_id;
@@ -340,7 +340,7 @@ class SettingsController extends Controller {
             }
 
         } else {
-            return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+            return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
         }
 
     }

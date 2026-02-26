@@ -56,7 +56,7 @@
 								<label class="icon-left" for="email">
 									<i class="zmdi zmdi-email"></i>
 								</label>
-								<input class="form-control login-frm-input" type="text" id="email" name="email" value="{{ Input::old('email') }}" placeholder="Email" autofocus>
+								<input class="form-control login-frm-input" type="text" id="email" name="email" value="{{ Request::old('email') }}" placeholder="Email" autofocus>
 							</div>
 						</div>
 						<!-- end login -->

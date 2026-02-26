@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Session;
 use DateTime;
 use App\ConvertTimeZones;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Config;
 use App\Http\Requests;
 

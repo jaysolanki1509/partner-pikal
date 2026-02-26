@@ -18,7 +18,7 @@ use DocuSign\eSign\Model\TemplateRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -78,15 +78,15 @@ class LocationsController extends Controller {
 		if (isset($p) && $p->passes())
 		{
 			$owner_id = Auth::id();
-			$save_continue = Input::get('saveContinue');
-			$name = Input::get('name');
-			$outlet_id  = Input::get('outlet_id');
+			$save_continue = Request::get('saveContinue');
+			$name = Request::get('name');
+			$outlet_id  = Request::get('outlet_id');
 			$sess_outlet_id = Session::get('outlet_session');
 
 			if (isset($sess_outlet_id) && $sess_outlet_id != '') {
 				$outlet_id = $sess_outlet_id;
 			}
-			$default_loc = Input::get('default_location');
+			$default_loc = Request::get('default_location');
 
 			if ( isset($default_loc) && $default_loc != '' ) {
 				if( isset($outlet_id) && $outlet_id != '' ) {
@@ -95,7 +95,7 @@ class LocationsController extends Controller {
 						Location::where('id',$check_location->id)->update(['default_location'=>0]);
 					}
 				} else {
-					return redirect()->back()->withInput(Input::all())->with('error', 'Select Outlet for making location default!');
+					return redirect()->back()->withInput(Request::all())->with('error', 'Select Outlet for making location default!');
 				}
 			} else {
 				$default_loc = 0;
@@ -120,7 +120,7 @@ class LocationsController extends Controller {
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 	}
 
@@ -164,22 +164,22 @@ class LocationsController extends Controller {
 			'name.required' => 'Name is required!',
 		];
 
-		$p = Validator::make(Input::all(), [
+		$p = Validator::make(Request::all(), [
 			'name' => 'required',
 		],$messages);
 
 		if (isset($p) && $p->passes())
 		{
 			$owner_id = Auth::id();
-			$save_continue = Input::get('saveContinue');
-			$name = Input::get('name');
-			$outlet_id  = Input::get('outlet_id');
+			$save_continue = Request::get('saveContinue');
+			$name = Request::get('name');
+			$outlet_id  = Request::get('outlet_id');
 			$sess_outlet_id = Session::get('outlet_session');
 
 			if (isset($sess_outlet_id) && $sess_outlet_id != '') {
 				$outlet_id = $sess_outlet_id;
 			}
-			$default_loc  = Input::get('default_location');
+			$default_loc  = Request::get('default_location');
 
 			if ( isset($default_loc) && $default_loc != '' ) {
 				if( isset($outlet_id) && $outlet_id != '' ) {
@@ -188,7 +188,7 @@ class LocationsController extends Controller {
 						Location::where('id',$check_location->id)->update(['default_location'=>0]);
 					}
 				} else {
-					return redirect()->back()->withInput(Input::all())->with('error', 'Select Outlet for making location default!');
+					return redirect()->back()->withInput(Request::all())->with('error', 'Select Outlet for making location default!');
 				}
 			} else {
 				$default_loc = 0;
@@ -206,7 +206,7 @@ class LocationsController extends Controller {
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 	}
 
@@ -230,8 +230,8 @@ class LocationsController extends Controller {
 
 		if ($request->ajax()) {
 
-			$loc_id = Input::get('loc_id');
-			$cat_id = Input::get('cat_id');
+			$loc_id = Request::get('loc_id');
+			$cat_id = Request::get('cat_id');
 
 			$arr = array();
 
@@ -292,15 +292,15 @@ class LocationsController extends Controller {
 	public function storeStockLevel() {
 
 		$owner_id = Auth::id();
-        //print_r(Input::all());exit;
-		$loc_id = Input::get('loc_id');
-		$cat_id = Input::get('cat_id');
-		$item_id = Input::get('item_id');
-		$opening_qty = Input::get('opening_qty');
-		$reserved_qty = Input::get('reserved_qty');
-		$order_qty = Input::get('order_qty');
-        $request_item = Input::get('request_item');
-		$req_fav_item = Input::get('req_fav_item');
+        //print_r(Request::all());exit;
+		$loc_id = Request::get('loc_id');
+		$cat_id = Request::get('cat_id');
+		$item_id = Request::get('item_id');
+		$opening_qty = Request::get('opening_qty');
+		$reserved_qty = Request::get('reserved_qty');
+		$order_qty = Request::get('order_qty');
+        $request_item = Request::get('request_item');
+		$req_fav_item = Request::get('req_fav_item');
 
 		if( isset($item_id) && sizeof($item_id) > 0 ) {
 			foreach( $item_id as $key=>$val ) {
@@ -352,8 +352,8 @@ class LocationsController extends Controller {
 
     public function docSignPdf() {
 
-        $name = Input::get('name');
-        $email = Input::get('email');
+        $name = Request::get('name');
+        $email = Request::get('email');
         //require_once(public_path('docusign-php-client-master/autoload.php'));
         // DocuSign account credentials & Integrator Key
         $username = "np@savitriya.com";

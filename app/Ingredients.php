@@ -28,7 +28,7 @@ class Ingredients extends Model {
     {
         $ingredients = Ingredients::where('ingredients.recipeDetails_id', $recipeDetails_id)
             ->join('menus', 'menus.id', '=', 'ingredients.ing_item_id')
-            ->lists('ing_item_id','qty');
+            ->pluck('ing_item_id','qty');
 
         return $ingredients;
     }

@@ -26,28 +26,28 @@
                             <div class="form-group">
                                 <label class="col-md-4 control-label">{{ trans('Auth.User Name') }}</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" name="user_name" value="{{ Input::old('user_name') }}">
+                                    <input type="text" class="form-control" name="user_name" value="{{ Request::old('user_name') }}">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-md-4 control-label">{{ trans('Auth.E-Mail') }}</label>
                                 <div class="col-md-6">
-                                    <input type="email" class="form-control" name="email" value="{{ Input::old('email') }}">
+                                    <input type="email" class="form-control" name="email" value="{{ Request::old('email') }}">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-md-4 control-label">{{ trans('Auth.Contact No') }}</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" name="contact_no" value="{{ Input::old('contact_no') }}">
+                                    <input type="text" class="form-control" name="contact_no" value="{{ Request::old('contact_no') }}">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-md-4 control-label">{{ trans('Auth.Outlet Name') }}</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" name="outlet_name" value="{{ Input::old('outlet_name') }}">
+                                    <input type="text" class="form-control" name="outlet_name" value="{{ Request::old('outlet_name') }}">
                                 </div>
                             </div>
 

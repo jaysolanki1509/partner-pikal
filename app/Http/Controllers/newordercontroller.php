@@ -35,7 +35,7 @@ use Aws\DynamoDb\Model\Item;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Maatwebsite\Excel\Facades\Excel;
@@ -63,7 +63,7 @@ class newordercontroller extends Controller {
 	{
 		$user=Owner::find(Auth::user()->id);
 
-        //$id=$user->Outlet->lists('id');
+        //$id=$user->Outlet->pluck('id');
 
         $Outlet = OutletMapper::getOutletsByOwnerId();
         unset($Outlet['']);
@@ -112,9 +112,9 @@ class newordercontroller extends Controller {
 
     public function getorders(){
 
-        $date= Input::get('dt');
-        $res_id = Input::get('rest_id');
-        $flag = Input::get('flag');
+        $date= Request::get('dt');
+        $res_id = Request::get('rest_id');
+        $flag = Request::get('flag');
         $user=Owner::find(Auth::user()->id);
         $star=[];
         $a = '';
@@ -257,7 +257,7 @@ class newordercontroller extends Controller {
 
     public function printOrder() {
 
-        $order_no = Input::get('order_id');
+        $order_no = Request::get('order_id');
         $order = order_details::leftJoin('outlets as ot','orders.outlet_id','=','ot.id')
                                 ->select('orders.*','ot.name as ot_name','ot.city_id as city_id','ot.invoice_title as invoice_title','ot.order_lable as order_lable','ot.taxes as ot_taxes','ot.tax_details as tax_details','ot.company_name as company_name','ot.address as ot_address','ot.servicetax_no as service_tax_no','ot.vat as vat_no','ot.url as url','ot.duplicate_watermark as duplicate_watermark')
                                 ->where('orders.order_id',$order_no)
@@ -449,9 +449,9 @@ class newordercontroller extends Controller {
 
             $user_id = Auth::id();
 
-            $order_id = Input::get('order_id');
-            $reason = Input::get('reason');
-            $outlet_id = Input::get('outlet_id');
+            $order_id = Request::get('order_id');
+            $reason = Request::get('reason');
+            $outlet_id = Request::get('outlet_id');
 
             $sess_outlet_id = Session::get('outlet_session');
 
@@ -507,7 +507,7 @@ class newordercontroller extends Controller {
 
     public function deleteOrder() {
 
-        $order_id = Input::get("order_id");
+        $order_id = Request::get("order_id");
         DB::beginTransaction();
 
             //Order Item delete
@@ -547,7 +547,7 @@ class newordercontroller extends Controller {
 
     public function processBill() {
 
-        $o_id = Input::get('order_id');
+        $o_id = Request::get('order_id');
 
         //get order detail
         $order = order_details::where('order_id',$o_id)->join('outlets as ot','orders.outlet_id','=','ot.id')
@@ -814,31 +814,31 @@ class newordercontroller extends Controller {
 
     public function processBillFinal() {
 
-        $ord_id = Input::get('order_id');
-        $inv_no = Input::get('invoice_no');
-        $mobile = Input::get('mobile');
-        $name = Input::get('name');
-        $sub_total = Input::get('s_total');
-        $total = Input::get('total');
+        $ord_id = Request::get('order_id');
+        $inv_no = Request::get('invoice_no');
+        $mobile = Request::get('mobile');
+        $name = Request::get('name');
+        $sub_total = Request::get('s_total');
+        $total = Request::get('total');
         \Log::info("here  process bill final ::".$total);
-        $round_off = Input::get('round_off');
+        $round_off = Request::get('round_off');
         \Log::info("here process bill final".$round_off);
-        $ord_type = Input::get('ord_type');
-        $tax = Input::get('tax');
-        $discount = Input::get('discount');
-        $item_discount = Input::get('item_discount');
-        $discount_type = Input::get('discount_type');
-        $address = Input::get('address');
-        $source_id = Input::get('source_id');
+        $ord_type = Request::get('ord_type');
+        $tax = Request::get('tax');
+        $discount = Request::get('discount');
+        $item_discount = Request::get('item_discount');
+        $discount_type = Request::get('discount_type');
+        $address = Request::get('address');
+        $source_id = Request::get('source_id');
         $paid_type = 0;
-        $delivery_charge = Input::get('delivery_charge');
-        $custom_fields = Input::get('custom_fields');
-        $tax_id = Input::get("tax_id");
+        $delivery_charge = Request::get('delivery_charge');
+        $custom_fields = Request::get('custom_fields');
+        $tax_id = Request::get("tax_id");
 
-        $source_id_arr = Input::get('source_ids');
-        $payment_opt_ids = Input::get('payment_option_ids');
-        $payment_mode_amounts = Input::get('payment_mode_amount');
-        $trn_ids = Input::get('trn_ids');
+        $source_id_arr = Request::get('source_ids');
+        $payment_opt_ids = Request::get('payment_option_ids');
+        $payment_mode_amounts = Request::get('payment_mode_amount');
+        $trn_ids = Request::get('trn_ids');
 
         $owner = Auth::user()->user_name;
 
@@ -1064,13 +1064,13 @@ class newordercontroller extends Controller {
 
     public function getInvoiceNo() {
 
-        $type = Input::get('type');
-        $ord_id = Input::get('ord_id');
-        $req_type = Input::get('req_type');
-        $selected_tax = Input::get('tax_name');
-        $new_delivery = Input::get('new_delivery');
-        $discount_type = Input::get('discount_type');
-        $discount_val = Input::get('discount_val');
+        $type = Request::get('type');
+        $ord_id = Request::get('ord_id');
+        $req_type = Request::get('req_type');
+        $selected_tax = Request::get('tax_name');
+        $new_delivery = Request::get('new_delivery');
+        $discount_type = Request::get('discount_type');
+        $discount_val = Request::get('discount_val');
         $outlet_id = Session::get('outlet_session');
         $outlet = Outlet::findOutlet($outlet_id);
 
@@ -1127,7 +1127,7 @@ class newordercontroller extends Controller {
 
     public function editBill() {
 
-        $o_id = Input::get('order_id');
+        $o_id = Request::get('order_id');
 
         //get order detail
         $order = order_details::where('order_id',$o_id)->join('outlets as ot','orders.outlet_id','=','ot.id')
@@ -1201,29 +1201,29 @@ class newordercontroller extends Controller {
 
     public function updateInvoice() {
 
-        $ord_id = Input::get('order_id');
-        $inv_no = Input::get('invoice_no');
-        $mobile = Input::get('mobile');
-        $name = Input::get('name');
-        $sub_total = Input::get('s_total');
-        $total = Input::get('total');
-        $round_off = Input::get('round_off');
-        $ord_type = Input::get('ord_type');
-        $tax = Input::get('tax');
-        $tax_id = Input::get('tax_id');
-        $discount = Input::get('discount');
-        $address = Input::get('address');
-        $payment_option_id = Input::get('paid_type');
-        $source_id = Input::get('source');
-        $delivery_charge = Input::get('delivery_charge');
+        $ord_id = Request::get('order_id');
+        $inv_no = Request::get('invoice_no');
+        $mobile = Request::get('mobile');
+        $name = Request::get('name');
+        $sub_total = Request::get('s_total');
+        $total = Request::get('total');
+        $round_off = Request::get('round_off');
+        $ord_type = Request::get('ord_type');
+        $tax = Request::get('tax');
+        $tax_id = Request::get('tax_id');
+        $discount = Request::get('discount');
+        $address = Request::get('address');
+        $payment_option_id = Request::get('paid_type');
+        $source_id = Request::get('source');
+        $delivery_charge = Request::get('delivery_charge');
         $owner = Auth::user()->user_name;
-        $custom_fields = Input::get('custom_fields');
+        $custom_fields = Request::get('custom_fields');
 
-        $source_id_arr = Input::get('source_ids');
-        $payment_opt_ids = Input::get('payment_option_ids');
-        $payment_mode_amounts = Input::get('payment_mode_amount');
-        $trn_ids = Input::get('trn_ids');
-        $discount_type = Input::get("discount_type");
+        $source_id_arr = Request::get('source_ids');
+        $payment_opt_ids = Request::get('payment_option_ids');
+        $payment_mode_amounts = Request::get('payment_mode_amount');
+        $trn_ids = Request::get('trn_ids');
+        $discount_type = Request::get("discount_type");
 
         if ( $ord_type != 'home_delivery' ) {
             $address = '';
@@ -1393,16 +1393,16 @@ class newordercontroller extends Controller {
      */
     public function orderList(Request $request) {
 
-        $flag = Input::get('flag');
-        //        $all = Input::all();
+        $flag = Request::get('flag');
+        //        $all = Request::all();
         //        print_r($all);exit;
 
         if ($request->ajax() || ( isset($flag) && $flag == 'export') ) {
 
-            $from = Input::get('from_date');
-            $to = Input::get('to_date');
+            $from = Request::get('from_date');
+            $to = Request::get('to_date');
 
-            $date_type = Input::get('date_type');
+            $date_type = Request::get('date_type');
 
             $order_date_field = 'table_start_date';
             if ( $date_type == 'end_time') {
@@ -1411,7 +1411,7 @@ class newordercontroller extends Controller {
 
             $outlet_id = Session::get('outlet_session');
 
-            $slot_time = Input::get('time_slot');
+            $slot_time = Request::get('time_slot');
             $total_slots = Timeslot::gettimeslotbyoutletid($outlet_id);
 
             $outlet = Outlet::find($outlet_id);
@@ -1592,21 +1592,21 @@ class newordercontroller extends Controller {
             $data['itemlist']=$itemlist;
 
             if ( isset($flag) && $flag == 'export') {
-                $chk_invoice_no = Input::get("invoice_no");
-                $chk_datetime = Input::get("datetime");
-                $chk_order_no = Input::get("order_no");
-                $chk_name = Input::get("name");
-                $chk_order_type = Input::get("bill_order_type");
-                $chk_item_list = Input::get("item_list");
-                $chk_sub_total = Input::get("sub_total");
-                $chk_discount = Input::get("discount");
-                $chk_tax_amount = Input::get("tax_amount");
-                $chk_round_off = Input::get("round_off");
-                $chk_bifurcation = Input::get("bifurcation");
-                $chk_no_person = Input::get("no_person");
-                $chk_final_total = Input::get("fina_total");
-                $other_fields = Input::get("other_fields");
-                $tax_bifurcation = Input::get("tax_bifurcation");
+                $chk_invoice_no = Request::get("invoice_no");
+                $chk_datetime = Request::get("datetime");
+                $chk_order_no = Request::get("order_no");
+                $chk_name = Request::get("name");
+                $chk_order_type = Request::get("bill_order_type");
+                $chk_item_list = Request::get("item_list");
+                $chk_sub_total = Request::get("sub_total");
+                $chk_discount = Request::get("discount");
+                $chk_tax_amount = Request::get("tax_amount");
+                $chk_round_off = Request::get("round_off");
+                $chk_bifurcation = Request::get("bifurcation");
+                $chk_no_person = Request::get("no_person");
+                $chk_final_total = Request::get("fina_total");
+                $other_fields = Request::get("other_fields");
+                $tax_bifurcation = Request::get("tax_bifurcation");
 
                 $custom_fields = $outlet->custom_bill_print_fields;
 
@@ -1948,7 +1948,7 @@ class newordercontroller extends Controller {
 
             $reasons = ['' => 'Select Reason'];
 
-            $reasons_arr = CancellationReason::where('outlet_id',$outlet_id)->lists('reason_of_cancellation','reason_of_cancellation');
+            $reasons_arr = CancellationReason::where('outlet_id',$outlet_id)->pluck('reason_of_cancellation','reason_of_cancellation');
 
             if ( isset($reasons_arr) && sizeof($reasons_arr) > 0 ) {
                 foreach( $reasons_arr as $id=>$res ) {
@@ -1978,8 +1978,8 @@ class newordercontroller extends Controller {
             unset($outlets['']);
         }
 
-        $day = Input::get('day');
-        $month = Input::get('month');
+        $day = Request::get('day');
+        $month = Request::get('month');
 
         if(isset($day) && sizeof($day)>0){
 
@@ -2006,7 +2006,7 @@ class newordercontroller extends Controller {
 
         if ( $request->ajax() )
         {
-            $ot_id = Input::get('outlet_id');
+            $ot_id = Request::get('outlet_id');
 
             $orders = array();
             if ( $ot_id == 'all' ) {
@@ -2061,7 +2061,7 @@ class newordercontroller extends Controller {
 
         }
 
-        $outlets = Outlet::where('active','Yes')->lists('name','id');
+        $outlets = Outlet::where('active','Yes')->pluck('name','id');
 
         return view('orderlist.ongoingOrders',array('outlets'=>$outlets));
     }
@@ -2070,7 +2070,7 @@ class newordercontroller extends Controller {
 
         if ( $request->ajax() )
         {
-            $outlet_id = Input::get('outlet_id');
+            $outlet_id = Request::get('outlet_id');
 
             $sess_outlet_id = Session::get('outlet_session');
 
@@ -2386,20 +2386,20 @@ class newordercontroller extends Controller {
             $outlet_id = $sess_outlet_id;
             $name = Auth::user()->user_name;
 
-            $item_id = Input::get('item_id');
-            $item_qty = Input::get('item_qty');
-            $item_name = Input::get('item_name');
-            $item_price = Input::get('item_price');
-            $item_options = Input::get('item_options');
-            $item_attribute = Input::get('item_attribute');
+            $item_id = Request::get('item_id');
+            $item_qty = Request::get('item_qty');
+            $item_name = Request::get('item_name');
+            $item_price = Request::get('item_price');
+            $item_options = Request::get('item_options');
+            $item_attribute = Request::get('item_attribute');
 
-            $order_date = Input::get('order_date');
-            $table_no = Input::get('table_no');
-            $person_no = Input::get('person_no');
-            $order_type = Input::get('order_type');
-            $mobile = Input::get('mobile');
-            $address = Input::get('address');
-            $cust_name = Input::get('name');
+            $order_date = Request::get('order_date');
+            $table_no = Request::get('table_no');
+            $person_no = Request::get('person_no');
+            $order_type = Request::get('order_type');
+            $mobile = Request::get('mobile');
+            $address = Request::get('address');
+            $cust_name = Request::get('name');
             $paid_type = 'cash';
 
             if ( isset($item_id) && sizeof($item_id) > 0 ) {
@@ -2814,7 +2814,7 @@ class newordercontroller extends Controller {
 
     public function orderHistory() {
 
-        $order_id = Input::get('order_id');
+        $order_id = Request::get('order_id');
 
         $history = OrderHistory::where('order_id',$order_id)->orderBy('updated_at')->get();
 
@@ -2871,9 +2871,9 @@ class newordercontroller extends Controller {
 
     public function payWithUpi() {
 
-        $vpa = Input::get('vpa');
-        $order_id = Input::get('order_id');
-        $total = Input::get('total');
+        $vpa = Request::get('vpa');
+        $order_id = Request::get('order_id');
+        $total = Request::get('total');
 
         $order = order_details::join('outlets as o','orders.outlet_id','=','o.id')
                                 ->select('orders.*','o.name as ot_name')
@@ -2904,8 +2904,8 @@ class newordercontroller extends Controller {
 
     public function upiPaymentStatus() {
 
-        $order_id = Input::get('order_id');
-        $txn_id = Input::get('txn_id');
+        $order_id = Request::get('order_id');
+        $txn_id = Request::get('txn_id');
 
         $order = order_details::join('outlets as o','orders.outlet_id','=','o.id')
             ->select('orders.*','o.name as ot_name')
@@ -2933,15 +2933,15 @@ class newordercontroller extends Controller {
 
     public function paidOrder() {
 
-        $order_id = Input::get('order_id');
-        $note = Input::get('note');
-        $payment_option_id = Input::get('payment_option_id');
-        $source = Input::get('source');
+        $order_id = Request::get('order_id');
+        $note = Request::get('note');
+        $payment_option_id = Request::get('payment_option_id');
+        $source = Request::get('source');
 
-        $source_id_arr = Input::get('source_ids');
-        $payment_opt_ids = Input::get('payment_option_ids');
-        $payment_mode_amounts = Input::get('payment_mode_amount');
-        $trn_ids = Input::get('trn_ids');
+        $source_id_arr = Request::get('source_ids');
+        $payment_opt_ids = Request::get('payment_option_ids');
+        $payment_mode_amounts = Request::get('payment_mode_amount');
+        $trn_ids = Request::get('trn_ids');
 
 
         $result = order_details::where('order_id',$order_id)
@@ -2983,8 +2983,8 @@ class newordercontroller extends Controller {
 
         $outlet_id = Session::get('outlet_session');
 
-        $order_id = Input::get('order_id');
-        $flag = Input::get('flag');
+        $order_id = Request::get('order_id');
+        $flag = Request::get('flag');
 
         //payment options
         $payment_options = PaymentOption::getOutletPaymentOption($outlet_id);
@@ -3001,14 +3001,14 @@ class newordercontroller extends Controller {
     #TODO: Bill layout
     public function calculateOrderDiscount() {
 
-        $order_id = Input::get('order_id');
-        $flag = Input::get('flag');
-        $disc_type = Input::get('disc_type');
-        $disc_val = Input::get('disc_val');
-        $selected_tax = Input::get('selected_tax');
-        $disc_mode = Input::get('disc_mode');
-        $delivery_charge = Input::get('delivery_charge');
-        $order_type = Input::get('order_type');
+        $order_id = Request::get('order_id');
+        $flag = Request::get('flag');
+        $disc_type = Request::get('disc_type');
+        $disc_val = Request::get('disc_val');
+        $selected_tax = Request::get('selected_tax');
+        $disc_mode = Request::get('disc_mode');
+        $delivery_charge = Request::get('delivery_charge');
+        $order_type = Request::get('order_type');
 
         //get order detail
         $order = order_details::where('order_id',$order_id)->join('outlets as ot','orders.outlet_id','=','ot.id')
@@ -3034,9 +3034,9 @@ class newordercontroller extends Controller {
 
     public function taxCalculation() {
 
-        $from_date = Input::get("from_date");
-        $to_date = Input::get("to_date");
-        $outlet_id = Input::get("outlet_id");
+        $from_date = Request::get("from_date");
+        $to_date = Request::get("to_date");
+        $outlet_id = Request::get("outlet_id");
 
         if($from_date == "" || $to_date == "" || $outlet_id == ""){
             print_r("Please enter required data");exit;
@@ -3044,7 +3044,7 @@ class newordercontroller extends Controller {
 
         $orders_list = order_details::where("outlet_id",$outlet_id)
                                     ->where("table_start_date",">=",$from_date." 00:00:00")
-                                    ->where("table_start_date","<=",$to_date." 23:59:59")->lists('order_id');
+                                    ->where("table_start_date","<=",$to_date." 23:59:59")->pluck('order_id');
         $actual_item_price = 0;
         if(sizeof($orders_list)>0) {
             foreach ($orders_list as $order_id) {
@@ -3132,7 +3132,7 @@ class newordercontroller extends Controller {
 
     public function resetInvoiceNo() {
 
-        $invoice_no = Input::get("invoice_no");
+        $invoice_no = Request::get("invoice_no");
         $outlet_id = Session::get('outlet_session');
 
         $orders = order_details::where('invoice_no',$invoice_no)
@@ -3276,8 +3276,8 @@ class newordercontroller extends Controller {
 
     public function removeOrderItem() {
 
-        $item_id = Input::get('item_id');
-        $order_id = Input::get('order_id');
+        $item_id = Request::get('item_id');
+        $order_id = Request::get('order_id');
         $result = array();
 
         if(isset($item_id) && isset($order_id) && trim($item_id) != "" && trim($order_id) != "") {

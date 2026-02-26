@@ -9,7 +9,7 @@ use App\Printer;
 use App\Sources;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 
@@ -50,7 +50,7 @@ class SourceController extends Controller {
 	public function store()
 	{
 
-        $source_name = Input::get('source_name');
+        $source_name = Request::get('source_name');
         $response = array();
 
         if ( isset($source_name) && $source_name != '' ) {

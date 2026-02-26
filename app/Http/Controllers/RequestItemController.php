@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use App\Http\Requests\CreateRequestItemRequest;
 
 class RequestItemController extends Controller {
@@ -152,7 +152,7 @@ class RequestItemController extends Controller {
 
 		    if($input['cate_id'] == 'all') {
                 $menu_owner = Owner::menuOwner();
-                $all_menu_titles_id = MenuTitle::getMenuTitleByCreatedBy($menu_owner)->lists('id');
+                $all_menu_titles_id = MenuTitle::getMenuTitleByCreatedBy($menu_owner)->pluck('id');
                 $items = Menu::wherein('menu_title_id', $all_menu_titles_id)->get();
             }else{
                 $items = Menu::where('menu_title_id', $input['cate_id'])->get();
@@ -311,7 +311,7 @@ class RequestItemController extends Controller {
 								->where('item_request.id',$id)->first();
 
 		//order_units
-		$unit_arr = Unit::all()->lists('name','id');
+		$unit_arr = Unit::all()->pluck('name','id');
 
 		if ( isset($request) && sizeof($request) > 0 ) {
 
@@ -376,7 +376,7 @@ class RequestItemController extends Controller {
 			'location_for.required'=>'Location for is required'
 		];
 
-		$p = Validator::make(Input::all(), [
+		$p = Validator::make(Request::all(), [
 			'what_item_id' => 'required',
 			'what_item' => 'required',
 			'unit_id' => 'required',
@@ -385,20 +385,20 @@ class RequestItemController extends Controller {
 		],$messages);
 
 		$request = ItemRequest::find($id);
-		$request->what_item_id = Input::get('what_item_id');
-		$request->what_item = Input::get('what_item');
-		$request->qty = Input::get('qty');
-		$request->unit_id = Input::get('unit_id');
-		$request->existing_qty = Input::get('existing_qty');
-		$request->when = Input::get('when')." ".date('H:i:s');
-		$request->location_for = Input::get('location_for');
-		$request->owner_to = Input::get('owner_to');
+		$request->what_item_id = Request::get('what_item_id');
+		$request->what_item = Request::get('what_item');
+		$request->qty = Request::get('qty');
+		$request->unit_id = Request::get('unit_id');
+		$request->existing_qty = Request::get('existing_qty');
+		$request->when = Request::get('when')." ".date('H:i:s');
+		$request->location_for = Request::get('location_for');
+		$request->owner_to = Request::get('owner_to');
 		$resutl = $request->save();
 
 		if ( $resutl) {
 			return Redirect('/requestItem')->with('success', 'Item Request updated successfully ');
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 
 		}
 
@@ -419,7 +419,7 @@ class RequestItemController extends Controller {
 
 	public function ajaxOwnerList()
 	{
-		$outlet_id = Input::get('outlet_id');
+		$outlet_id = Request::get('outlet_id');
 
 		$outlet_mappers = OutletMapper::getOutletMapperByOutletId($outlet_id);
 
@@ -458,7 +458,7 @@ class RequestItemController extends Controller {
 
 	public function ajaxItems()
 	{
-		$cate_id = Input::get('cate_id');
+		$cate_id = Request::get('cate_id');
 
 		$items = ItemMaster::getItemsByCategoryId($cate_id);
 
@@ -492,11 +492,11 @@ class RequestItemController extends Controller {
 
 	public static function getItem()
 	{
-		$user_id = Input::get('owner_id');
-		$cate_id = Input::get('cate_id');
-		$location_id = Input::get('location_id');
+		$user_id = Request::get('owner_id');
+		$cate_id = Request::get('cate_id');
+		$location_id = Request::get('location_id');
         $location_name = Location::getLocationById($location_id)->name;
-		$req_date = Input::get('req_date');
+		$req_date = Request::get('req_date');
 
 		//$items = Menu::getmenubymenutitleid($cate_id);
 		$items = Menu::getItemsQuanityonLocation($cate_id,$location_id);
@@ -511,7 +511,7 @@ class RequestItemController extends Controller {
 	}
 
     public function addCategory(){
-        $cat_name=Input::get("name_category");
+        $cat_name=Request::get("name_category");
         $display_number=DB::table('categories')->max('display_order');
         //print_r($display_number);exit;
         DB::table('categories')->insert(
@@ -530,7 +530,7 @@ class RequestItemController extends Controller {
 
     public function destroyAll(){
 
-        $allRequest = Input::get("allreq");
+        $allRequest = Request::get("allreq");
         if(isset($allRequest) && sizeof($allRequest)>0){
             foreach ($allRequest as $key=>$req_id){
                 ItemRequest::where('id',$req_id)->delete();

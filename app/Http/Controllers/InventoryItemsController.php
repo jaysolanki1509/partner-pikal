@@ -11,7 +11,7 @@ use App\Owner;
 use App\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 
 class InventoryItemsController extends Controller {
 
@@ -46,10 +46,10 @@ class InventoryItemsController extends Controller {
 		$login_user = Auth::id();
 		$menu_owner = Owner::menuOwner();
 
-		$units = Unit::all()->lists('name','id');
+		$units = Unit::all()->pluck('name','id');
 
 		$menu_title_list = array('' => 'Select Category');
-		$menu_title = MenuTitle::where('created_by',$menu_owner)->lists('title','id');
+		$menu_title = MenuTitle::where('created_by',$menu_owner)->pluck('title','id');
 		if( isset($menu_title) && sizeof($menu_title) > 0 ) {
 			foreach ( $menu_title as $id => $title ) {
 				$menu_title_list[$id] = $title;
@@ -68,11 +68,11 @@ class InventoryItemsController extends Controller {
 	public function store()
 	{
 		$menu_owner=Owner::menuOwner();
-		$input = Input::all();
+		$input = Request::all();
 
 		if( $input['custom_title'] != "" && $input['menu_title_id'] == 'custom'){
 			if( $input['custom_title'] == "" ) {
-				return redirect()->back()->withInput(Input::all())->with('error', 'Custom Title is required');
+				return redirect()->back()->withInput(Request::all())->with('error', 'Custom Title is required');
 			}
 			$success = MenuTitle::where('created_by',$menu_owner)->where('title',$input['custom_title'])->first();
 
@@ -111,7 +111,7 @@ class InventoryItemsController extends Controller {
 				if($add!=1){
 					$menu->item = ucwords($input['item']);
 				}else{
-					return redirect()->back()->withInput(Input::all())->with('error', $input['item'].' Item Repeated');
+					return redirect()->back()->withInput(Request::all())->with('error', $input['item'].' Item Repeated');
 				}
 			}
 		}
@@ -132,7 +132,7 @@ class InventoryItemsController extends Controller {
 		if ( $success ) {
 			return Redirect('/inventory/items')->with('success', 'Menu added successfully ');
 		} else {
-			return redirect()->back()->withInput(Input::all())->with('error','Failed');
+			return redirect()->back()->withInput(Request::all())->with('error','Failed');
 		}
 
 
@@ -160,8 +160,8 @@ class InventoryItemsController extends Controller {
 		$menu_owner = Owner::menuOwner();
 		$item = Menu::where('id',$id)->first();
 
-		$units = Unit::all()->lists('name','id');
-		$menu_title_list = MenuTitle::where('created_by',$menu_owner)->lists('title','id');
+		$units = Unit::all()->pluck('name','id');
+		$menu_title_list = MenuTitle::where('created_by',$menu_owner)->pluck('title','id');
 		$menu_title_list['custom']="(Add new Title)";
 
 		//print_r($selected_outlet);exit;
@@ -179,39 +179,39 @@ class InventoryItemsController extends Controller {
 
 		$menu_owner=Owner::menuOwner();
 
-		if ( strcmp( Input::get('menu_title_id'),'custom' ) == 0 ){
-			if( strcmp(Input::get('custom_title'),"") == 0 ){
-				return redirect()->back()->withInput(Input::all())->with('error', 'Custom Title is required');
+		if ( strcmp( Request::get('menu_title_id'),'custom' ) == 0 ){
+			if( strcmp(Request::get('custom_title'),"") == 0 ){
+				return redirect()->back()->withInput(Request::all())->with('error', 'Custom Title is required');
 			}
-			$temp_title=MenuTitle::where('created_by',$menu_owner)->where('title',Input::get('custom_title'))->first();
+			$temp_title=MenuTitle::where('created_by',$menu_owner)->where('title',Request::get('custom_title'))->first();
 			if(!$temp_title){
 				$menuTitle = new MenuTitle();
 				$menuTitle->outlet_id = $menu_owner;
 				$menuTitle->created_by = $menu_owner;
-				$menuTitle->title = Input::get('custom_title');
+				$menuTitle->title = Request::get('custom_title');
 				$menuTitle->active = "0";//get activation of Menu_Title at database
 				$success = $menuTitle->save();
 			}else{
 				$menuTitle=MenuTitle::getmenutitlebyid($temp_title->id);
 			}
 		}else{
-			$menuTitle=MenuTitle::getmenutitlebyid(Input::get("menu_title_id"));
+			$menuTitle=MenuTitle::getmenutitlebyid(Request::get("menu_title_id"));
 			$success=1;
 		}
-		if ( Input::get("item") != "" ) {
+		if ( Request::get("item") != "" ) {
 			$items = Menu::getMenuByUserId($menu_owner);
 			if( isset($items) ){
 				$add=0;
 				foreach( $items as $item ){
-					if( strtolower($item->item) == strtolower(Input::get("item")) && $item->id != $id){
+					if( strtolower($item->item) == strtolower(Request::get("item")) && $item->id != $id){
 						$add=1;
 						break;
 					}
 				}
 				if( $add != 1 ){
-					$menu_item = Input::get("item");
+					$menu_item = Request::get("item");
 				}else{
-					return redirect()->back()->withInput(Input::all())->with('error', Input::get("item").' Item Repeated');
+					return redirect()->back()->withInput(Request::all())->with('error', Request::get("item").' Item Repeated');
 				}
 			}
 		}
@@ -219,19 +219,19 @@ class InventoryItemsController extends Controller {
 		$result = Menu::where('id', $id)
 						->update(['menu_title_id' => $menuTitle->id,
 							'item' => $menu_item,
-							'price' => Input::get("price"),
-							'details' => Input::get("details"),
-							'unit_id' => Input::get("unit_id"),
-							'food' => Input::get("food"),
-							'alias' => Input::get("alias"),
-							'moq'=>Input::get('moq'),
-							'reserved'=>Input::get('reserved'),
-							'expiry'=>Input::get('expiry')]);
+							'price' => Request::get("price"),
+							'details' => Request::get("details"),
+							'unit_id' => Request::get("unit_id"),
+							'food' => Request::get("food"),
+							'alias' => Request::get("alias"),
+							'moq'=>Request::get('moq'),
+							'reserved'=>Request::get('reserved'),
+							'expiry'=>Request::get('expiry')]);
 
 		if( $result ) {
 			return Redirect('/inventoryitems')->with('success', 'Item has been updated successfully ');
 		} else {
-			return redirect()->back()->withInput(Input::all())->with('error','Check your internet connection, Some error occurred');
+			return redirect()->back()->withInput(Request::all())->with('error','Check your internet connection, Some error occurred');
 		}
 
 

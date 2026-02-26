@@ -66,7 +66,7 @@ class DeleteOrders extends Command {
 
                     $orders = order_details::where('orders.table_end_date', '>=', $from_date)
                         ->where('orders.table_end_date', '<=', $to_date)
-                        ->where('outlet_id', '=', $outlet->id)->lists('order_id');
+                        ->where('outlet_id', '=', $outlet->id)->pluck('order_id');
 
                     if(isset($orders) && sizeof($orders)>0) {
 

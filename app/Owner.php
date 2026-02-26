@@ -8,8 +8,8 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 //use Zizaco\Entrust\Traits\EntrustUserTrait;
 //use Kodeine\Acl\Traits\HasPermission;
 //use Kodeine\Acl\Traits\HasRole;
-use Bican\Roles\Contracts\HasRoleAndPermissionContract;
-use Bican\Roles\Traits\HasRoleAndPermission;
+use JeremyKenedy\LaravelRoles\Contracts\HasRoleAndPermission as HasRoleAndPermissionContract;
+use JeremyKenedy\LaravelRoles\Traits\HasRoleAndPermission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 

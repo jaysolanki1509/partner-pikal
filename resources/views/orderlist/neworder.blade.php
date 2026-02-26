@@ -1,7 +1,7 @@
 <?php
 
 $sess_outlet_id = Session::get('outlet_session');
-$order_date = \Illuminate\Support\Facades\Input::get('order_date');
+$order_date = \Illuminate\Support\Facades\Request::get('order_date');
 if ( isset($order_date)) {
     $start_date = $order_date;
     $end_date = $order_date;

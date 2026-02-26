@@ -12,9 +12,8 @@ use App\OrderItem;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
-use Piyushpatil\Androidpushnotification;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\CouponCodes;
@@ -72,7 +71,7 @@ class CoupongeneratorController extends Controller {
         $coupons=CouponCodes::getMyCouponCode();
         foreach($coupons as $coupon){
             if(strcmp($coupon->coupon_code,$request->coupon_code)==0){
-                return redirect()->back()->withInput(Input::all())->with('error','Coupon code is already taken.');
+                return redirect()->back()->withInput(Request::all())->with('error','Coupon code is already taken.');
             }
         }
         $menu_owner=Owner::menuOwner();
@@ -87,18 +86,18 @@ class CoupongeneratorController extends Controller {
             if(is_numeric($request->percentage) && $request->percentage!=null && $request->percentage>0 && $request->percentage<=100)
                 $coupon_code->percentage=$request->percentage;
             else
-                return Redirect::back()->withInput(Input::all())->with('error','Numeric Percentage between 1 and 100 value require.');
+                return Redirect::back()->withInput(Request::all())->with('error','Numeric Percentage between 1 and 100 value require.');
             $coupon_code->min_value=$request->min_value;
             if($request->max_value!=null)
                 $coupon_code->max_value=$request->max_value;
             else
-                return Redirect::back()->withInput(Input::all())->with('error','');
+                return Redirect::back()->withInput(Request::all())->with('error','');
 
         }elseif($request->Browser==2){
             if(is_numeric($request->min_value) && $request->value!=null)
                 $coupon_code->value=$request->value;
             else
-                return Redirect::back()->withInput(Input::all())->with('error','Numeric Fixed value require.');
+                return Redirect::back()->withInput(Request::all())->with('error','Numeric Fixed value require.');
             $coupon_code->min_value=$request->min_value;
             $coupon_code->percentage='';
             $coupon_code->max_value=0.00;
@@ -165,7 +164,7 @@ class CoupongeneratorController extends Controller {
         foreach($coupons as $coupon){
             if(strcmp($current_coupon->coupon_code,$request->coupon_code)!=0){
                 if(strcmp($coupon->coupon_code,$request->coupon_code)==0){
-                    return Redirect::back()->withInput(Input::all())->with('error','Coupon code is already taken.');
+                    return Redirect::back()->withInput(Request::all())->with('error','Coupon code is already taken.');
                 }
             }
         }
@@ -175,19 +174,19 @@ class CoupongeneratorController extends Controller {
             if(is_numeric($request->percentage) && $request->percentage!=null && $request->percentage>0 && $request->percentage<=100)
                 $coupon_code->percentage=$request->percentage;
             else
-                return Redirect::back()->withInput(Input::all())->with('error','Numeric Percentage between 1 and 100 value require.');
+                return Redirect::back()->withInput(Request::all())->with('error','Numeric Percentage between 1 and 100 value require.');
             $coupon_code->min_value=$request->min_value;
             if($request->max_value!=null)
                 $coupon_code->max_value=$request->max_value;
             else
-                return Redirect::back()->withInput(Input::all())->with('error','');
+                return Redirect::back()->withInput(Request::all())->with('error','');
 
             $coupon_code->value='';
         }elseif($request->Browser==2){
             if(is_numeric($request->min_value) && $request->value!=null)
                 $coupon_code->value=$request->value;
             else
-                return Redirect::back()->withInput(Input::all())->with('error','Numeric Fixed value require.');
+                return Redirect::back()->withInput(Request::all())->with('error','Numeric Fixed value require.');
             $coupon_code->min_value=$request->min_value;
             $coupon_code->max_value='';
             $coupon_code->percentage='';

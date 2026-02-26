@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use App\Outlet;
 use App\status;
 use App\Http\Requests\CreateStatusRequest;
@@ -106,7 +106,7 @@ class statuscontroller extends Controller
 	{
         $status =  status::find($id);
         $Outlet = Outlet::getfirstoutletbystatus($status->outlet_id);
-        $Outlet->Outlet_name=Input::get('Outlet_name');
+        $Outlet->Outlet_name=Request::get('Outlet_name');
         return view('status.show',array('status'=>$status,'Outlet'=>$Outlet));
 
     }

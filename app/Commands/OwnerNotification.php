@@ -21,10 +21,10 @@ class OwnerNotification extends Command {
 
         /*$ownerdetails=Outlet::find($fields['outlet_id']);
         $ownerdetails=$ownerdetails->owner_id;
-        $device_id=DB::table('owners')->where('id',$ownerdetails)->lists('device_id');*/
-        $ownerdetails = OutletMapper::where('outlet_id',$fields['outlet_id'])->lists('owner_id');
+        $device_id=DB::table('owners')->where('id',$ownerdetails)->pluck('device_id');*/
+        $ownerdetails = OutletMapper::where('outlet_id',$fields['outlet_id'])->pluck('owner_id');
         if ( isset($ownerdetails) && sizeof($ownerdetails) > 0 ) {
-            $device_id = Owner::whereIn('id',$ownerdetails)->lists('device_id');
+            $device_id = Owner::whereIn('id',$ownerdetails)->pluck('device_id');
 
             //device id arr
             $device_arr = array();
@@ -50,10 +50,10 @@ class OwnerNotification extends Command {
     #TODO: Attend me notification to outlet owner deviceid
     public function attendNotification($job,$fields) {
 
-        $ownerdetails = OutletMapper::where('outlet_id',$fields['outlet_id'])->lists('owner_id');
+        $ownerdetails = OutletMapper::where('outlet_id',$fields['outlet_id'])->pluck('owner_id');
 
         if ( isset($ownerdetails) && sizeof($ownerdetails) > 0 ) {
-            $device_id = Owner::whereIn('id',$ownerdetails)->lists('device_id');
+            $device_id = Owner::whereIn('id',$ownerdetails)->pluck('device_id');
 
 
             //device id arr
@@ -76,10 +76,10 @@ class OwnerNotification extends Command {
 
     public function payBillNotification( $job,$fields ) {
 
-        $ownerdetails = OutletMapper::where('outlet_id',$fields['outlet_id'])->lists('owner_id');
+        $ownerdetails = OutletMapper::where('outlet_id',$fields['outlet_id'])->pluck('owner_id');
 
         if ( isset($ownerdetails) && sizeof($ownerdetails) > 0 ) {
-            $device_id = Owner::whereIn('id',$ownerdetails)->lists('device_id');
+            $device_id = Owner::whereIn('id',$ownerdetails)->pluck('device_id');
 
             //device id arr
             $device_arr = array();
@@ -152,10 +152,10 @@ class OwnerNotification extends Command {
 
                 if ( isset($order) && sizeof($order) > 0 ) {
                     //Log::info('get outlet_id '. $order->outlet_id);
-                    $ownerdetails = OutletMapper::where('outlet_id',$order->outlet_id)->lists('owner_id');
+                    $ownerdetails = OutletMapper::where('outlet_id',$order->outlet_id)->pluck('owner_id');
 
                     if ( isset($ownerdetails) && sizeof($ownerdetails) > 0 ) {
-                        $device_id = Owner::whereIn('id', $ownerdetails)->lists('device_id');
+                        $device_id = Owner::whereIn('id', $ownerdetails)->pluck('device_id');
 
                         //device id arr
                         if (isset($device_id) && sizeof($device_id) > 0) {

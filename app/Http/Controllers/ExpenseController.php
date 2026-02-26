@@ -12,7 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Zend\Http\Header\Date;
@@ -39,7 +39,7 @@ class ExpenseController extends Controller {
         $outlet_mappers = OutletMapper::getOutletMapperByOwnerId($loggedinuserid);
 
         $status = Expense::getStatus();
-        $exp_category = ExpenseCategory::where('created_by',$admin_id)->lists('name','id');
+        $exp_category = ExpenseCategory::where('created_by',$admin_id)->pluck('name','id');
         $exp_category[''] = 'Select Expense Category';
 
         //get outlet Users
@@ -81,7 +81,7 @@ class ExpenseController extends Controller {
 	{
         $loggedinuserid=Auth::user()->id;
 
-        $data=Input::all();
+        $data=Request::all();
 
         $outlet_id = Session::get('outlet_session');
 
@@ -89,15 +89,15 @@ class ExpenseController extends Controller {
         $temp=0;
         if($data['expense_by']==''){
             $error = 'Select user form Expense by';
-            return Redirect('/expenseApp')->withInput(Input::all())->with('error', $error);
+            return Redirect('/expenseApp')->withInput(Request::all())->with('error', $error);
         }
         else if($data['amount']<1 || $data['amount']==''){
             $error = 'Add Proper Amount';
-            return Redirect('/expenseApp')->withInput(Input::all())->with('error', $error);
+            return Redirect('/expenseApp')->withInput(Request::all())->with('error', $error);
         }
         else if($data['description']==''){
             $error = 'Add Description';
-            return Redirect('/expenseApp')->withInput(Input::all())->with('error', $error);
+            return Redirect('/expenseApp')->withInput(Request::all())->with('error', $error);
         }
         else{
 
@@ -106,29 +106,29 @@ class ExpenseController extends Controller {
             if ( isset($outlet) && sizeof($outlet) > 0 ) {
                 if ( !isset($outlet->authorised_users) || $outlet->authorised_users == '' || $outlet->authorised_users == 0 ) {
                     $error = "authorised user not selected for outlet";
-                    return Redirect('/expenseApp')->withInput(Input::all())->with('error', $error);
+                    return Redirect('/expenseApp')->withInput(Request::all())->with('error', $error);
                 }
             }
 
-            $type = Input::get('type');
-            $exp_cat = Input::get('exp_category');
+            $type = Request::get('type');
+            $exp_cat = Request::get('exp_category');
 
             $exp = new Expense();
             $exp->expense_for = $outlet_id;
-            $exp->type = Input::get('type');
+            $exp->type = Request::get('type');
             $exp->created_by = $loggedinuserid;
-            $exp->expense_by = Input::get('expense_by');
+            $exp->expense_by = Request::get('expense_by');
             $exp->expense_to = $outlet->authorised_users;
-            $exp->amount = Input::get('amount');
+            $exp->amount = Request::get('amount');
             $exp->serversync = 0;
-            $exp->description = Input::get('description');
-            $exp->expense_date = Input::get('expense_date');
+            $exp->description = Request::get('description');
+            $exp->expense_date = Request::get('expense_date');
             $exp->category_id = $exp_cat;
-            $note = Input::get('note');
+            $note = Request::get('note');
             if(isset($note) && sizeof($note)>0) {
                 $exp->notes = $note;
             }
-            $status = Input::get('status');
+            $status = Request::get('status');
 
             if ( $type == 'expense' ) {
                 $exp->status = $status;
@@ -160,7 +160,7 @@ class ExpenseController extends Controller {
         if ($request->ajax())
         {
 
-            $input = Input::all();
+            $input = Request::all();
             $response = array();
 
             $search = $input['sSearch'];
@@ -373,13 +373,13 @@ class ExpenseController extends Controller {
 
         }
 
-        $day = Input::get('day');
+        $day = Request::get('day');
         if(isset($day) && sizeof($day)>0) {
             $date = date('Y-m-d', strtotime(-$day . " days"));
             return view('expense.show', array('day' => $date));
         }
 
-        $month = Input::get('month');
+        $month = Request::get('month');
         if(isset($month) && sizeof($month)>0) {
             $date = date('Y-m-01');
             return view('expense.show', array('month' => $date));
@@ -404,7 +404,7 @@ class ExpenseController extends Controller {
         $outlet_mappers = OutletMapper::getOutletMapperByOwnerId($loggedinuserid);
         $select_outlets = ['' => 'Select Outlet'];
         $status = Expense::getStatus();
-        $exp_category = ExpenseCategory::where('created_by',$admin_id)->lists('name','id');
+        $exp_category = ExpenseCategory::where('created_by',$admin_id)->pluck('name','id');
 
         foreach($outlet_mappers as $om)
         {
@@ -450,25 +450,25 @@ class ExpenseController extends Controller {
         if ( isset($outlet) && sizeof($outlet) > 0 ) {
             if ( !isset($outlet->authorised_users) || $outlet->authorised_users == '' || $outlet->authorised_users == 0 ) {
                 $error = "authorised user not selected for outlet";
-                return Redirect('/expense/'.$id.'/edit')->withInput(Input::all())->with('error', $error);
+                return Redirect('/expense/'.$id.'/edit')->withInput(Request::all())->with('error', $error);
             }
         }
 
         $exp->expense_for = $outlet_id;
         $exp->created_by = $loggedinuserid;
-        $exp->expense_by = Input::get('expense_by');
+        $exp->expense_by = Request::get('expense_by');
         $exp->expense_to = $outlet->authorised_users;
-        $exp->amount = Input::get('amount');
-        $exp->description = Input::get('description');
-        $exp->expense_date = Input::get('expense_date');
-        $exp->category_id = Input::get('exp_category');
+        $exp->amount = Request::get('amount');
+        $exp->description = Request::get('description');
+        $exp->expense_date = Request::get('expense_date');
+        $exp->category_id = Request::get('exp_category');
         $exp->serversync = 0;
-        $note = Input::get('note');
+        $note = Request::get('note');
         if(isset($note) && sizeof($note)>0) {
             $exp->notes = $note;
         }
-        $status = Input::get('status');
-        $type = Input::get('type');
+        $status = Request::get('status');
+        $type = Request::get('type');
 
         if ( $type == 'expense' ) {
             $exp->status = $status;
@@ -485,7 +485,7 @@ class ExpenseController extends Controller {
 
 	public function changeStatus($id)
 	{
-        $type = Input::get('type');
+        $type = Request::get('type');
         $result = Expense::where('id', $id)->update(['status' => $type,'serversync'=>0]);
         return 'success';
 	}
@@ -508,10 +508,10 @@ class ExpenseController extends Controller {
         $admin = Owner::menuOwner();
         $user_id = Auth::user()->id;
         if($admin == $user_id) {
-            $outlet_id = Input::get('outlet_id');
+            $outlet_id = Request::get('outlet_id');
             $userlist = Owner::leftJoin('outlets_mapper', 'outlets_mapper.owner_id', '=', 'owners.id')
                 ->where('outlets_mapper.outlet_id', '=', $outlet_id)->get();
-            //->lists('owners.user_name','outlets_mapper.owner_id');
+            //->pluck('owners.user_name','outlets_mapper.owner_id');
             $list = array();
             foreach ($userlist as $users) {
                 $list['user_id'][] = $users->owner_id;
@@ -526,7 +526,7 @@ class ExpenseController extends Controller {
 
     public function getAuthorisedUsersByOutlet(){
 
-        $outlet_id= Input::get('outlet_id');
+        $outlet_id= Request::get('outlet_id');
         $auth_users_id=Outlet::select('authorised_users')
                     ->where('id','=',$outlet_id)->first();
 
@@ -561,14 +561,14 @@ class ExpenseController extends Controller {
     public function expenseCategoryStore(){
 
         $user_id = Auth::id();
-        $category_name = Input::get('category_name');
+        $category_name = Request::get('category_name');
         $getCategory = ExpenseCategory::where('created_by',$user_id)->where('name',$category_name)->get();
 
         if(isset($getCategory) && sizeof($getCategory)){
             return Redirect::back()->with('error','Category with same name is already available, please try different name.');
         }
 
-        $save_continue = Input::get('saveContinue');
+        $save_continue = Request::get('saveContinue');
         $expenseCategory = new ExpenseCategory();
         $expenseCategory->name = $category_name;
         $expenseCategory->created_by = $user_id;
@@ -599,8 +599,8 @@ class ExpenseController extends Controller {
 
     public function expenseCategoryUpdate(){
 
-        $category_name = Input::get('category_name');
-        $category_id = Input::get('category_id');
+        $category_name = Request::get('category_name');
+        $category_id = Request::get('category_id');
 
         $expenseCategory = ExpenseCategory::find($category_id);
         $expenseCategory->name = $category_name;
@@ -614,7 +614,7 @@ class ExpenseController extends Controller {
 
     public function updateNote($id){
 
-        $note = Input::get('note');
+        $note = Request::get('note');
         $result = Expense::where('id', $id)->update(['notes' => $note]);
         return 'success';
 

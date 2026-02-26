@@ -21,7 +21,7 @@ use App\Timeslot;
 use App\users;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use App\Country;
 use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
@@ -76,7 +76,7 @@ class DesignFeedBackController extends Controller {
         //print_r($ownerlist[0]->owner_id);exit;
 
         $outlet_mappers = OutletMapper::getOutletMapperByOwnerId($user_id);
-        //print_r($outlet_mappers->select('outlet_id','id')->lists());exit;
+        //print_r($outlet_mappers->select('outlet_id','id')->pluck());exit;
 
         $select_outlets = ['' => 'Select Outlet'];
 
@@ -99,30 +99,30 @@ class DesignFeedBackController extends Controller {
 	 */
 	public function store()
 	{
-        /*if(Input::get('outlet_id')==''){
+        /*if(Request::get('outlet_id')==''){
             return Redirect('/designFeedBack')->with('error', 'Please select Outlet');
         }*/
-		//print_r(Input::get('field_name0'));exit;
-        $outlet_id=Input::get('outlet_id');
+		//print_r(Request::get('field_name0'));exit;
+        $outlet_id=Request::get('outlet_id');
         $sess_outlet_id = Session::get('outlet_session');
         if (isset($sess_outlet_id) && $sess_outlet_id != '') {
             $outlet_id = $sess_outlet_id;
         }
         DB::table('feedback')->where('outlet_id','=',$outlet_id)->delete();
-        $total=Input::get('count');
+        $total=Request::get('count');
         for($i=0;$i<=$total;$i++){
-            $field_name=Input::get('field_name'.$i);
+            $field_name=Request::get('field_name'.$i);
             if($field_name=='')
                 continue;
-            if(Input::get('field_type'.$i)=='line'){
-                $field_type=Input::get('field_type'.$i);
-                $field_value=Input::get('line_number'.$i);
+            if(Request::get('field_type'.$i)=='line'){
+                $field_type=Request::get('field_type'.$i);
+                $field_value=Request::get('line_number'.$i);
                 DB::table('feedback')->insert(
                     array('outlet_id' => $outlet_id, 'field_name' => $field_name, 'field_type' => $field_type, 'line_value' => $field_value)
                 );
-            }elseif(Input::get('field_type'.$i)=='options'){
-                $field_type=Input::get('field_type'.$i);
-                $field_value=Input::get('options_type'.$i);
+            }elseif(Request::get('field_type'.$i)=='options'){
+                $field_type=Request::get('field_type'.$i);
+                $field_value=Request::get('options_type'.$i);
                 DB::table('feedback')->insert(
                     array('outlet_id' => $outlet_id, 'field_name' => $field_name, 'field_type' => $field_type, 'option_value' => $field_value)
                 );
@@ -178,7 +178,7 @@ class DesignFeedBackController extends Controller {
 
 	public function getFeedback(){
 
-	    $outlet_id = Input::get('outlet_id');
+	    $outlet_id = Request::get('outlet_id');
         $sess_outlet_id = Session::get('outlet_session');
         if (isset($sess_outlet_id) && $sess_outlet_id != '') {
             $outlet_id = $sess_outlet_id;

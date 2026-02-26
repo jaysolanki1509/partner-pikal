@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Swift_Mailer;
 use Swift_SmtpTransport;
@@ -40,7 +40,7 @@ class CustomersController extends Controller {
 
 		if ($request->ajax())
 		{
-			$input = Input::all();
+			$input = Request::all();
 			$response = array();
 
 			$search = $input['sSearch'];
@@ -217,7 +217,7 @@ class CustomersController extends Controller {
 		}
 
         $user_id = Owner::menuOwner();
-        //$email_template = EmailTemplate::where('created_by',$user_id)->lists("name","id");
+        //$email_template = EmailTemplate::where('created_by',$user_id)->pluck("name","id");
         $email_template[""] = "Select Template";
 
 		return view('customers.index',array('templates'=>$email_template));
@@ -299,7 +299,7 @@ class CustomersController extends Controller {
 	public function customerItemWiseSale() {
 
 		$outlet_id = Session::get('outlet_session');
-		$customer_id = Input::get('customer_id');
+		$customer_id = Request::get('customer_id');
 
 		$now = Carbon::yesterday()->endOfDay();
 		$first_dom = Carbon::yesterday()->startOfMonth();
@@ -337,7 +337,7 @@ class CustomersController extends Controller {
 
 	public function getCustomerEmail(){
 
-	    $ids = Input::get("ids");
+	    $ids = Request::get("ids");
         $emails = array();
         $no_email = 0;
         foreach ($ids as $key=>$id){
@@ -359,8 +359,8 @@ class CustomersController extends Controller {
 
     public function sendCustomerMail(){
 
-        $customer = explode(",",Input::get("customer"));
-        $template = Input::get("template");
+        $customer = explode(",",Request::get("customer"));
+        $template = Request::get("template");
 
         $user_id = Owner::menuOwner();
 

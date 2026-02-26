@@ -10,7 +10,7 @@ use App\RoomAmenity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 
 class RoomAmenityController extends Controller {
@@ -48,9 +48,9 @@ class RoomAmenityController extends Controller {
 	 */
 	public function store()
 	{
-        $name = Input::get('name');
-        $description = Input::get('description');
-        $save_continue = Input::get('saveContinue');
+        $name = Request::get('name');
+        $description = Request::get('description');
+        $save_continue = Request::get('saveContinue');
         $owner_id = Auth::id();
         $outlet_id = Session::get('outlet_session');
 
@@ -113,8 +113,8 @@ class RoomAmenityController extends Controller {
         $room_amenity = RoomAmenity::find($id);
         if(isset($room_amenity) && sizeof($room_amenity)>0) {
 
-            $name = Input::get('name');
-            $description = Input::get('description');
+            $name = Request::get('name');
+            $description = Request::get('description');
             $owner_id = Auth::id();
             $outlet_id = Session::get('outlet_session');
 

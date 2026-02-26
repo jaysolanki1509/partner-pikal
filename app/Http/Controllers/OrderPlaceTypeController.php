@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\OrderPlaceType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -57,8 +57,8 @@ class OrderPlaceTypeController extends Controller {
 		if (isset($p) && $p->passes())
 		{
 			$owner_id = Auth::id();
-			$save_continue = Input::get('saveContinue');
-			$name = Input::get('name');
+			$save_continue = Request::get('saveContinue');
+			$name = Request::get('name');
 
 			$outlet_id = Session::get('outlet_session');
 
@@ -79,7 +79,7 @@ class OrderPlaceTypeController extends Controller {
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 	}
 
@@ -119,14 +119,14 @@ class OrderPlaceTypeController extends Controller {
 			'name.required' => 'Name is required!',
 		];
 
-		$p = Validator::make(Input::all(), [
+		$p = Validator::make(Request::all(), [
 			'name' => 'required',
 		],$messages);
 
 		if (isset($p) && $p->passes())
 		{
 			$owner_id = Auth::id();
-			$name = Input::get('name');
+			$name = Request::get('name');
 
 			$place = OrderPlaceType::find($id);
 			$place->updated_by = $owner_id;
@@ -138,7 +138,7 @@ class OrderPlaceTypeController extends Controller {
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 	}
 

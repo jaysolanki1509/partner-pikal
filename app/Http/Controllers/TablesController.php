@@ -14,7 +14,7 @@ use App\order_details;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use App\Tables;
@@ -116,11 +116,11 @@ class TablesController extends Controller {
 	 */
 	public function store()
 	{
-		$form_data = Input::all();
+		$form_data = Request::all();
 		$httpclient = new HttpClientWrapper();
 		$token = $_COOKIE['laravel_session'];
         $sess_outlet_id = Session::get('outlet_session');
-        $outlet_id = Input::get('outlet_id');
+        $outlet_id = Request::get('outlet_id');
 
         if (isset($sess_outlet_id) && $sess_outlet_id != '') {
             $outlet_id = $sess_outlet_id;
@@ -214,7 +214,7 @@ class TablesController extends Controller {
 	 */
 	public function update($id)
 	{
-        $form_data = Input::all();
+        $form_data = Request::all();
         $form_data['table_id'] = $id;
 
         $httpclient = new HttpClientWrapper();

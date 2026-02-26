@@ -21,7 +21,7 @@ use App\Http\Requests;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
@@ -33,7 +33,7 @@ class StocksController extends Controller
     public function __construct(Guard $auth)
     {
         $this->auth = $auth;
-        $this->beforeFilter('csrf', ['on' => '']);
+        $this
 
     }
 
@@ -45,14 +45,14 @@ class StocksController extends Controller
         //transfer stock when click submit
         if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
 
-            $from_loc = Input::get('from_loc');
-            $to_loc = Input::get('to_loc');
-            $trans_date = Input::get('trans_date');
-            $trans_qty = Input::get('trans_qty');
-            $cat_id = Input::get('cat_id');
-            $item_id = Input::get('item_id');
-            $unit_id = Input::get('unit_id');
-            $price = Input::get('price');
+            $from_loc = Request::get('from_loc');
+            $to_loc = Request::get('to_loc');
+            $trans_date = Request::get('trans_date');
+            $trans_qty = Request::get('trans_qty');
+            $cat_id = Request::get('cat_id');
+            $item_id = Request::get('item_id');
+            $unit_id = Request::get('unit_id');
+            $price = Request::get('price');
             //print_r($item_id);exit;
             if ( isset($item_id) && sizeof($item_id) > 0 ) {
 
@@ -646,8 +646,8 @@ class StocksController extends Controller
 
     public function StockTransferItems() {
 
-        $loc_id = Input::get('loc_id');
-        $cat_id = Input::get('cat_id');
+        $loc_id = Request::get('loc_id');
+        $cat_id = Request::get('cat_id');
 
         //$items = Menu::getItemsQuanityonLocation($cat_id,$loc_id);
         $menu_owner = Owner::menuOwner();
@@ -655,7 +655,7 @@ class StocksController extends Controller
         if($cat_id == 'all'){
 
             $menu_owner = Owner::menuOwner();
-            $all_menu_titles_id = MenuTitle::getMenuTitleByCreatedBy($menu_owner)->lists('id');
+            $all_menu_titles_id = MenuTitle::getMenuTitleByCreatedBy($menu_owner)->pluck('id');
 
             $menus = Menu::wherein('menus.menu_title_id',$all_menu_titles_id)
                 ->join('menu_titles','menu_titles.id','=','menus.menu_title_id')
@@ -802,10 +802,10 @@ class StocksController extends Controller
 
     public function salesConsumptionReport() {
 
-        $from_date = Input::get('from_date');
-        $to_date = Input::get('to_date');
-        $ot_id = Input::get('ot_id');
-        $report_type = Input::get('report_type');
+        $from_date = Request::get('from_date');
+        $to_date = Request::get('to_date');
+        $ot_id = Request::get('ot_id');
+        $report_type = Request::get('report_type');
 
         $result = array();$sales = array();$consumption = array();
 
@@ -899,7 +899,7 @@ class StocksController extends Controller
 
     public function stockStatusReport() {
 
-        $flag = Input::get('flag');
+        $flag = Request::get('flag');
         $admin_id = Owner::menuOwner();
         $result = array();
 
@@ -908,7 +908,7 @@ class StocksController extends Controller
 
         if ( $flag == 'params' ) {
 
-            $locations = Location::where('created_by',$admin_id)->lists('name','id');
+            $locations = Location::where('created_by',$admin_id)->pluck('name','id');
             $result['locations'] = $locations;
 
             $categories = MenuTitle::getMenuTitleByUserId($admin_id);
@@ -919,11 +919,11 @@ class StocksController extends Controller
 
         } else {
 
-            $loc_id = Input::get('loc_id');
-            $item_id = Input::get('item_id');
-            $cat_id = Input::get('cat_id');
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
+            $loc_id = Request::get('loc_id');
+            $item_id = Request::get('item_id');
+            $cat_id = Request::get('cat_id');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
 
             $base_date = date('Y-m-d', strtotime($from_date . " - 1 day"));
             $base_date = $base_date." 23:59:59";
@@ -1061,10 +1061,10 @@ class StocksController extends Controller
 
     public function getRequestByLocation() {
 
-        $loc_id = Input::json('location_id');
-        $req_user_id = Input::json('request_user_id');
-        $user_id = Input::json('user_id');
-        $merge = Input::json('merge');
+        $loc_id = Request::json('location_id');
+        $req_user_id = Request::json('request_user_id');
+        $user_id = Request::json('user_id');
+        $merge = Request::json('merge');
 
 
         //$owner_id = Auth::user()->id;
@@ -1177,9 +1177,9 @@ class StocksController extends Controller
     //display pending request quantity in application
     public function getPendingItemQty() {
 
-        $user_id = Input::json('user_id');
-        $user_to = Input::json('to_user');
-        $loc_id = Input::json('location_id');
+        $user_id = Request::json('user_id');
+        $user_to = Request::json('to_user');
+        $loc_id = Request::json('location_id');
 
         $request1 = array();$req1 = array();
 

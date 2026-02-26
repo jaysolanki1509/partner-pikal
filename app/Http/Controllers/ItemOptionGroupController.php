@@ -9,7 +9,7 @@ use App\ItemOptionGroupMapper;
 use App\Menu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 
@@ -56,13 +56,13 @@ class ItemOptionGroupController extends Controller {
 	    $owner_id = Auth::id();
         $outlet_id = Session::get('outlet_session');
 
-        $save_continue = Input::get('saveContinue');
-        $item_option_id = Input::get('option_item_id');
-        $item_option_price = Input::get('option_item_price');
-        $item_option_default = Input::get('option_item_default');
-        $name = Input::get('name');
-        $max = Input::get('max');
-        $select_type = Input::get('select_type');
+        $save_continue = Request::get('saveContinue');
+        $item_option_id = Request::get('option_item_id');
+        $item_option_price = Request::get('option_item_price');
+        $item_option_default = Request::get('option_item_default');
+        $name = Request::get('name');
+        $max = Request::get('max');
+        $select_type = Request::get('select_type');
 
         $item_option_group = new ItemOptionGroup();
         $item_option_group->outlet_id = $outlet_id;
@@ -109,7 +109,7 @@ class ItemOptionGroupController extends Controller {
             }
 
         } else {
-            return Redirect('/item-option-group/create')->withInput(Input::all())->with('error', 'Failed');
+            return Redirect('/item-option-group/create')->withInput(Request::all())->with('error', 'Failed');
         }
 
 
@@ -187,12 +187,12 @@ class ItemOptionGroupController extends Controller {
 	{
         $owner_id = Auth::id();
 
-	    $name = Input::get('name');
-        $select_type = Input::get('select_type');
-        $max = Input::get('max');
-        $item_option_id = Input::get('option_item_id');
-        $item_option_price = Input::get('option_item_price');
-        $item_option_default = Input::get('option_item_default');
+	    $name = Request::get('name');
+        $select_type = Request::get('select_type');
+        $max = Request::get('max');
+        $item_option_id = Request::get('option_item_id');
+        $item_option_price = Request::get('option_item_price');
+        $item_option_default = Request::get('option_item_default');
 
         $item_option_group = ItemOptionGroup::find($id);
         $item_option_group->name = $name;
@@ -275,8 +275,8 @@ class ItemOptionGroupController extends Controller {
 
     public function removeItemGroupOption() {
 
-        $item_option_group_id = Input::get('item_option_group_id');
-        $item_option_id = Input::get('item_option_id');
+        $item_option_group_id = Request::get('item_option_group_id');
+        $item_option_id = Request::get('item_option_id');
 
         $check = ItemGroupOption::where('item_option_group_id',$item_option_group_id)->where('option_item_id',$item_option_id)->delete();
 

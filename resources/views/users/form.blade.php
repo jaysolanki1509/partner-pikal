@@ -64,7 +64,7 @@
                                 <div class="col-md-4">
                                     <label class="col-md-12 control-label">Confirm Password*</label>
                                     <div class="col-md-12">
-                                        <input type="password" class="form-control" minlength="6" name="confirm_password" id="confirm_password" value="{{ Input::old('confirm_password') }}" placeholder="Confirm Password">
+                                        <input type="password" class="form-control" minlength="6" name="confirm_password" id="confirm_password" value="{{ Request::old('confirm_password') }}" placeholder="Confirm Password">
                                     </div>
                                 </div>
                             </div>

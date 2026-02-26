@@ -7,7 +7,7 @@ use App\Recipe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use App\Outlet;
 use Illuminate\Support\Facades\Session;
 
@@ -53,12 +53,12 @@ class RecipeController extends Controller {
 	{
         $recipe=new Recipe();
         $recipe->owner_id=Auth::user()->id;
-        //$recipe->outlet_id=Input::get('Outlet_name');
-        $recipe->title=Input::get('title');
-        $recipe->ingrediants=Input::get('recipeingrediants');
-        $recipe->recipes=Input::get('recipe');
-        $recipe->shop_url=Input::get('shop_url');
-        $recipe->ingrediants_url=Input::get('ingrediants_url');
+        //$recipe->outlet_id=Request::get('Outlet_name');
+        $recipe->title=Request::get('title');
+        $recipe->ingrediants=Request::get('recipeingrediants');
+        $recipe->recipes=Request::get('recipe');
+        $recipe->shop_url=Request::get('shop_url');
+        $recipe->ingrediants_url=Request::get('ingrediants_url');
         $success = $recipe->save();
         if($success)
         {
@@ -103,11 +103,11 @@ class RecipeController extends Controller {
 	{
         $user_id=Auth::user()->id;
         $recipe=Recipe::find($id);
-        $recipe->title=Input::get('title');
-        $recipe->ingrediants=Input::get('recipeingrediants');
-        $recipe->recipe=Input::get('recipe');
-        $recipe->shop_url=Input::get('shop_url');
-        $recipe->ingrediants_url=Input::get('ingrediants_url');
+        $recipe->title=Request::get('title');
+        $recipe->ingrediants=Request::get('recipeingrediants');
+        $recipe->recipe=Request::get('recipe');
+        $recipe->shop_url=Request::get('shop_url');
+        $recipe->ingrediants_url=Request::get('ingrediants_url');
 
 
         $success=$recipe->save();

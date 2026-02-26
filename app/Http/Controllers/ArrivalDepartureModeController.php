@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 
@@ -45,9 +45,9 @@ class ArrivalDepartureModeController extends Controller {
 	 */
 	public function store()
 	{
-        $name = Input::get('name');
-        $description = Input::get('description');
-        $save_continue = Input::get('saveContinue');
+        $name = Request::get('name');
+        $description = Request::get('description');
+        $save_continue = Request::get('saveContinue');
         $owner_id = Auth::id();
         $outlet_id = Session::get('outlet_session');
 
@@ -110,8 +110,8 @@ class ArrivalDepartureModeController extends Controller {
         $arrival_departure_mode = ArrivalDepartureMode::find($id);
         if(isset($arrival_departure_mode) && sizeof($arrival_departure_mode)>0) {
 
-            $name = Input::get('name');
-            $description = Input::get('description');
+            $name = Request::get('name');
+            $description = Request::get('description');
             $owner_id = Auth::id();
             $outlet_id = Session::get('outlet_session');
 

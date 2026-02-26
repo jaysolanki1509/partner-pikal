@@ -24,7 +24,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 
 class StocksController extends Controller {
@@ -48,7 +48,7 @@ class StocksController extends Controller {
 
 		if ($request->ajax())
 		{
-            $input = Input::all();
+            $input = Request::all();
             $response = array();
 
             $search = $input['sSearch'];
@@ -266,13 +266,13 @@ class StocksController extends Controller {
     public function addStock() {
 
         $owner_id = Auth::id();
-        $item_id = Input::get('item_id');
-        $location_id = Input::get('location_id');
-        $batch_no = Input::get('batch_no');
-        $reason = Input::get('reason');
-        $quantity = Input::get('quantity');
-        $manufacture_date = Input::get('manufacture_date');
-        $unit_id = Input::get('unit_id');
+        $item_id = Request::get('item_id');
+        $location_id = Request::get('location_id');
+        $batch_no = Request::get('batch_no');
+        $reason = Request::get('reason');
+        $quantity = Request::get('quantity');
+        $manufacture_date = Request::get('manufacture_date');
+        $unit_id = Request::get('unit_id');
 
         $check_stock = Stock::where('location_id',$location_id)->where('item_id',$item_id)->first();
         $menu = Menu::join('unit','unit.id','=','menus.unit_id')->where('menus.id',$item_id)->first();
@@ -391,18 +391,18 @@ class StocksController extends Controller {
 
         if ($request->ajax())
         {
-            $from = Input::get('from');
-            $to = Input::get('to');
+            $from = Request::get('from');
+            $to = Request::get('to');
             $outlet_id = Session::get('outlet_session');
-            $location_id = Input::get('location_id');
-            $flag = Input::get('flag');
-            $item_ids = Input::get('item_id');
-            $cat_id = Input::get('cat_id');
+            $location_id = Request::get('location_id');
+            $flag = Request::get('flag');
+            $item_ids = Request::get('item_id');
+            $cat_id = Request::get('cat_id');
             $user_id = Auth::id();
             $menu_owner=Owner::menuOwner();
 
             if( $outlet_id == '' && !isset($outlet_id)) {
-                $outlet_id = Input::get('outlet_id');
+                $outlet_id = Request::get('outlet_id');
             }
 
             if ( $from == '' && $to == '' ) {
@@ -426,9 +426,9 @@ class StocksController extends Controller {
                 $selected_itm_arr = explode(',' ,$item_ids);
             } elseif ( isset($cat_id) && $cat_id != 'null') {
                 if ($item_ids == 'null' && $cat_id == 'all'){
-                    $selected_itm_arr = Menu::getMenuByUserId($menu_owner)->lists('id');
+                    $selected_itm_arr = Menu::getMenuByUserId($menu_owner)->pluck('id');
                 }else {
-                    $selected_itm_arr = Menu::getmenubymenutitleid($cat_id)->lists('id');
+                    $selected_itm_arr = Menu::getmenubymenutitleid($cat_id)->pluck('id');
                 }
             }
 
@@ -550,7 +550,7 @@ class StocksController extends Controller {
         }
 
         //item and category filters
-        $menu_items=Menu::where('created_by',$owner_id)->where('is_inventory_item',0)->lists('item','id');
+        $menu_items=Menu::where('created_by',$owner_id)->where('is_inventory_item',0)->pluck('item','id');
 
         $menu_title = MenuTitle::where('created_by', $owner_id)->where('is_inventory_category',0)->get();
         $m_titles = array();
@@ -1324,9 +1324,9 @@ class StocksController extends Controller {
 
     public function StockDetails() {
 
-        $loc_id = Input::get('location_id');
-        $item_id = Input::get('item_id');
-        $page = Input::get("page");
+        $loc_id = Request::get('location_id');
+        $item_id = Request::get('item_id');
+        $page = Request::get("page");
 
         if(isset($page) && sizeof($page)){
 
@@ -1368,15 +1368,15 @@ class StocksController extends Controller {
 
     public function removeStock(){
 
-        //print_r(Input::all());exit;
+        //print_r(Request::all());exit;
         $owner_id = Auth::id();
-        $item_id = Input::get('remove_item_id');
-        $location_id = Input::get('remove_location_id');
-        $reason = Input::get('remove_reason');
-        $remove_qty = Input::get('remove_item_qty');
-        $unit_id = Input::get('unit_id');
-        //$remove_qty = Input::get('satisfy_qty'); // array
-        $transaction_id = Input::get('transaction_id'); // array
+        $item_id = Request::get('remove_item_id');
+        $location_id = Request::get('remove_location_id');
+        $reason = Request::get('remove_reason');
+        $remove_qty = Request::get('remove_item_qty');
+        $unit_id = Request::get('unit_id');
+        //$remove_qty = Request::get('satisfy_qty'); // array
+        $transaction_id = Request::get('transaction_id'); // array
 
         DB::beginTransaction();
 
@@ -1478,14 +1478,14 @@ class StocksController extends Controller {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            $from_loc = Input::get('from_location');
-            $to_loc = Input::get('to_location');
-            $trans_date = Input::get('transfer_date');
-            $trans_qty = Input::get('transfer_qty');
-            $cat_id = Input::get('cat_id');
-            $item_id = Input::get('item_id');
-            $unit_id = Input::get('unit_id');
-            $price = Input::get('price');
+            $from_loc = Request::get('from_location');
+            $to_loc = Request::get('to_location');
+            $trans_date = Request::get('transfer_date');
+            $trans_qty = Request::get('transfer_qty');
+            $cat_id = Request::get('cat_id');
+            $item_id = Request::get('item_id');
+            $unit_id = Request::get('unit_id');
+            $price = Request::get('price');
 //print_r($unit_id);exit;
             $param = array(
                 'from_loc'=>$from_loc,
@@ -1525,8 +1525,8 @@ class StocksController extends Controller {
 
     public function getTransferItems() {
 
-        $from_loc = Input::get('from_loc_id');
-        $cat_id = Input::get('cat_id');
+        $from_loc = Request::get('from_loc_id');
+        $cat_id = Request::get('cat_id');
 
         $param = [
             'cat_id'=>$cat_id,

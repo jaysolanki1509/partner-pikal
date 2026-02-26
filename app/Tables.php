@@ -30,7 +30,7 @@ class Tables extends Model {
 
     public static function  getOutletTablesList($outlet_id) {
 
-        $tables = Tables::where('outlet_id',$outlet_id)->lists('table_no','id');
+        $tables = Tables::where('outlet_id',$outlet_id)->pluck('table_no','id');
 
         return $tables;
     }

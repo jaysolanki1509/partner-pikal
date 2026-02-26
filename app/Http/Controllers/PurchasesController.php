@@ -20,7 +20,7 @@ use Aws\CloudFront\Exception\Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
@@ -47,7 +47,7 @@ class PurchasesController extends Controller {
 
         if ($request->ajax())
         {
-            $input = Input::all();
+            $input = Request::all();
             $response = array();
 
             $search = $input['sSearch'];
@@ -298,16 +298,16 @@ class PurchasesController extends Controller {
 
 		if (isset($p) && $p->passes()) {
             $owner_id = Auth::user()->id;
-            $save_continue = Input::get('saveContinue');
-            $item_ids = Input::get('item_id');
-            $unit_ids = Input::get('unit_id');
-            $rate = Input::get('rate');
-            $quantity = Input::get('quantity');
-            $manufacture_date = Input::get('manufacture_date');
-            $received_date = Input::get('received_date');
-            $invoice_no = Input::get('invoice_no');
-            $status = Input::get('status');
-            $location_id = Input::get('location_id');
+            $save_continue = Request::get('saveContinue');
+            $item_ids = Request::get('item_id');
+            $unit_ids = Request::get('unit_id');
+            $rate = Request::get('rate');
+            $quantity = Request::get('quantity');
+            $manufacture_date = Request::get('manufacture_date');
+            $received_date = Request::get('received_date');
+            $invoice_no = Request::get('invoice_no');
+            $status = Request::get('status');
+            $location_id = Request::get('location_id');
 
 
             DB::beginTransaction();
@@ -317,10 +317,10 @@ class PurchasesController extends Controller {
                 $bill = new InvoiceBill();
                 $bill->invoice_no = $invoice_no;
                 $bill->location_id = $location_id;
-                $bill->vendor_id = Input::get('vendor_id');
-                $bill->total = Input::get('total_amount');
+                $bill->vendor_id = Request::get('vendor_id');
+                $bill->total = Request::get('total_amount');
                 $bill->status = $status;
-                $bill->invoice_date = Input::get('invoice_date');
+                $bill->invoice_date = Request::get('invoice_date');
                 $bill->created_by = $owner_id;
                 $bill->updated_by = $owner_id;
                 $result = $bill->save();
@@ -332,7 +332,7 @@ class PurchasesController extends Controller {
                         if ($item_ids[$i] == '' || $item_ids[$i] == null || $quantity[$i] == '' || $quantity[$i] == null || $rate[$i] == '' || $rate[$i] == null ) {
 
                             DB::rollBack();
-                            return redirect()->back()->withInput(Input::all())->with('error', 'Please fill all details for items');
+                            return redirect()->back()->withInput(Request::all())->with('error', 'Please fill all details for items');
 
                         } else {
 
@@ -441,13 +441,13 @@ class PurchasesController extends Controller {
 
                                         } else {
                                             DB::rollBack();
-                                            return redirect()->back()->withInput(Input::all())->with('error', 'Error occurred.');
+                                            return redirect()->back()->withInput(Request::all())->with('error', 'Error occurred.');
                                         }
 
                                     } else {
 
                                         DB::rollBack();
-                                        return redirect()->back()->withInput(Input::all())->with('error', 'Error occurred.');
+                                        return redirect()->back()->withInput(Request::all())->with('error', 'Error occurred.');
                                     }
                                 }
 
@@ -455,7 +455,7 @@ class PurchasesController extends Controller {
 
                             } else {
                                 DB::rollBack();
-                                return redirect()->back()->withInput(Input::all())->with('error', 'Please fill all details for items');
+                                return redirect()->back()->withInput(Request::all())->with('error', 'Please fill all details for items');
                             }
 
                         }
@@ -466,7 +466,7 @@ class PurchasesController extends Controller {
 
             } catch ( \Exception $e ) {
                 DB::rollBack();
-                return redirect()->back()->withInput(Input::all())->with('error', $e->getMessage());
+                return redirect()->back()->withInput(Request::all())->with('error', $e->getMessage());
             }
 
 			if ( $result1 ) {
@@ -480,7 +480,7 @@ class PurchasesController extends Controller {
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 	}
 
@@ -492,7 +492,7 @@ class PurchasesController extends Controller {
 	 */
 	public function show($id = null)
 	{
-		$id = Input::get('id');
+		$id = Request::get('id');
 
         $bill = InvoiceBill::join('vendors as v','v.id','=','invoice_bills.vendor_id')
                             ->leftjoin('owners as ow','ow.id','=','invoice_bills.created_by')
@@ -600,33 +600,33 @@ class PurchasesController extends Controller {
             'vendor_id.required' => 'Vendor is required!',
         ];
 
-        $p = Validator::make(Input::all(), [
+        $p = Validator::make(Request::all(), [
             'vendor_id' => 'required',
         ],$messages);
 
         if (isset($p) && $p->passes())
         {
             $owner_id = Auth::user()->id;
-            $item_ids = Input::get('item_id');
-            $unit_ids = Input::get('unit_id');
-            $purchase_id = Input::get('purchase_id');
-            $rate = Input::get('rate');
-            $quantity = Input::get('quantity');
-            $invoice_no = Input::get('invoice_no');
-            $status = Input::get('status');
-            $manufacture_date = Input::get('manufacture_date');
-            $received_date = Input::get('received_date');
-            $location_id = Input::get('location_id');
+            $item_ids = Request::get('item_id');
+            $unit_ids = Request::get('unit_id');
+            $purchase_id = Request::get('purchase_id');
+            $rate = Request::get('rate');
+            $quantity = Request::get('quantity');
+            $invoice_no = Request::get('invoice_no');
+            $status = Request::get('status');
+            $manufacture_date = Request::get('manufacture_date');
+            $received_date = Request::get('received_date');
+            $location_id = Request::get('location_id');
 
             DB::beginTransaction();
 
             $bill = InvoiceBill::find($id);
             $bill->invoice_no = $invoice_no;
             $bill->location_id = $location_id;
-            $bill->vendor_id = Input::get('vendor_id');
-            $bill->total = Input::get('total_amount');
+            $bill->vendor_id = Request::get('vendor_id');
+            $bill->total = Request::get('total_amount');
             $bill->status = $status;
-            $bill->invoice_date = Input::get('invoice_date');
+            $bill->invoice_date = Request::get('invoice_date');
             $bill->updated_by = $owner_id;
             $result = $bill->save();
 
@@ -774,7 +774,7 @@ class PurchasesController extends Controller {
                                         $st_history_result = $stock_history->save();
                                         if (!$st_history_result) {
                                             DB::rollBack();
-                                            return redirect()->back()->withInput(Input::all())->with('error', 'Error occurred.');
+                                            return redirect()->back()->withInput(Request::all())->with('error', 'Error occurred.');
                                         }
 
                                     }
@@ -787,7 +787,7 @@ class PurchasesController extends Controller {
 
                     } else {
                         DB::rollBack();
-                        return redirect()->back()->withInput(Input::all())->with('error','Please fill all item details');
+                        return redirect()->back()->withInput(Request::all())->with('error','Please fill all item details');
                     }
 
                 }
@@ -799,7 +799,7 @@ class PurchasesController extends Controller {
             }
 
         } else {
-            return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+            return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
         }
 	}
 
@@ -807,8 +807,8 @@ class PurchasesController extends Controller {
     public function removePurchaseItem(){
 
         $owner_id = Auth::id();
-        $id = Input::get('id');
-        $loc_id = Input::get('location_id');
+        $id = Request::get('id');
+        $loc_id = Request::get('location_id');
 
         if ( isset($id) && $id != '' ) {
 
@@ -976,10 +976,10 @@ class PurchasesController extends Controller {
         $owner_id = Auth::id();
 
         if ($request->ajax()) {
-            $vendor_id = Input::get('vendor');
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
-            $flag = Input::get('flag');
+            $vendor_id = Request::get('vendor');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
+            $flag = Request::get('flag');
 
             if($flag == 'invoiced') {
 
@@ -1011,7 +1011,7 @@ class PurchasesController extends Controller {
         }
 
         $vendors = array('0' => 'Select Vendors');
-        $vendor_list = Vendor::where('created_by',$owner_id)->lists('name','id');
+        $vendor_list = Vendor::where('created_by',$owner_id)->pluck('name','id');
         $vendors = array_merge($vendors,$vendor_list);
 
 
@@ -1022,7 +1022,7 @@ class PurchasesController extends Controller {
 
     public function invoiceupdate(){
 
-        $ids = Input::get('ids');
+        $ids = Request::get('ids');
 
         $updated = 0;
         if ( isset($ids) && sizeof($ids) > 0 ) {
@@ -1047,8 +1047,8 @@ class PurchasesController extends Controller {
 
     public function getPurchaseStockDetail() {
 
-        $ids = Input::get('ids');
-        $flag = Input::get('flag');
+        $ids = Request::get('ids');
+        $flag = Request::get('flag');
         $owner_id = Auth::id();
 
         if ( isset($ids) && sizeof($ids) > 0 ) {
@@ -1251,15 +1251,15 @@ class PurchasesController extends Controller {
         $owner_id = Auth::id();
         $response = array();
 
-        $vendor_id = Input::get('vendor_id');
-        $invoice_date = Input::get('invoice_date');
-        $invoice_no = Input::get('invoice_no');
-        $status = Input::get('status');
-        $location_id = Input::get('location_id');
+        $vendor_id = Request::get('vendor_id');
+        $invoice_date = Request::get('invoice_date');
+        $invoice_no = Request::get('invoice_no');
+        $status = Request::get('status');
+        $location_id = Request::get('location_id');
 
         $invalid_count = 0;
 
-        if (Input::hasFile('file')) {
+        if (Request::hasFile('file')) {
 
             $bill = new InvoiceBill();
             $bill->invoice_no = $invoice_no;
@@ -1271,7 +1271,7 @@ class PurchasesController extends Controller {
             $bill->created_by = $owner_id;
             $bill->updated_by = $owner_id;
 
-            $file = Input::file('file');
+            $file = Request::file('file');
 
             //check type of file
             $type =($file->getMimeType());
@@ -1570,7 +1570,7 @@ class PurchasesController extends Controller {
         $invalids = InvalidPurchaseImport::where('created_by',$owner_id)->get();
 
         if ($request->ajax()) {
-            $input = Input::all();
+            $input = Request::all();
 
             $response = array();
 
@@ -1811,11 +1811,11 @@ class PurchasesController extends Controller {
     public function invalidImportSubmit($id){
 
         $owner_id = Auth::user()->id;
-        $item_id = Input::get('item_id');
-        $unit_id = Input::get('unit_id');
-        $rate = Input::get('rate');
-        $quantity = Input::get('quantity');
-        $location_id = Input::get('location_id');
+        $item_id = Request::get('item_id');
+        $unit_id = Request::get('unit_id');
+        $rate = Request::get('rate');
+        $quantity = Request::get('quantity');
+        $location_id = Request::get('location_id');
         $item = array();
 
         DB::beginTransaction();

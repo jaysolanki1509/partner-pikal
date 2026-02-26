@@ -13,7 +13,7 @@ use App\Outlet;
 use App\OutletMapper;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
 
@@ -29,7 +29,7 @@ class CancellationReasonController extends Controller {
     public function index()
     {
         $userid=Auth::user();
-        $restaurant=$userid->outlet->lists('id');
+        $restaurant=$userid->outlet->pluck('id');
         $sess_outlet_id = Session::get('outlet_session');
 
         if (isset($sess_outlet_id) && $sess_outlet_id != '') {
@@ -63,7 +63,7 @@ class CancellationReasonController extends Controller {
      */
     public function store()
     {
-        $outlet_id =Input::get('outlet_id');
+        $outlet_id =Request::get('outlet_id');
         $sess_outlet_id = Session::get('outlet_session');
 
         if (isset($sess_outlet_id) && $sess_outlet_id != '') {
@@ -71,7 +71,7 @@ class CancellationReasonController extends Controller {
         }
         $cancel=new CancellationReason();
         $cancel->outlet_id= $outlet_id;
-        $cancel->reason_of_cancellation=Input::get('reason');
+        $cancel->reason_of_cancellation=Request::get('reason');
         $success = $cancel->save();
         if($success)
         {
@@ -118,7 +118,7 @@ class CancellationReasonController extends Controller {
      */
     public function update($id)
     {
-        $outlet_id = Input::get('outlet_id');
+        $outlet_id = Request::get('outlet_id');
 
         $sess_outlet_id = Session::get('outlet_session');
 
@@ -129,7 +129,7 @@ class CancellationReasonController extends Controller {
         $user_id=Auth::user()->id;
         $cancel=CancellationReason::find($id);
         $cancel->outlet_id = $outlet_id;
-        $cancel->reason_of_cancellation=Input::get('reason');
+        $cancel->reason_of_cancellation=Request::get('reason');
 
         $success=$cancel->save();
 

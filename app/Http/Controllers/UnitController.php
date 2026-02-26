@@ -5,7 +5,7 @@ use App\Http\Controllers\Controller;
 
 use App\Unit;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Validator;
 
 class UnitController extends Controller {
@@ -47,17 +47,17 @@ class UnitController extends Controller {
             'unit.required' => 'Unit name is required!',
         ];
 
-        $p = Validator::make(Input::all(), [
+        $p = Validator::make(Request::all(), [
             'unit' => 'required',
         ], $messages);
         if (isset($p) && $p->passes()) {
             $units = new Unit();
-            $units->name = Input::get('unit');
+            $units->name = Request::get('unit');
             $units->save();
             $units_list = Unit::all();
             return view('units.index', array('units' => $units_list));
         } else {
-            return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+            return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
         }
 	}
 
@@ -94,7 +94,7 @@ class UnitController extends Controller {
 	public function update($id)
 	{
         $unit = Unit::find($id);
-        $unit->name = Input::get('unit');
+        $unit->name = Request::get('unit');
         $unit->save();
 
         $unit = Unit::all();

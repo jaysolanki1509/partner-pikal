@@ -9,7 +9,7 @@ use App\Tables;
 use Doctrine\DBAL\Schema\Table;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -97,13 +97,13 @@ class TableLevelController extends Controller {
                 }
             }
 
-            $save_continue = Input::get('saveContinue');
-            $name = Input::get('name');
+            $save_continue = Request::get('saveContinue');
+            $name = Request::get('name');
 
             $check_duplicate = TableLevel::where('name',$name)->where('outlet_id',$outlet_id)->first();
 
             if ( isset($check_duplicate) && sizeof($check_duplicate) > 0 ) {
-                return redirect()->back()->withInput(Input::all())->with('error',"This $order_lable level has been already added");
+                return redirect()->back()->withInput(Request::all())->with('error',"This $order_lable level has been already added");
             }
 
             $t_level = new TableLevel();
@@ -122,7 +122,7 @@ class TableLevelController extends Controller {
             }
 
         } else {
-            return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+            return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
         }
 	}
 
@@ -174,14 +174,14 @@ class TableLevelController extends Controller {
             'name.required' => 'Name is required!',
         ];
 
-        $p = Validator::make(Input::all(), [
+        $p = Validator::make(Request::all(), [
             'name' => 'required',
         ],$messages);
 
         if (isset($p) && $p->passes())
         {
             $owner_id = Auth::id();
-            $name = Input::get('name');
+            $name = Request::get('name');
             $outlet_id = Session::get('outlet_session');
 
             $order_lable = 'Table';
@@ -198,7 +198,7 @@ class TableLevelController extends Controller {
             $check_duplicate = TableLevel::where('id','!=',$id)->where('name',$name)->where('outlet_id',$outlet_id)->first();
 
             if ( isset($check_duplicate) && sizeof($check_duplicate) > 0 ) {
-                return redirect()->back()->withInput(Input::all())->with('error',"This $order_lable level has been already added");
+                return redirect()->back()->withInput(Request::all())->with('error',"This $order_lable level has been already added");
             }
 
             $t_level = TableLevel::find($id);
@@ -213,7 +213,7 @@ class TableLevelController extends Controller {
             }
 
         } else {
-            return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+            return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
         }
 	}
 

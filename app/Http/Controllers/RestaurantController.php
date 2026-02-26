@@ -18,7 +18,7 @@ use App\Http\Requests\CreateRestaurantRequest;
 use App\Timeslot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 
 use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
@@ -120,8 +120,8 @@ class RestaurantController extends Controller {
 
 
 
-    //        if (Input::hasFile('file')) {
-    //            $file = Input::file('file');
+    //        if (Request::hasFile('file')) {
+    //            $file = Request::file('file');
     //            try {
     //                $path = public_path() . '/uploads';
     //                $filename = $user_id. '_' . time() . '_' . $file->getClientOriginalName();
@@ -152,8 +152,8 @@ class RestaurantController extends Controller {
 
             for ($i=0; $i <= $no; $i++)
             {
-                $fnm=Input::get('opening_time'.$i);
-                $fval=Input::get('closing_time'.$i);
+                $fnm=Request::get('opening_time'.$i);
+                $fval=Request::get('closing_time'.$i);
 
                 if(isset($fnm)|| isset($fval))
                 {
@@ -404,8 +404,8 @@ class RestaurantController extends Controller {
 
                 for ($i=0; $i <= $no; $i++)
                 {
-                    $fnm=Input::get('opening_time'.$i);
-                    $fval=Input::get('closing_time'.$i);
+                    $fnm=Request::get('opening_time'.$i);
+                    $fval=Request::get('closing_time'.$i);
 
 
                     if(isset($fnm)|| isset($fval))
@@ -464,19 +464,19 @@ class RestaurantController extends Controller {
 
     public function addlocation()
     {
-        $getpreviouslatlong=Restaurantlatlong::where('restaurant_id',Input::get('restaurant_id'))->get();
+        $getpreviouslatlong=Restaurantlatlong::where('restaurant_id',Request::get('restaurant_id'))->get();
 
         //updated if previously added or added if the restaurant is new restaurant latitude longitude
         if(sizeof($getpreviouslatlong)>0){
-            $restaurant_latlong=Restaurantlatlong::where('restaurant_id',Input::get('restaurant_id'));
-            $restaurant_latlong->latitude=Input::get('latitude');
-            $restaurant_latlong->longitude=Input::get('longitude');
+            $restaurant_latlong=Restaurantlatlong::where('restaurant_id',Request::get('restaurant_id'));
+            $restaurant_latlong->latitude=Request::get('latitude');
+            $restaurant_latlong->longitude=Request::get('longitude');
             $restaurant_latlong->save();
         }else{
             $restaurant_latlong=new Restaurantlatlong();
-            $restaurant_latlong->restaurant_id=Input::get('restaurant_id');
-            $restaurant_latlong->latitude=Input::get('latitude');
-            $restaurant_latlong->longitude=Input::get('longitude');
+            $restaurant_latlong->restaurant_id=Request::get('restaurant_id');
+            $restaurant_latlong->latitude=Request::get('latitude');
+            $restaurant_latlong->longitude=Request::get('longitude');
             $restaurant_latlong->save();
         }
 
@@ -486,9 +486,9 @@ class RestaurantController extends Controller {
 
     public function importrestaurantexcel()
     {
-        if (Input::hasFile('file1'))
+        if (Request::hasFile('file1'))
         {
-            $file = Input::file('file1');
+            $file = Request::file('file1');
             $type =($file->getMimetype());
 //            print_r($type);exit;
             if ($type == 'application/vnd.ms-office' || $type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || $type =='application/zip'){
@@ -568,9 +568,9 @@ class RestaurantController extends Controller {
 
 //    public function addlocation(){
 //        $restaurant_latlong=new Restaurantlatlong();
-//        $restaurant_latlong->restaurant_id=Input::get('restaurant_id');
-//        $restaurant_latlong->latitude=Input::get('latitude');
-//        $restaurant_latlong->longitude=Input::get('longitude');
+//        $restaurant_latlong->restaurant_id=Request::get('restaurant_id');
+//        $restaurant_latlong->latitude=Request::get('latitude');
+//        $restaurant_latlong->longitude=Request::get('longitude');
 //        $restaurant_latlong->save();
 //        //    return "added Restaurant Location";
 //        return view('restaurants.show',array('restaurant_latlong'=>$restaurant_latlong));

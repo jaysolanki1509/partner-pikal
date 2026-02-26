@@ -8,7 +8,7 @@ use App\RoomAmenity;
 use App\RoomStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 
 class RoomStatusController extends Controller {
@@ -42,9 +42,9 @@ class RoomStatusController extends Controller {
 	 */
 	public function store()
 	{
-        $name = Input::get('name');
-        $color = Input::get('color');
-        $save_continue = Input::get('saveContinue');
+        $name = Request::get('name');
+        $color = Request::get('color');
+        $save_continue = Request::get('saveContinue');
         $owner_id = Auth::id();
 
         $new_status = new RoomStatus();
@@ -105,8 +105,8 @@ class RoomStatusController extends Controller {
         $room_status = RoomStatus::find($id);
         if(isset($room_status) && sizeof($room_status)>0) {
 
-            $name = Input::get('name');
-            $color = Input::get('color');
+            $name = Request::get('name');
+            $color = Request::get('color');
             $owner_id = Auth::id();
 
             $room_status->name = $name;

@@ -9,7 +9,7 @@ class RoomAmenity extends Model {
 
     public static function getAmenitisByOutletId($outlet_id){
 
-        $room_amenities = RoomAmenity::where("outlet_id",$outlet_id)->lists("name","id");
+        $room_amenities = RoomAmenity::where("outlet_id",$outlet_id)->pluck("name","id");
 
         return $room_amenities;
 

@@ -12,7 +12,7 @@ use App\ordercouponmapper;
 use App\Owner;
 use Illuminate\Support\Facades\Auth;
 use App\Outlet;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -51,31 +51,31 @@ class AddOrderController extends ApiController {
 
     public function store()
     {
-        $input = Input::all();
+        $input = Request::all();
         //print_r($input);exit;
         $order = array();
-        $count = Input::get('count');
+        $count = Request::get('count');
         $menu_item = array();
         $coupon_ary = array();
         $totalcost = '';
         $flag = '';
         if ( isset($count) && $count > 0 ){
             for ($i = 1; $i <= $count; $i++) {
-                $item_qty = Input::get('item_qty_' . $i);
-                $item_rs = Input::get('item_rs_' . $i);
-                $menu = Input::get('menu_item_' . $i);
-                $extra_options = Input::get('extra_'.$i.'_options');
+                $item_qty = Request::get('item_qty_' . $i);
+                $item_rs = Request::get('item_rs_' . $i);
+                $menu = Request::get('menu_item_' . $i);
+                $extra_options = Request::get('extra_'.$i.'_options');
                 //print_r($extra_options);exit;
                 if( isset($item_qty) && isset($item_rs) && $item_rs != 0.00  ){
-                    $menu_item[$i]['quantity'] = Input::get('item_qty_' . $i);
+                    $menu_item[$i]['quantity'] = Request::get('item_qty_' . $i);
                 }
                 if( isset($item_rs) && $item_rs != 0.00 ){
-                    $menu_item[$i]['price'] = Input::get('item_rs_' . $i);
+                    $menu_item[$i]['price'] = Request::get('item_rs_' . $i);
 
                 }
                 if( isset($menu) && $menu != 0 ){
                     $flag = 'items';
-                    $menu_item[$i]['item_id'] = Input::get('menu_item_' . $i);
+                    $menu_item[$i]['item_id'] = Request::get('menu_item_' . $i);
                 }
                 $options_price = '';
                 $options = '';
@@ -98,15 +98,15 @@ class AddOrderController extends ApiController {
                     $menu_item[$i]['options_price'] = $options_price;
                     $menu_item[$i]['options'] = $options;
                 }
-                //$totalcost += Input::get('item_rs_' . $i);
+                //$totalcost += Request::get('item_rs_' . $i);
             }
             if ( $flag == 'items'){
 
-                $coupon_flag = Input::get('coupon_flag');
-                $coupon_code = Input::get('coupon_box');
+                $coupon_flag = Request::get('coupon_flag');
+                $coupon_code = Request::get('coupon_box');
                 if ( $coupon_flag == 'Yes' && isset($coupon_code) ){
                     $coupondata = CouponCodes::where('coupon_code', $coupon_code)->first();
-                    $couponordermapper = ordercouponmapper::where('coupon_applied', $coupon_code)->where('user_mobile_number', Input::get('mobile'))->first();
+                    $couponordermapper = ordercouponmapper::where('coupon_applied', $coupon_code)->where('user_mobile_number', Request::get('mobile'))->first();
                     //print_r($coupondata);exit;
                     if( sizeof($coupondata) > 0 && sizeof($couponordermapper) == 0 ){
                             //print_r($coupondata->coupon_code);exit;
@@ -132,35 +132,35 @@ class AddOrderController extends ApiController {
                 }else{
                     $order['order']['coupon_applied'] = 'No';
                 }
-                $order['order']['discounted_value'] = Input::get('discount_input');
+                $order['order']['discounted_value'] = Request::get('discount_input');
                 $order['order']['local_id'] = '';
-                $order['order']['mobile_number'] = Input::get('mobile');
-                $order['order']['name'] = Input::get('name');
-                $order['order']['restaurant_id'] = Input::get('outlets');
+                $order['order']['mobile_number'] = Request::get('mobile');
+                $order['order']['name'] = Request::get('name');
+                $order['order']['restaurant_id'] = Request::get('outlets');
                 $order['order']['device_id'] = '';
-                $order['order']['table'] = Input::get('table');;
-                $order['order']['totalcost_afterdiscount'] = Input::get('totalcost_afterdiscount');
+                $order['order']['table'] = Request::get('table');;
+                $order['order']['totalcost_afterdiscount'] = Request::get('totalcost_afterdiscount');
                 $order['order']['moneystatus'] = 'COD';
-                $order['order']['total_price'] = Input::get('total_price');
+                $order['order']['total_price'] = Request::get('total_price');
                 $order['order']['menu_item'] = $menu_item;
-                $order['order']['order_type'] = Input::get('service');
+                $order['order']['order_type'] = Request::get('service');
                 $order['order']['flag'] = 'webapp_order';
-                $order['order']['address'] = Input::get('address');
-                $order['order']['simpleaddress'] = Input::get('address');
+                $order['order']['address'] = Request::get('address');
+                $order['order']['simpleaddress'] = Request::get('address');
                // print_r($order);exit;
                 //$order_json = json_encode($order);
                 $send_orderdetails = \App::make('App\Http\Controllers\Api\v1\ApiController')->orderdetails($order);
                 if($send_orderdetails == 'success'){
                     return Redirect('/')->with('success', 'Order Placed Successfully.');
                 }else{
-                    return Redirect('/createorder/create')->withInput(Input::all())->with('failure', 'Something entered wrong input');
+                    return Redirect('/createorder/create')->withInput(Request::all())->with('failure', 'Something entered wrong input');
                 }
         }else{
-                return Redirect('/createorder/create')->withInput(Input::all())->with('failure', 'Please add menu items.');
+                return Redirect('/createorder/create')->withInput(Request::all())->with('failure', 'Please add menu items.');
             }
            // print_r($order_json);exit;
         }else{
-            return Redirect('/createorder/create')->withInput(Input::all())->with('failure', 'Please add menu items.');
+            return Redirect('/createorder/create')->withInput(Request::all())->with('failure', 'Please add menu items.');
         }
        //echo $totalcost;exit;
 
@@ -169,7 +169,7 @@ class AddOrderController extends ApiController {
     /*public function getmenu_title()
     {
 //        print_r("here");exit;
-        $outlet_id = Input::get('rest_id');
+        $outlet_id = Request::get('rest_id');
         $active = '0';
 //        print_r($outlet_id);exit;
         $menu_title = MenuTitle::getmenutitlebyrestaurantidandactive($outlet_id,$active);
@@ -188,8 +188,8 @@ class AddOrderController extends ApiController {
     public function getmenu_item()
     {
 //        print_r("here");exit;
-//        $outlet_id = Input::get('outlet_id');
-        $menu_title_id = Input::get('menu_title');
+//        $outlet_id = Request::get('outlet_id');
+        $menu_title_id = Request::get('menu_title');
 
 
         $active = '0';
@@ -209,12 +209,12 @@ class AddOrderController extends ApiController {
 
     public function get_price()
     {
-        $input = Input::all();
-        $menu_item_id = Input::get('menu_item_id');
-        $item_qty = Input::get('item_qty');
-        $i = Input::get('i_val');
-        $extra = Input::get('extra_array');
-        $flag = Input::get('flag');
+        $input = Request::all();
+        $menu_item_id = Request::get('menu_item_id');
+        $item_qty = Request::get('item_qty');
+        $i = Request::get('i_val');
+        $extra = Request::get('extra_array');
+        $flag = Request::get('flag');
         $options_list = '';
         $options = array();
         $option_flag = '';
@@ -264,7 +264,7 @@ class AddOrderController extends ApiController {
     public function getServiceTypeOutletList()
     {
         //echo 'here';exit;
-        $service_type = Input::get('service_type');
+        $service_type = Request::get('service_type');
         $login_user_id = Auth::id();
         //$response = array();
         if ( isset($service_type) ){

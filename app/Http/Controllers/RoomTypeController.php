@@ -5,7 +5,7 @@ use App\Http\Controllers\Controller;
 use App\RoomAmenity;
 use App\RoomTypes;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -55,18 +55,18 @@ class RoomTypeController extends Controller {
 	public function store()
 	{
 
-        $name = Input::get('name');
-        $short_name = Input::get('short_name');
-        $description = Input::get('description');
-        $save_continue = Input::get('saveContinue');
-        $base_occupancy = Input::get('base_occupancy');
-        $higher_occupancy = Input::get('higher_occupancy');
-        $extra_bed_allowed = Input::get('extra_bed_allowed');
-        $no_of_beds_allowed = Input::get('no_of_beds_allowed');
-        $base_price = Input::get('base_price');
-        $higher_price_per_person = Input::get('higher_price_per_person');
-        $extra_bed_price = Input::get('extra_bed_price');
-        $amenities = Input::get('amenities');
+        $name = Request::get('name');
+        $short_name = Request::get('short_name');
+        $description = Request::get('description');
+        $save_continue = Request::get('saveContinue');
+        $base_occupancy = Request::get('base_occupancy');
+        $higher_occupancy = Request::get('higher_occupancy');
+        $extra_bed_allowed = Request::get('extra_bed_allowed');
+        $no_of_beds_allowed = Request::get('no_of_beds_allowed');
+        $base_price = Request::get('base_price');
+        $higher_price_per_person = Request::get('higher_price_per_person');
+        $extra_bed_price = Request::get('extra_bed_price');
+        $amenities = Request::get('amenities');
         $owner_id = Auth::id();
         $outlet_id = Session::get('outlet_session');
 
@@ -144,19 +144,19 @@ class RoomTypeController extends Controller {
         $room_type = RoomTypes::find($id);
         if(isset($room_type) && sizeof($room_type)>0) {
 
-            $name = Input::get('name');
+            $name = Request::get('name');
             $owner_id = Auth::id();
-            $short_name = Input::get('short_name');
-            $description = Input::get('description');
-            $save_continue = Input::get('saveContinue');
-            $base_occupancy = Input::get('base_occupancy');
-            $higher_occupancy = Input::get('higher_occupancy');
-            $extra_bed_allowed = Input::get('extra_bed_allowed');
-            $no_of_beds_allowed = Input::get('no_of_beds_allowed');
-            $base_price = Input::get('base_price');
-            $higher_price_per_person = Input::get('higher_price_per_person');
-            $extra_bed_price = Input::get('extra_bed_price');
-            $amenities = Input::get('amenities');
+            $short_name = Request::get('short_name');
+            $description = Request::get('description');
+            $save_continue = Request::get('saveContinue');
+            $base_occupancy = Request::get('base_occupancy');
+            $higher_occupancy = Request::get('higher_occupancy');
+            $extra_bed_allowed = Request::get('extra_bed_allowed');
+            $no_of_beds_allowed = Request::get('no_of_beds_allowed');
+            $base_price = Request::get('base_price');
+            $higher_price_per_person = Request::get('higher_price_per_person');
+            $extra_bed_price = Request::get('extra_bed_price');
+            $amenities = Request::get('amenities');
             $owner_id = Auth::id();
             $outlet_id = Session::get('outlet_session');
 

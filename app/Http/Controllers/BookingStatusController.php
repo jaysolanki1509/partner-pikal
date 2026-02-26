@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\room_status;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
 
@@ -42,9 +42,9 @@ class BookingStatusController extends Controller {
 	 */
 	public function store()
 	{
-        $name = Input::get('name');
-        $color = Input::get('color');
-        $save_continue = Input::get('saveContinue');
+        $name = Request::get('name');
+        $color = Request::get('color');
+        $save_continue = Request::get('saveContinue');
         $owner_id = Auth::id();
 
         $new_status = new BookingStatus();
@@ -103,8 +103,8 @@ class BookingStatusController extends Controller {
         $booking_status = BookingStatus::find($id);
         if(isset($booking_status) && sizeof($booking_status)>0) {
 
-            $name = Input::get('name');
-            $color = Input::get('color');
+            $name = Request::get('name');
+            $color = Request::get('color');
             $owner_id = Auth::id();
 
             $booking_status->name = $name;

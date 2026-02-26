@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\CuisineType;
 use App\Http\Requests\CreateMenuRequest;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
@@ -58,7 +58,7 @@ class MenuController extends Controller {
 
         if ($request->ajax())
         {
-            $input = Input::all();
+            $input = Request::all();
             $response = array();
 
             $search = $input['sSearch'];
@@ -294,13 +294,13 @@ class MenuController extends Controller {
         $login_user=Auth::id();
         $menu_owner=Owner::menuOwner();
 
-        $myOutlets_id=OutletMapper::getOutletMapperByOwnerId($login_user)->lists("outlet_id");
-        $myOutlets=Outlet::whereIn('id',$myOutlets_id)->lists('name','id');
-        $units=Unit::all()->lists('name','id');
+        $myOutlets_id=OutletMapper::getOutletMapperByOwnerId($login_user)->pluck("outlet_id");
+        $myOutlets=Outlet::whereIn('id',$myOutlets_id)->pluck('name','id');
+        $units=Unit::all()->pluck('name','id');
         $tax_slot_array[''] = 'Select Tax Slot';
 
         $menu_title_list = array('' => 'Select Category');
-        $menu_title = MenuTitle::where('created_by',$menu_owner)->lists('title','id');
+        $menu_title = MenuTitle::where('created_by',$menu_owner)->pluck('title','id');
         if( isset($menu_title) && sizeof($menu_title) > 0 ) {
             foreach ( $menu_title as $id => $title ) {
                 $menu_title_list[$id] = $title;
@@ -350,10 +350,10 @@ class MenuController extends Controller {
     public function importmenuexcel(){
 
         $error_string='';
-        if (Input::hasFile('file1')) {
+        if (Request::hasFile('file1')) {
             $menu_owner=Owner::menuOwner();
 
-            $file = Input::file('file1');
+            $file = Request::file('file1');
             $outlet_id=$menu_owner;
             $type =($file->getMimeType());
 
@@ -840,25 +840,25 @@ class MenuController extends Controller {
 
         $input = $request->all();
         $in = $request->all();
-        $save_continue = Input::get('saveContinue');
+        $save_continue = Request::get('saveContinue');
         $rules = array('mimes:jpeg,bmp,png','max:100'); //mimes:jpeg,bmp,png and for max size max:10000
         $validator = Validator::make($input, $rules);
         if ($validator->fails()) {
-            return redirect()->back()->withInput(Input::all())->withErrors($validator);
+            return redirect()->back()->withInput(Request::all())->withErrors($validator);
         }
 
         $menu = new Menu();
         $totalItems = 0;
         $menu_owner=Owner::menuOwner();
-        $tax_slab = Input::get("tax_slab");
-        $hsc_sac_code = Input::get("hsn_sac_code");
-        $discount_type = Input::get("discount_type");
-        $discount_value = Input::get("discount_value");
+        $tax_slab = Request::get("tax_slab");
+        $hsc_sac_code = Request::get("hsn_sac_code");
+        $discount_type = Request::get("discount_type");
+        $discount_value = Request::get("discount_value");
 
 
         if($request->get('custom_title') != "" && $request->get('title0')=='custom'){
             if($request->get('custom_title')==""){
-                return redirect()->back()->withInput(Input::all())->with('error', 'Custom Title is required');
+                return redirect()->back()->withInput(Request::all())->with('error', 'Custom Title is required');
             }
             $success=MenuTitle::where('created_by',$menu_owner)->where('title',$request->get('custom_title'))->first();
 
@@ -893,7 +893,7 @@ class MenuController extends Controller {
             {
                 if ( isset($input['price' . $i]) && $input['price' . $i] != '') {
                     if( !is_numeric($input['price' . $i])){
-                        return redirect()->back()->withInput(Input::all())->with('error', $input['item' . $i].' Price must be Numeric.');
+                        return redirect()->back()->withInput(Request::all())->with('error', $input['item' . $i].' Price must be Numeric.');
                     }
                 }
 
@@ -1002,20 +1002,20 @@ class MenuController extends Controller {
                         Outlet_Menu_Bind::addMenuItem($ot_id,$menuTitle->id,$menu->id);
                     }
                 }
-                $myOutlets_id=OutletMapper::getOutletMapperByOwnerId($menu_owner)->lists("outlet_id");
+                $myOutlets_id=OutletMapper::getOutletMapperByOwnerId($menu_owner)->pluck("outlet_id");
 
                 if(sizeof($request->sale)>0 || sizeof($request->act)>0){
-                    $act = Input::get('act');
-                    $sales = Input::get('sale');
+                    $act = Request::get('act');
+                    $sales = Request::get('sale');
                     foreach ($myOutlets_id as $ot_id=>$value){
                         if( isset($act) ) {
-                            $active = array_key_exists( $value , Input::get('act'))?0:1;
+                            $active = array_key_exists( $value , Request::get('act'))?0:1;
                         }else{
                             $active = 1;
                         }
 
                         if( isset($sales) ) {
-                            $sale = array_key_exists($value, Input::get('sale')) ? 1 : 0;
+                            $sale = array_key_exists($value, Request::get('sale')) ? 1 : 0;
                         }else{
                             $sale = 0;
                         }
@@ -1028,7 +1028,7 @@ class MenuController extends Controller {
                 if ($menuStored)
                 {
 
-                    $option_groups = Input::get('option_groups');
+                    $option_groups = Request::get('option_groups');
 
                     //remove item option groups
                     ItemOptionGroupMapper::where('item_id',$menu->id)->delete();
@@ -1133,14 +1133,14 @@ class MenuController extends Controller {
                         ->select('menus.*','u.id as u_id','u.name as u_name')
                         ->where('menus.id',$id)->first();
         //print_r($item);exit;
-        $myOutlets_id=OutletMapper::getOutletMapperByOwnerId($menu_owner)->lists("outlet_id");
-        $myOutlets=Outlet::whereIn('id',$myOutlets_id)->lists('name','id');
-        $units=Unit::all()->lists('name','id');
-        $menu_title_list = MenuTitle::where('created_by',$menu_owner)->lists('title','id');
+        $myOutlets_id=OutletMapper::getOutletMapperByOwnerId($menu_owner)->pluck("outlet_id");
+        $myOutlets=Outlet::whereIn('id',$myOutlets_id)->pluck('name','id');
+        $units=Unit::all()->pluck('name','id');
+        $menu_title_list = MenuTitle::where('created_by',$menu_owner)->pluck('title','id');
         $menu_title_list['custom']="(Add new Title)";
-        $selected_outlet=Outlet_Menu_Bind::where('item_id',$id)->lists("outlet_id");
-        $active = ItemSettings::where('item_id',$id)->where('is_active',1)->lists('outlet_id');
-        $sale = ItemSettings::where('item_id',$id)->where('is_sale',1)->lists('outlet_id');
+        $selected_outlet=Outlet_Menu_Bind::where('item_id',$id)->pluck("outlet_id");
+        $active = ItemSettings::where('item_id',$id)->where('is_active',1)->pluck('outlet_id');
+        $sale = ItemSettings::where('item_id',$id)->where('is_sale',1)->pluck('outlet_id');
 
         //ingredients
         $items=array();
@@ -1209,16 +1209,16 @@ class MenuController extends Controller {
         $item=Menu::where('id',$id)->first();
         $tax_slot_array[''] = 'Select Tax Slot';
 
-        $myOutlets_id=OutletMapper::getOutletMapperByOwnerId($logged_in)->lists("outlet_id");
-        $myOutlets=Outlet::whereIn('id',$myOutlets_id)->lists('name','id');
+        $myOutlets_id=OutletMapper::getOutletMapperByOwnerId($logged_in)->pluck("outlet_id");
+        $myOutlets=Outlet::whereIn('id',$myOutlets_id)->pluck('name','id');
 
-        $units=Unit::all()->lists('name','id');
+        $units=Unit::all()->pluck('name','id');
 
-        $menu_title_list=MenuTitle::where('created_by',$menu_owner)->lists('title','id');
+        $menu_title_list=MenuTitle::where('created_by',$menu_owner)->pluck('title','id');
         //$menu_title_list['custom']="(Add new Title)";
-        $selected_outlet=Outlet_Menu_Bind::where('item_id',$id)->lists("outlet_id");
-        $active = ItemSettings::where('item_id',$id)->where('is_active',1)->lists('outlet_id');
-        $sale = ItemSettings::where('item_id',$id)->where('is_sale',1)->lists('outlet_id');
+        $selected_outlet=Outlet_Menu_Bind::where('item_id',$id)->pluck("outlet_id");
+        $active = ItemSettings::where('item_id',$id)->where('is_active',1)->pluck('outlet_id');
+        $sale = ItemSettings::where('item_id',$id)->where('is_sale',1)->pluck('outlet_id');
 
         $sec_unit = '';
         if( isset($item->secondary_units) ) {
@@ -1247,7 +1247,7 @@ class MenuController extends Controller {
         //get outlet item option groups
         $option_groups = ItemOptionGroup::where('outlet_id',$outlet_id)->get();
 
-        $selected_option_group = ItemOptionGroupMapper::where('item_id',$id)->lists('item_option_group_id');
+        $selected_option_group = ItemOptionGroupMapper::where('item_id',$id)->pluck('item_option_group_id');
 
         //check itemwise discount enable or not
         $check_itemwise_dis = OutletSetting::checkAppSetting( $outlet_id, "itemWiseDiscount" );
@@ -1282,16 +1282,16 @@ class MenuController extends Controller {
         $menu_owner=Owner::menuOwner();
         $encoded_image = null;
 
-        if(strcmp(Input::get('title0'),'custom')==0){
-            if(strcmp(Input::get('custom_title'),"")==0){
-                return redirect()->back()->withInput(Input::all())->with('error', 'Custom Title is required');
+        if(strcmp(Request::get('title0'),'custom')==0){
+            if(strcmp(Request::get('custom_title'),"")==0){
+                return redirect()->back()->withInput(Request::all())->with('error', 'Custom Title is required');
             }
-            $temp_title=MenuTitle::where('created_by',$menu_owner)->where('title',Input::get('custom_title'))->first();
+            $temp_title=MenuTitle::where('created_by',$menu_owner)->where('title',Request::get('custom_title'))->first();
             if(!$temp_title){
                 $menuTitle = new MenuTitle();
                 $menuTitle->outlet_id = $menu_owner;
                 $menuTitle->created_by = $menu_owner;
-                $menuTitle->title = Input::get('custom_title');
+                $menuTitle->title = Request::get('custom_title');
                 //$menuTitle->food = $request->Food; //get activation of Food at database
                 $menuTitle->active = "0";//get activation of Menu_Title at database
                 $success = $menuTitle->save();
@@ -1299,32 +1299,32 @@ class MenuController extends Controller {
                 $menuTitle=MenuTitle::getmenutitlebyid($temp_title->id);
             }
         }else{
-            $menuTitle=MenuTitle::getmenutitlebyid(Input::get("title0"));
+            $menuTitle=MenuTitle::getmenutitlebyid(Request::get("title0"));
             $success=1;
         }
-        if (Input::get("item0") != "" && Input::get("item_code") != "") {
+        if (Request::get("item0") != "" && Request::get("item_code") != "") {
             $items = Menu::getMenuByUserId($menu_owner);
             if(isset($items)){
                 $add=0;
                 foreach($items as $item){
-                    if(strtolower($item->item_code)==strtolower(Input::get("item_code")) && $item->id!=$id){
+                    if(strtolower($item->item_code)==strtolower(Request::get("item_code")) && $item->id!=$id){
                         $add=1;
                         break;
                     }
                 }
                 if($add!=1){
-                    $menu_item = Input::get("item0");
-                    $item_code = Input::get("item_code");
+                    $menu_item = Request::get("item0");
+                    $item_code = Request::get("item_code");
                 }else{
-                    return redirect()->back()->with('error', Input::get("item_code").' Item code is Repeated');
+                    return redirect()->back()->with('error', Request::get("item_code").' Item code is Repeated');
                 }
             }
         }else{
             return redirect()->back()->with('error', 'Item code and Item name is Required.');
         }
 
-        $sec_unit_id = Input::get('secondary_unit');
-        $sec_unit_val = Input::get('secondary_value');
+        $sec_unit_id = Request::get('secondary_unit');
+        $sec_unit_val = Request::get('secondary_value');
         $units = '';$secondary_units = array();
 
         if ( isset($sec_unit_id) && isset($sec_unit_val) && sizeof($sec_unit_id) && sizeof($sec_unit_val) ) {
@@ -1337,11 +1337,11 @@ class MenuController extends Controller {
                 $units = json_encode($secondary_units);
             }
         }
-        $ord_unit = Input::get('order_unit');
-        $tax_slab = Input::get("tax_slab");
-        $hsc_sac_code = Input::get("hsn_sac_code");
-        $discount_type = Input::get("discount_type");
-        $discount_value = Input::get("discount_value");
+        $ord_unit = Request::get('order_unit');
+        $tax_slab = Request::get("tax_slab");
+        $hsc_sac_code = Request::get("hsn_sac_code");
+        $discount_type = Request::get("discount_type");
+        $discount_value = Request::get("discount_value");
 
         if ( $ord_unit == '') {
             $ord_unit = NULL;
@@ -1351,42 +1351,42 @@ class MenuController extends Controller {
             $item_code = NULL;
         }
 
-        $buy_price = Input::get("buy_price0");
+        $buy_price = Request::get("buy_price0");
         if(!isset($buy_price) && !sizeof($buy_price)>0)
-            $buy_price = Input::get("price0");
+            $buy_price = Request::get("price0");
 
-        $is_inventory_item = Input::get('is_inventory_item');
+        $is_inventory_item = Request::get('is_inventory_item');
 
         $menu_obj = Menu::find($id);
         $menu_obj->menu_title_id = $menuTitle->id;
         $menu_obj->item = $menu_item;
-        $menu_obj->price = Input::get("price0");
+        $menu_obj->price = Request::get("price0");
         $menu_obj->buy_price = $buy_price;
         $menu_obj->secondary_units = $units;
         $menu_obj->order_unit = $ord_unit;
         $menu_obj->item_code = $item_code;
-        $menu_obj->details = Input::get("details0");
-        $menu_obj->unit_id = Input::get("unit_id0");
-        $menu_obj->active = Input::get("active0");
-        $menu_obj->food = Input::get("food0");
-        $menu_obj->item_order = Input::get('item_order');
-        $menu_obj->brand = Input::get('brand');
-        $menu_obj->is_sell = Input::get('is_sell');
+        $menu_obj->details = Request::get("details0");
+        $menu_obj->unit_id = Request::get("unit_id0");
+        $menu_obj->active = Request::get("active0");
+        $menu_obj->food = Request::get("food0");
+        $menu_obj->item_order = Request::get('item_order');
+        $menu_obj->brand = Request::get('brand');
+        $menu_obj->is_sell = Request::get('is_sell');
         $menu_obj->is_inventory_item = isset($is_inventory_item)?1:0;
-        $menu_obj->alias = Input::get("alias0");
-        $menu_obj->barcode = Input::get("barcode");
+        $menu_obj->alias = Request::get("alias0");
+        $menu_obj->barcode = Request::get("barcode");
         $menu_obj->tax_slab = isset($tax_slab)?$tax_slab:"";
         $menu_obj->hsn_sac_code = isset($hsc_sac_code)?$hsc_sac_code:"";
         $menu_obj->discount_type = isset($discount_type)?$discount_type:"";
         $menu_obj->discount_value = isset($discount_value)?$discount_value:0;
-        $color = Input::get("color");
+        $color = Request::get("color");
         if (isset($color) && $color != "#000000 ") {
             $menu_obj->color =$color;
         }
 
         //store image
         $path = NULL;
-        if (isset(Input::all()['image'])) {
+        if (isset(Request::all()['image'])) {
 
             if (!file_exists(base_path().'/public/images/menuimage')) {
                 try{
@@ -1398,11 +1398,11 @@ class MenuController extends Controller {
             }
 
             $imageName = $id . '.' .
-                Input::all()['image']->getClientOriginalExtension();
+                Request::all()['image']->getClientOriginalExtension();
 
             $path = '/images/menuimage/'.$imageName;
 
-            Input::all()['image']->move(
+            Request::all()['image']->move(
                 base_path() . '/public/images/menuimage/', $imageName
             );
 
@@ -1413,7 +1413,7 @@ class MenuController extends Controller {
 
         $menu_obj->save();
 
-        $option_groups = Input::get('option_groups');
+        $option_groups = Request::get('option_groups');
 
         //remove item option groups
         ItemOptionGroupMapper::where('item_id',$menu_obj->id)->delete();
@@ -1433,26 +1433,26 @@ class MenuController extends Controller {
 
         //outlet menu bind
         Outlet_Menu_Bind::where('item_id',$id)->delete();
-        if(sizeof(Input::get("bind"))>0){
-            $outlet_ids=Input::get("bind");
+        if(sizeof(Request::get("bind"))>0){
+            $outlet_ids=Request::get("bind");
             foreach ($outlet_ids as $ot_id=>$value){
                 $result = Outlet_Menu_Bind::addMenuItem($value,$menuTitle->id,$id);
             }
         }
-        $myOutlets_id=OutletMapper::getOutletMapperByOwnerId($menu_owner)->lists("outlet_id");
+        $myOutlets_id=OutletMapper::getOutletMapperByOwnerId($menu_owner)->pluck("outlet_id");
 
-        if(sizeof(Input::get('sale'))>0 || sizeof(Input::get('act'))>0){
-            $act = Input::get('act');
-            $sales = Input::get('sale');
+        if(sizeof(Request::get('sale'))>0 || sizeof(Request::get('act'))>0){
+            $act = Request::get('act');
+            $sales = Request::get('sale');
             foreach ($myOutlets_id as $ot_id=>$value){
                 if( isset($act) ) {
-                    $active = in_array( $value , Input::get('act'))?0:1;
+                    $active = in_array( $value , Request::get('act'))?0:1;
                 }else{
                     $active = 1;
                 }
 
                 if( isset($sales) ) {
-                    $sale = in_array($value, Input::get('sale')) ? 1 : 0;
+                    $sale = in_array($value, Request::get('sale')) ? 1 : 0;
                 }else{
                     $sale = 0;
                 }
@@ -1468,13 +1468,13 @@ class MenuController extends Controller {
                 }
                 else{
                     if( isset($act) ) {
-                        $active = in_array( $value , Input::get('act'))?0:1;
+                        $active = in_array( $value , Request::get('act'))?0:1;
                     }else{
                         $active = 1;
                     }
 
                     if( isset($sales) ) {
-                        $sale = in_array($value, Input::get('sale')) ? 1 : 0;
+                        $sale = in_array($value, Request::get('sale')) ? 1 : 0;
                     }else{
                         $sale = 0;
                     }
@@ -1485,8 +1485,8 @@ class MenuController extends Controller {
             }
         }else{
             foreach ($myOutlets_id as $ot_id=>$value){
-                $act = Input::get('act');
-                $sales = Input::get('sale');
+                $act = Request::get('act');
+                $sales = Request::get('sale');
                 $result = ItemSettings::where('outlet_id', $value)->where('item_id', $id)->get();
                 if( sizeof($result) > 0 ) {
                     ItemSettings::where('outlet_id', $value)
@@ -1497,12 +1497,12 @@ class MenuController extends Controller {
                 }
                 else{
                     if( isset($act) ) {
-                        $active = in_array( $value , Input::get('act'))?0:1;
+                        $active = in_array( $value , Request::get('act'))?0:1;
                     }else{
                         $active = 1;
                     }
                     if( isset($sales) ) {
-                        $sale = in_array($value, Input::get('sale')) ? 1 : 0;
+                        $sale = in_array($value, Request::get('sale')) ? 1 : 0;
                     }else{
                         $sale = 0;
                     }
@@ -1524,7 +1524,7 @@ class MenuController extends Controller {
      */
     public function destroy()
     {
-        $id = Input::get('id');
+        $id = Request::get('id');
 
         $check = Menu::where('id',$id)->delete();
         //Outlet_Menu_Bind::where('item_id',$id)->delete();
@@ -1538,8 +1538,8 @@ class MenuController extends Controller {
 
     public function removeItemOption() {
 
-        $id = Input::get('item_id');
-        $item_option_id = Input::get('item_option_id');
+        $id = Request::get('item_id');
+        $item_option_id = Request::get('item_option_id');
 
         $check = MenuItemOption::where('parent_item_id',$id)
                                 ->where('option_item_id',$item_option_id)
@@ -1553,11 +1553,11 @@ class MenuController extends Controller {
     }
 
     public function ajaxMenuItemsList(){
-        //echo Input::get('flag');exit;
-        $title_id = Input::get('title_id');
-        $outlet_id = Input::get('outlet_id');
+        //echo Request::get('flag');exit;
+        $title_id = Request::get('title_id');
+        $outlet_id = Request::get('outlet_id');
         $user_id = Auth::id();
-        $flag = Input::get('flag');
+        $flag = Request::get('flag');
         if (isset($flag)){
             $menuItems = '';
             $menuTitle = '';
@@ -1602,8 +1602,8 @@ class MenuController extends Controller {
 
     public function ajaxOutletItemsList(){
         //echo 'here';exit;
-        $outlet_id = Input::get('outlet_id');
-        $flag = Input::get('flag');
+        $outlet_id = Request::get('outlet_id');
+        $flag = Request::get('flag');
         if (isset($flag)){
             $menuItems = '';
             $service_tax = '';
@@ -1637,8 +1637,8 @@ class MenuController extends Controller {
 
     public function ajaxItemTitleList(){
         $owner_id=Auth::user()->id;
-        $outlet_id = Input::get('outlet_id');
-        $outlet_title=DB::table('menu_titles')->where('outlet_id','=',$outlet_id)->lists('title','id');
+        $outlet_id = Request::get('outlet_id');
+        $outlet_title=DB::table('menu_titles')->where('outlet_id','=',$outlet_id)->pluck('title','id');
 
         return $outlet_title;
     }
@@ -1682,15 +1682,15 @@ class MenuController extends Controller {
 
         $login_user=Auth::id();
         $menu_owner=Owner::menuOwner();
-        $myOutlets_id=OutletMapper::getOutletMapperByOwnerId($menu_owner)->lists("outlet_id");
-        $myOutlets=Outlet::whereIn('id',$myOutlets_id)->lists('name','id');
-        $units=Unit::all()->lists('name','id');
+        $myOutlets_id=OutletMapper::getOutletMapperByOwnerId($menu_owner)->pluck("outlet_id");
+        $myOutlets=Outlet::whereIn('id',$myOutlets_id)->pluck('name','id');
+        $units=Unit::all()->pluck('name','id');
 
         //$menu_title_list = array('' => 'Select Category');
         $menu_title_list = array();
         $menu_title = MenuTitle::where('created_by',$menu_owner)
                     ->orderBy('title_order')
-                    ->lists('title','id');
+                    ->pluck('title','id');
         if( isset($menu_title) && sizeof($menu_title) > 0 ) {
             foreach ( $menu_title as $id => $title ) {
                 $menu_title_list[$id] = $title;
@@ -1728,7 +1728,7 @@ class MenuController extends Controller {
 
     public function check_menu_title(){
 
-        $title_id = Input::get("title_id");
+        $title_id = Request::get("title_id");
         $title_details = MenuTitle::find($title_id);
         $result = array();
 
@@ -1738,40 +1738,40 @@ class MenuController extends Controller {
 
     public function title_change(){
 
-        $btn_click = Input::get("btn_click");
+        $btn_click = Request::get("btn_click");
         $admin_id = Owner::menuOwner();
 
         if($btn_click == "add"){
 
-            $custom_title = Input::get("custom_title");
+            $custom_title = Request::get("custom_title");
             $available_title = MenuTitle::where('created_by',$admin_id)->get();
             foreach ($available_title as $title){
                 if(strtolower($title->title) == strtolower($custom_title)){
                     return 0; // title is already available
                 }
             }
-            $is_inventory_category = Input::get('is_inventory_category');
+            $is_inventory_category = Request::get('is_inventory_category');
 
             $new_title = new MenuTitle();
             $new_title->title = $custom_title;
             $new_title->outlet_id = $admin_id;
             $new_title->created_by = $admin_id;
-            $new_title->active = Input::get("active");
+            $new_title->active = Request::get("active");
             if($is_inventory_category == "false") {
                 $new_title->is_inventory_category = 0;
             } else{
                 $new_title->is_inventory_category = 1;
             }
-            $new_title->is_sale = Input::get("is_sale");
-            $new_title->title_order = Input::get("title_order");
+            $new_title->is_sale = Request::get("is_sale");
+            $new_title->title_order = Request::get("title_order");
             $new_title->save();
 
             return 1;
 
         }elseif($btn_click == "update"){
 
-            $edited_title = Input::get("edited_title");
-            $item_id = Input::get("item_id");
+            $edited_title = Request::get("edited_title");
+            $item_id = Request::get("item_id");
             $available_title = MenuTitle::where('created_by',$admin_id)->get();
             foreach ($available_title as $title){
                 if(strtolower($title->title) == strtolower($edited_title)){
@@ -1779,10 +1779,10 @@ class MenuController extends Controller {
                         return 0; // title is already available
                 }
             }
-            $active = Input::get("active");
-            $is_sale = Input::get("is_sale");
-            $title_order = Input::get("title_order");
-            $is_inventory_category = Input::get("is_inventory_category");
+            $active = Request::get("active");
+            $is_sale = Request::get("is_sale");
+            $title_order = Request::get("title_order");
+            $is_inventory_category = Request::get("is_inventory_category");
             if($is_inventory_category == "false") {
                 $is_inventory_category_select = 0;
             } else{
@@ -1804,7 +1804,7 @@ class MenuController extends Controller {
 
     public function getItemsByCategoryId() {
 
-        $cat_id = Input::get('cat_id');
+        $cat_id = Request::get('cat_id');
         $item_arr[''] = 'Select Item';
         $items = Menu::select('id','item')->where('menu_title_id',$cat_id)->get();
 
@@ -1813,7 +1813,7 @@ class MenuController extends Controller {
 
     public function getMenuItem() {
 
-        $title_id = Input::get('title_id');
+        $title_id = Request::get('title_id');
         $menu_owner=Owner::menuOwner();
 
         $menuItems = '';
@@ -1849,7 +1849,7 @@ class MenuController extends Controller {
     //get other unit of item
     public function getItemOtherUnits() {
 
-        $id = Input::get('id');
+        $id = Request::get('id');
         $menu = Menu::find($id);
         if(isset($menu->order_unit) && trim($menu->order_unit) != ""){
             return $menu->order_unit;
@@ -1862,8 +1862,8 @@ class MenuController extends Controller {
     //update menu item sequence
     public function updateMenuSequence() {
 
-        $item_ids = Input::get('ids');
-        $sel_id = Input::get('selected_id');
+        $item_ids = Request::get('ids');
+        $sel_id = Request::get('selected_id');
 
         if ( isset($item_ids) && sizeof($item_ids) > 1 ) {
 
@@ -1908,10 +1908,10 @@ class MenuController extends Controller {
         $outlet_id = Session::get('outlet_session');
         $user_id = Auth::id();
 
-        $item_id = Input::get('item_id');
-        $flag = Input::get('flag');
-        $value = Input::get('value');
-        $qty = Input::get('qty');
+        $item_id = Request::get('item_id');
+        $flag = Request::get('flag');
+        $value = Request::get('value');
+        $qty = Request::get('qty');
 
         if($qty == 'selected'){
 

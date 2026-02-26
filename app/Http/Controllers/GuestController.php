@@ -25,7 +25,7 @@ class GuestController extends Controller {
 	 */
 	public function create()
 	{
-        $salutation = Salutation::all()->lists("name","id");
+        $salutation = Salutation::all()->pluck("name","id");
         return view('guests.create',array("action"=>"add",'salutations'=>$salutation));
 	}
 

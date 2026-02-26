@@ -4,7 +4,7 @@ use App\Http\Controllers\Controller;
 use App\Menu;
 use App\Unit;
 use App\Vendor;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Language;
 use Illuminate\Support\Facades\Response;
@@ -27,9 +27,9 @@ class RestController extends Controller {
 
     public function autocomplete() {
 
-        $term = Input::get('searchTerm');
-        $flag = Input::get('flag');
-        $parent_id = Input::get('parent_id');
+        $term = Request::get('searchTerm');
+        $flag = Request::get('flag');
+        $parent_id = Request::get('parent_id');
 
         $user_id = Auth::id();
         $admin = Auth::user()->created_by;

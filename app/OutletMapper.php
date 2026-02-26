@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 
 class OutletMapper extends Model {
@@ -162,11 +162,11 @@ class OutletMapper extends Model {
 
         $data=OutletMapper::getRevenueReport();
 
-        $report_type=Input::get("reporttype");
-        $outlet_id=Input::get("outlet_id");
+        $report_type=Request::get("reporttype");
+        $outlet_id=Request::get("outlet_id");
 
-        $fromdate = Input::get("from_date");
-        $todate = Input::get("to_date");
+        $fromdate = Request::get("from_date");
+        $todate = Request::get("to_date");
 
         $fromdate = date('Y-m-d');
         $todate = date('Y-m-d');

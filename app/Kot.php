@@ -22,7 +22,7 @@ class Kot extends Model {
             ->whereNull('kot.deleted_at')
             ->where('kot.kot_time','>=', $from_date)
             ->where('kot.kot_time','<=', $to_date)
-            ->lists("kot.order_unique_id");
+            ->pluck("kot.order_unique_id");
 
 
         $notmatch = array();

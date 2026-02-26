@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Request;
 use App\Outlet;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use App\MenuTitle;
 use App\Menu;
 use App\status;
@@ -63,7 +63,7 @@ class ApicontrollerV2 extends Controller
     public function __construct(Guard $auth)
     {
         $this->auth = $auth;
-        $this->beforeFilter('csrf', ['on' => '']);
+        $this
 
     }
 
@@ -78,20 +78,20 @@ class ApicontrollerV2 extends Controller
         $Outlet_Outlettype = array();
         $Outlet_cuisinetype = array();
         $Outlet_detail = array();
-        $start=Input::get('start');
-        $limit=Input::get('limit');
+        $start=Request::get('start');
+        $limit=Request::get('limit');
 
-        $location=Input::get('locality');
-        $cuistype=Input::get('cuisine_type');
-        $resttype=Input::get('restaurant_type');
-        $restname=Input::get('restaurant_name');
-        $start=Input::get('start');
-        $limit=Input::get('limit');
-        $costmin=Input::get('min_price');
-        $costmax=Input::get('max_price');
-        $lat=Input::get('latitude');
-        $long=Input::get('longitude');
-        $delivery_type=Input::get('order_type');
+        $location=Request::get('locality');
+        $cuistype=Request::get('cuisine_type');
+        $resttype=Request::get('restaurant_type');
+        $restname=Request::get('restaurant_name');
+        $start=Request::get('start');
+        $limit=Request::get('limit');
+        $costmin=Request::get('min_price');
+        $costmax=Request::get('max_price');
+        $lat=Request::get('latitude');
+        $long=Request::get('longitude');
+        $delivery_type=Request::get('order_type');
         $useragent=Request::header('User-Agent');
 
         if(isset($start) || isset($limit) || isset($location) || isset($cuistype) || isset($resttype) || isset($restname) || isset($costmin) || isset($costmax) || isset($lat) || isset($long) || isset($delivery_type)){
@@ -418,7 +418,7 @@ class ApicontrollerV2 extends Controller
     public function outletmenu()
     {
         /*$restmenu = array();
-        $Outletid = Input::get('restaurant_id');
+        $Outletid = Request::get('restaurant_id');
         $menutitle =MenuTitle::getmenutitlebyrestaurantid($Outletid);
         $useragent=Request::header('User-Agent');
 
@@ -464,7 +464,7 @@ class ApicontrollerV2 extends Controller
                 'menu' => $restmenu),
                 200);
         }*/
-        $resid = Input::get('restaurant_id');
+        $resid = Request::get('restaurant_id');
         $menu=DB::table("menu_titles")
             ->select('menus.*','menu_titles.title')
             ->join("outlet_menu_bind","outlet_menu_bind.menu_id","=","menu_titles.id")
@@ -536,7 +536,7 @@ class ApicontrollerV2 extends Controller
     public function outletinformation()
     {
         $restinfo = array();
-        $outlet_id = Input::get('restaurant_id');
+        $outlet_id = Request::get('restaurant_id');
         $Outlets =Outlet::find($outlet_id);
         //print_r($Outlets);exit;
         $states = State::findstates($Outlets->state_id);
@@ -673,7 +673,7 @@ class ApicontrollerV2 extends Controller
             $flag = $order['flag'];
             //print_r($flag);exit;
         }else{
-            $order = Input::json('order');
+            $order = Request::json('order');
         }
 
         $array=array();
@@ -695,7 +695,7 @@ class ApicontrollerV2 extends Controller
             $order_ids=order_details::getorderid();
 
             $suborder_id=order_details::getorderidofrestaurant($order['restaurant_id']);
-            $a= $Outlet->lists('code');
+            $a= $Outlet->pluck('code');
             if(isset($order['mobile_number'])) {
                 DB::table('orders')->where('user_mobile_number',$order['mobile_number'])->update(array('device_id'=>$order['device_id']));
             }
@@ -749,8 +749,8 @@ class ApicontrollerV2 extends Controller
 
     //new mobileend user added from here
     public function addcustomer(Request $request){
-        $contact=Input::json('contact_no');
-        $pass=Input::json('password');
+        $contact=Request::json('contact_no');
+        $pass=Request::json('password');
 
 
         if(isset($contact)){
@@ -772,7 +772,7 @@ class ApicontrollerV2 extends Controller
                 ),
                     200);
             }
-            else if($usercheck->lists('status')[0]=="NotVerified"){
+            else if($usercheck->pluck('status')[0]=="NotVerified"){
 
                 users::updateotp($contact,$num);
 
@@ -780,7 +780,7 @@ class ApicontrollerV2 extends Controller
 
                 return Response::json(array(
                     'message' => 'User Added successfully',
-                    'userid'=>$usercheck->lists('id')[0],
+                    'userid'=>$usercheck->pluck('id')[0],
                     'otp'=>$num,
                     'status' => 'NotVerified',
                     'statuscode' => 200,
@@ -791,8 +791,8 @@ class ApicontrollerV2 extends Controller
             else {
                 return Response::json(array(
                     'message' => 'User is Already Registered',
-                    'userid'=>$usercheck->lists('id')[0],
-                    'status' => $usercheck->lists('status')[0],
+                    'userid'=>$usercheck->pluck('id')[0],
+                    'status' => $usercheck->pluck('status')[0],
                     'statuscode' => 431,
                 ),
                     200 );
@@ -803,8 +803,8 @@ class ApicontrollerV2 extends Controller
     //for the verification of otp sent to user in backend database
     public function verifyotp(Request $request){
 
-        $id=Input::json('user_id');
-        $otp=Input::json('user_otp');
+        $id=Request::json('user_id');
+        $otp=Request::json('user_otp');
         $user=users::selectotp($id);
 
         if($user->otp==$otp){
@@ -830,8 +830,8 @@ class ApicontrollerV2 extends Controller
     //for login request from mobileend
     public function login(Request $request){
 
-        $mob=Input::json('user_mobile');
-        $pass=Input::json('user_password');
+        $mob=Request::json('user_mobile');
+        $pass=Request::json('user_password');
         $user=DB::table('users');
 
         $avail=$user->where('mobile_number',$mob)->get();
@@ -911,14 +911,14 @@ class ApicontrollerV2 extends Controller
      */
     public function updatedetail(Request $request){
 
-        $serverid=Input::json('serverid');
-        //$mobile=Input::json('user_mobile');
-        $firstname=Input::json('first_name');
-        // $lastname=Input::json('last_name');
-        $email=Input::json('email');
+        $serverid=Request::json('serverid');
+        //$mobile=Request::json('user_mobile');
+        $firstname=Request::json('first_name');
+        // $lastname=Request::json('last_name');
+        $email=Request::json('email');
 
-        //$password=Input::json('password');
-        //$gender=Input::json('gender');
+        //$password=Request::json('password');
+        //$gender=Request::json('gender');
         // print_r(\Illuminate\Support\Facades\Request::get('image'));exit;
         // $image=  Request::file('image');
         // print_r($image);exit;
@@ -971,7 +971,7 @@ class ApicontrollerV2 extends Controller
     }
     //not needed now
 //    public function resendotp(Request $request){
-//        $mobile=Input::json('user_mobile');
+//        $mobile=Request::json('user_mobile');
 //        if(isset($mobile)){
 //            $user=DB::table('users')->where('mobile_number',$mobile);
 //
@@ -997,7 +997,7 @@ class ApicontrollerV2 extends Controller
 //        }
 //    }
     public function forgotpassword(Request $request){
-        $mobile=Input::json('user_mobile');
+        $mobile=Request::json('user_mobile');
         if(isset($mobile)){
             $num=users::generateotp();
             $affectedRows=users::updateotp($mobile,$num);
@@ -1026,9 +1026,9 @@ class ApicontrollerV2 extends Controller
 
     public function updatepassword(Request $request){
 
-        $mobile=Input::json('user_mobile');
-        $getotp=Input::json('otp');
-        $password=Input::json('updated_password');
+        $mobile=Request::json('user_mobile');
+        $getotp=Request::json('otp');
+        $password=Request::json('updated_password');
 
 
         if(isset($mobile)){
@@ -1052,11 +1052,11 @@ class ApicontrollerV2 extends Controller
         }
     }
     public function addresschange(Request $request){
-        $mobile=Input::json('user_mobile');
-        $address=Input::json('address');
-        $locality=Input::json('locality');
-        $pincode=Input::json('pincode');
-        $addressuniq=Input::json('addressid');
+        $mobile=Request::json('user_mobile');
+        $address=Request::json('address');
+        $locality=Request::json('locality');
+        $pincode=Request::json('pincode');
+        $addressuniq=Request::json('addressid');
         if(isset($mobile)){
             if(isset($address)){
                 $adressarray['address']=$address;
@@ -1102,9 +1102,9 @@ class ApicontrollerV2 extends Controller
         }
     }
     public function owneroutlet(){
-        $username=Input::json('owner_name');
-        $pass=Input::json('owner_pass');
-        $device_id=Input::json('device_id');
+        $username=Request::json('owner_name');
+        $pass=Request::json('owner_pass');
+        $device_id=Request::json('device_id');
         $maxdt=Carbon::now();
         $field = filter_var($username, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
 
@@ -1174,7 +1174,7 @@ class ApicontrollerV2 extends Controller
             if($i==1){
                 $maxdt=[];
                 array_push($maxdt,Carbon::now());
-               // $restaurant=$user->outlet->lists('id');
+               // $restaurant=$user->outlet->pluck('id');
                 $restaurant_id=$AllOutlets[0]->id;
                 $retname = Outlet::find($restaurant_id);
                 $islogin=Owner::where($field,'=',$username)->first();
@@ -1383,11 +1383,11 @@ class ApicontrollerV2 extends Controller
 
     public function ownerlogin(Request $request)
     {
-        $username=Input::json('owner_name');
-        $pass=Input::json('owner_pass');
-        $device_id=Input::json('device_id');
-        $restaurant_id=Input::json('resid');
-        $input = Input::all();
+        $username=Request::json('owner_name');
+        $pass=Request::json('owner_pass');
+        $device_id=Request::json('device_id');
+        $restaurant_id=Request::json('resid');
+        $input = Request::all();
        // print_r($input);exit;
         $maxdt=Carbon::now();
         $field = filter_var($username, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
@@ -1620,7 +1620,7 @@ class ApicontrollerV2 extends Controller
     }
 
     public function ownerlogout(){
-        $restaurantid=Input::get("resid");
+        $restaurantid=Request::get("resid");
 
         $item=Outlet::where('id',$restaurantid)->get();
 
@@ -1647,15 +1647,15 @@ class ApicontrollerV2 extends Controller
     }
     public function autoorders(){
 
-        $date= Input::json('maxdt');
+        $date= Request::json('maxdt');
 
         // $user=User::find(Auth::user()->id);
         $star=[];
-        //  $id=$user->restaurant->lists('id');
+        //  $id=$user->restaurant->pluck('id');
         $a='';$b='';
         //$restaurant_id=$id[0];
 
-        $restaurant_id=Input::json('restaurant_id');
+        $restaurant_id=Request::json('restaurant_id');
         $retname=Outlet::find($restaurant_id);
         $totalprice=[];
         $orderappend='';
@@ -1755,14 +1755,14 @@ class ApicontrollerV2 extends Controller
     }
 
     public function nextstatus(){
-        $currents=Input::json('currentstatus');
-        $oid=Input::json('oid');
-        $resid=Input::json('restaurant_id');
-        $position=Input::json('position');
-        $useragent=Input::json('user_agent');
+        $currents=Request::json('currentstatus');
+        $oid=Request::json('oid');
+        $resid=Request::json('restaurant_id');
+        $position=Request::json('position');
+        $useragent=Request::json('user_agent');
         $getcurrentstatus=status::where('status',$currents)->where('outlet_id',$resid)->get();
 
-        $order_date=Input::json('order_date');
+        $order_date=Request::json('order_date');
         $currentstatus='';
         $status='';
         $f=array();
@@ -1823,9 +1823,9 @@ class ApicontrollerV2 extends Controller
 
     // First Order API
     public function firstorder(Request $request){
-        $contact=Input::get('mobile');
-        $name=Input::get('name');
-        $user_entered_couponcode=Input::get('coupon_code');
+        $contact=Request::get('mobile');
+        $name=Request::get('name');
+        $user_entered_couponcode=Request::get('coupon_code');
 
 
         if(isset($contact) && isset($user_entered_couponcode)){
@@ -1866,7 +1866,7 @@ class ApicontrollerV2 extends Controller
 
                     return Response::json(array(
                         'message' => 'User details successfully updated',
-                        'userid'=>$usercheck->lists('id')[0],
+                        'userid'=>$usercheck->pluck('id')[0],
                         'password'=>$password,
                         'status' => 'NotVerified',
                         'statuscode' => 200,
@@ -1882,8 +1882,8 @@ class ApicontrollerV2 extends Controller
 
     public function sendmail(Request $request)
     {
-        $mail=Input::get('mail');
-        $password=Input::get('password');
+        $mail=Request::get('mail');
+        $password=Request::get('password');
         Mail::send('emails.sendpassword', ['password' => $password], function($message) use ($mail)
         {
             $message->from('we@pikal.io', 'Pikal');
@@ -1901,17 +1901,17 @@ class ApicontrollerV2 extends Controller
 
     public function addaddress(Request $request)
     {
-        $getuserid=Input::json('user_id');
-        $getaddress=Input::json('address');
-        $getlocality=Input::json('locality');
-        $pincode=Input::json('pincode');
-        $phonenumber=Input::json('user_mobile_number');
-        $address_tag=Input::json('address_tag');
-        $state=Input::json('state');
-        $city=Input::json('city');
-        $country=Input::json('country');
-        $landmark=Input::json('landmark');
-        $flatnumber=Input::json('flatnumber');
+        $getuserid=Request::json('user_id');
+        $getaddress=Request::json('address');
+        $getlocality=Request::json('locality');
+        $pincode=Request::json('pincode');
+        $phonenumber=Request::json('user_mobile_number');
+        $address_tag=Request::json('address_tag');
+        $state=Request::json('state');
+        $city=Request::json('city');
+        $country=Request::json('country');
+        $landmark=Request::json('landmark');
+        $flatnumber=Request::json('flatnumber');
 
 
         $address=new address();
@@ -1988,7 +1988,7 @@ class ApicontrollerV2 extends Controller
     }
 
     public function logincustomers(){
-        $contact=Input::json('mobile');
+        $contact=Request::json('mobile');
 
         if(isset($contact)){
             //for finding customer by phone_number
@@ -2061,7 +2061,7 @@ class ApicontrollerV2 extends Controller
 
 
     public function getlocalitybycity(){
-        $ctyid=Input::get('city');
+        $ctyid=Request::get('city');
         if($ctyid!='Select City' && $ctyid!='Select'){
             $cityname=explode('-', $ctyid);
 
@@ -2115,9 +2115,9 @@ class ApicontrollerV2 extends Controller
 
     public function ownerfetchdata(Request $request)
     {
-        $username=Input::json('owner_name');
-        $pass=Input::json('owner_pass');
-        $restaurant_id=Input::json('resid');
+        $username=Request::json('owner_name');
+        $pass=Request::json('owner_pass');
+        $restaurant_id=Request::json('resid');
         $maxdt=Carbon::now();
         $field = filter_var($username, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
 
@@ -2272,18 +2272,18 @@ class ApicontrollerV2 extends Controller
 
     }
     public function matchcouponcode(){
-        $flag = Input::get('flag');
+        $flag = Request::get('flag');
         $user_entered_couponcode = '';
         $total_cost = '';
         $mobile_number = '';
         if( isset($flag) && $flag == 'web_app_order' ){
-            $user_entered_couponcode = Input::get('coupon_code');
-            $total_cost = Input::get('total_cost');
-            $mobile_number = Input::get('mobile_number');
+            $user_entered_couponcode = Request::get('coupon_code');
+            $total_cost = Request::get('total_cost');
+            $mobile_number = Request::get('mobile_number');
         }else{
-            $user_entered_couponcode=Input::json('coupon_code');
-            $total_cost=Input::json('total_cost');
-            $mobile_number=Input::json('mobile_number');
+            $user_entered_couponcode=Request::json('coupon_code');
+            $total_cost=Request::json('total_cost');
+            $mobile_number=Request::json('mobile_number');
         }
         $date=Date("Y-m-d");
 
@@ -2454,7 +2454,7 @@ class ApicontrollerV2 extends Controller
 
 
     public function resetorderid(){
-        $resid=Input::json('resid');
+        $resid=Request::json('resid');
 
 
         $setorderid=order_details::where('outlet_id',$resid)->orderBy('created_at', 'desc')->get();
@@ -2486,9 +2486,9 @@ class ApicontrollerV2 extends Controller
     }
 
     public function generatereport(){
-        $startdate=date('Y-m-d 00:00:00',strtotime(Input::json('start_date')));
-        $enddate=date('Y-m-d 12:00:00',strtotime(Input::json('end_date')));
-        $userid=Input::json('userid');
+        $startdate=date('Y-m-d 00:00:00',strtotime(Request::json('start_date')));
+        $enddate=date('Y-m-d 12:00:00',strtotime(Request::json('end_date')));
+        $userid=Request::json('userid');
 
         $getrestaurant=Outlet::where('owner_id',$userid)->get();
 
@@ -2561,11 +2561,11 @@ class ApicontrollerV2 extends Controller
     }
 
     public function updatemenuitem(){
-        $resid=Input::json('resid');
-        $menuitemid=Input::json('itemid');
-        $active=Input::json('itemactive');
-        $itemname=Input::json('itemname');
-        $price=Input::json('itemPrice');
+        $resid=Request::json('resid');
+        $menuitemid=Request::json('itemid');
+        $active=Request::json('itemactive');
+        $itemname=Request::json('itemname');
+        $price=Request::json('itemPrice');
 
         $update=array();
 
@@ -2599,7 +2599,7 @@ class ApicontrollerV2 extends Controller
     public function cancellationreason(){
 
         $array=array();
-        $resid=Input::json('resid');
+        $resid=Request::json('resid');
         $i=0;
         $cancel=CancellationReason::where('outlet_id',$resid)->get();
         foreach($cancel as $can){
@@ -2617,10 +2617,10 @@ class ApicontrollerV2 extends Controller
 
 
     public function ordercancellation(){
-        $resid=Input::json('resid');
-        $order_id=Input::json('order_id');
-        $reason=Input::json('reason');
-        $orderdate=Input::json('order_date');
+        $resid=Request::json('resid');
+        $order_id=Request::json('order_id');
+        $reason=Request::json('reason');
+        $orderdate=Request::json('order_date');
 
         order_details::where('suborder_id',$order_id)->where('created_at',$orderdate)->update(array('cancelorder'=>1));
         $ordercancellation =new OrderCancellation();
@@ -2645,8 +2645,8 @@ class ApicontrollerV2 extends Controller
 
     public function printsummary(){
 
-        $getorderprintsuborder_id=Input::json('suborder_id');
-        $getorderordercreated_at=Input::json('order_created_at');
+        $getorderprintsuborder_id=Request::json('suborder_id');
+        $getorderordercreated_at=Request::json('order_created_at');
 
         $print=DB::table('print_summary')->where('order_id',$getorderprintsuborder_id)->where('order_created_at',$getorderordercreated_at)->first();
         if(count($print)>0){
@@ -2675,12 +2675,12 @@ class ApicontrollerV2 extends Controller
     }
 
     public function addreviews(){
-        $usermobile=Input::json('user_mobile');
-        $user_name=Input::json('user_name');
-        $rating=Input::json('rating');
-        $fav=Input::json('fav');
-        $comment=Input::json('comment');
-        $resid=Input::json('res_id');
+        $usermobile=Request::json('user_mobile');
+        $user_name=Request::json('user_name');
+        $rating=Request::json('rating');
+        $fav=Request::json('fav');
+        $comment=Request::json('comment');
+        $resid=Request::json('res_id');
 
 
 
@@ -2711,8 +2711,8 @@ class ApicontrollerV2 extends Controller
 
     public function getreviews(){
 
-        $resid=Input::json('res_id');
-        $mobile_number=Input::json('user_mobile_number');
+        $resid=Request::json('res_id');
+        $mobile_number=Request::json('user_mobile_number');
 
         $reviews=Reviews::where('resid',$resid)->get();
         if(isset($mobile_number) && $mobile_number!=""){
@@ -2743,10 +2743,10 @@ class ApicontrollerV2 extends Controller
 
     public function addlike(){
 
-        $resid=Input::json('res_id');
-        $itemid=Input::json('item_id');
-        $like=Input::json('like');
-        $mobilenumber=Input::json('user_mobile_number');
+        $resid=Request::json('res_id');
+        $itemid=Request::json('item_id');
+        $like=Request::json('like');
+        $mobilenumber=Request::json('user_mobile_number');
         $pastlike=Itemreview::where('item_id',$itemid)->where('user_mobile_number',$mobilenumber)->orderby('created_at', 'desc')->first();
         $menulike=Menu::where('id',$itemid)->first();
         if($like==0){
@@ -2789,13 +2789,13 @@ class ApicontrollerV2 extends Controller
 
 
     public function addrecipes(){
-        $outlet_id=Input::json('outlet_id');
-        $title=Input::json('title');
-        $recipe=Input::json('recipe');
-        $ingrediants=Input::json('ingrediants');
-        $shop_url=Input::json('shop_url');
-        $ingrediants_url=Input::json('ingrediant_url');
-        $owner=Input::json('owner');
+        $outlet_id=Request::json('outlet_id');
+        $title=Request::json('title');
+        $recipe=Request::json('recipe');
+        $ingrediants=Request::json('ingrediants');
+        $shop_url=Request::json('shop_url');
+        $ingrediants_url=Request::json('ingrediant_url');
+        $owner=Request::json('owner');
 
         $getownerid=Owner::where('user_name',$owner)->first();
 
@@ -2828,7 +2828,7 @@ class ApicontrollerV2 extends Controller
 
     public function getrecipes(){
 
-        //$owner=Input::json('owner');
+        //$owner=Request::json('owner');
         //$getownerid=Owner::where('user_name',$owner)->first();
 
         $allrecipe=Recipe::all();
@@ -2846,8 +2846,8 @@ class ApicontrollerV2 extends Controller
 
     }
     public function webcart(){
-        $itemcount=Input::get('count');
-        $item=Input::get('item');
+        $itemcount=Request::get('count');
+        $item=Request::get('item');
         $itemarray=array();
         array_push($itemarray,$item);
         $_SESSION['cart']=$itemarray;
@@ -2864,7 +2864,7 @@ class ApicontrollerV2 extends Controller
 
     public function pastorders(){
 
-        $restaurant_id=Input::json('resid');
+        $restaurant_id=Request::json('resid');
 
 
         $maxdt=[];
@@ -3015,7 +3015,7 @@ class ApicontrollerV2 extends Controller
 
 
 
-        $orders=Input::json('data');
+        $orders=Request::json('data');
         $serverids=array();
         for($i=0;$i<count($orders);$i++) {
             $order=$orders[$i];
@@ -3047,7 +3047,7 @@ class ApicontrollerV2 extends Controller
                     $tempdata['suborder_id'] = $suborder_id;
                     array_push($serverids, $tempdata);
 
-                    $a = $Outlet->lists('code');
+                    $a = $Outlet->pluck('code');
 
                     $invoice_no = order_details::generateinvoicenumber($order['restaurant_id'],$suborder_id);
                     $saveorder = order_details::insertorderdetails($a, $order_ids, $order, $status, $suborder_id,$invoice_no);
@@ -3079,13 +3079,13 @@ class ApicontrollerV2 extends Controller
     }
 
     public function closeCounter(Request $request){
-        $outlet_id=Input::json('res_id');
-        $start_date=Carbon::parse(Input::json('start_date'));
-        $end_date=Carbon::parse(Input::json('close_date'));
-        $amount=Input::json('total');
-        $amount_byuser=Input::json('total_byuser')?Input::json('total_byuser'):0;
-        $amount_fromdb=Input::json('total_fromdb')?Input::json('total_fromdb'):0;
-        $remarks=Input::json('remarks');
+        $outlet_id=Request::json('res_id');
+        $start_date=Carbon::parse(Request::json('start_date'));
+        $end_date=Carbon::parse(Request::json('close_date'));
+        $amount=Request::json('total');
+        $amount_byuser=Request::json('total_byuser')?Request::json('total_byuser'):0;
+        $amount_fromdb=Request::json('total_fromdb')?Request::json('total_fromdb'):0;
+        $remarks=Request::json('remarks');
 
         $a=$start_date->diff($end_date);
         $total_hours = $a->format("%H:%i");
@@ -3095,7 +3095,7 @@ class ApicontrollerV2 extends Controller
         $outlet=Outlet::where('id',$outlet_id)->first();
       //  $emails=explode(',',$outlet->report_emails);
 
-        Queue::push('App\Commands\ReportsMail@sendmails', array('outlet_id'=>$outlet_id,'amount_byuser'=>$amount_byuser,'amount_fromdb'=>$amount_fromdb,'total'=>$amount,"total_hours"=>$total_hours,"start_time"=>$start_time,"end_time"=>$end_time,'start_date'=>Input::json('start_date'),'end_date'=>Input::json('close_date'),'remark'=>$remarks));
+        Queue::push('App\Commands\ReportsMail@sendmails', array('outlet_id'=>$outlet_id,'amount_byuser'=>$amount_byuser,'amount_fromdb'=>$amount_fromdb,'total'=>$amount,"total_hours"=>$total_hours,"start_time"=>$start_time,"end_time"=>$end_time,'start_date'=>Request::json('start_date'),'end_date'=>Request::json('close_date'),'remark'=>$remarks));
         return Response::json(array(
             'message' => 'Counter closed successfully',
             'status' => 'success',

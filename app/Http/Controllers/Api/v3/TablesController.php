@@ -12,7 +12,7 @@ use App\Http\Requests;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
@@ -24,7 +24,7 @@ class TablesController extends Controller
     public function __construct(Guard $auth)
     {
         $this->auth = $auth;
-        $this->beforeFilter('csrf', ['on' => '']);
+        $this
 
     }
 
@@ -76,13 +76,13 @@ class TablesController extends Controller
             'no_of_person' => 'Integer|Min:1',
         );
 
-        $validate = Validator::make(Input::all(), $rules);
+        $validate = Validator::make(Request::all(), $rules);
 
         if ( $validate ) {
 
-            $outlet_id = Input::get('outlet_id');
-            $table_no = strtoupper(Input::get('table_no'));
-            $table_level_id = strtolower(Input::get('table_level_id'));
+            $outlet_id = Request::get('outlet_id');
+            $table_no = strtoupper(Request::get('table_no'));
+            $table_level_id = strtolower(Request::get('table_level_id'));
 
             $same_table_number = Tables::where('outlet_id','=',$outlet_id)
                                 ->where('table_no','=',$table_no)->first();
@@ -101,11 +101,11 @@ class TablesController extends Controller
             $owner_id = Auth::id();
             $error = 0;
             $table = new Tables();
-            $table->shape = Input::get('shape');
+            $table->shape = Request::get('shape');
             $table->outlet_id = $outlet_id;
             $table->table_no = $table_no;
             $table->table_level_id = $table_level_id;
-            $table->no_of_person = Input::get('no_of_person');
+            $table->no_of_person = Request::get('no_of_person');
             $table->created_by = $owner_id;
             $table->updated_by = $owner_id;
             $success = $table->save();
@@ -168,15 +168,15 @@ class TablesController extends Controller
             'no_of_person' => 'Integer|Min:1',
         );
 
-        $validate = Validator::make(Input::all(), $rules);
+        $validate = Validator::make(Request::all(), $rules);
 
         if ( $validate ) {
 
-            $outlet_id = Input::get('outlet_id');
-            $table_no = strtoupper(Input::get('table_no'));
-            $table_level_id = Input::get('table_level_id');
+            $outlet_id = Request::get('outlet_id');
+            $table_no = strtoupper(Request::get('table_no'));
+            $table_level_id = Request::get('table_level_id');
 
-            $table_id = Input::get('table_id');
+            $table_id = Request::get('table_id');
             $same_table_number = Tables::where('outlet_id','=',$outlet_id)
                 ->where('table_no','=',$table_no)->where('id',"!=",$table_id)->first();
             if(isset($same_table_number) && sizeof($same_table_number)>0){
@@ -193,11 +193,11 @@ class TablesController extends Controller
             $owner_id = Auth::id();
             $error = 0;
             $table = Tables::find($table_id);
-            $table->shape = Input::get('shape');
+            $table->shape = Request::get('shape');
             $table->outlet_id = $outlet_id;
             $table->table_level_id = $table_level_id;
             $table->table_no = $table_no;
-            $table->no_of_person = Input::get('no_of_person');
+            $table->no_of_person = Request::get('no_of_person');
             $table->updated_by = $owner_id;
             $success = $table->save();
 

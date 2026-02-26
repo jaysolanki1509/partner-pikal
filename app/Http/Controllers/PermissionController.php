@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Roles;
 use App\Permissions;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 //use Kodeine\Acl\Models\Eloquent\Permission;
 
 
@@ -52,14 +52,14 @@ class PermissionController extends Controller {
      */
     public function store()
     {
-        //print_r(Input::all());
-        DB::table('permission_role')->where('role_id',Input::get('role_id'))->delete();
+        //print_r(Request::all());
+        DB::table('permission_role')->where('role_id',Request::get('role_id'))->delete();
         $max_permissions=DB::table('permissions')->max('id');
         for($i=0;$i<=$max_permissions;$i++)
         {
-            if(Input::get($i)!='')
+            if(Request::get($i)!='')
                 DB::table('permission_role')->insert(
-                    ['permission_id' => $i, 'role_id' => Input::get('role_id')]
+                    ['permission_id' => $i, 'role_id' => Request::get('role_id')]
                 );
         }
         return Redirect('/map_permissions')->with('success', 'Permissions Assigned to Role');
@@ -89,7 +89,7 @@ class PermissionController extends Controller {
     }
 
     public function permission_role(){
-        $role_id=Input::get('role_id');
+        $role_id=Request::get('role_id');
         $permission=DB::table('permission_role')->select('permission_id')->where('role_id',$role_id)->get();
         //print_r($permission);
         return json_encode($permission);
@@ -117,7 +117,7 @@ class PermissionController extends Controller {
     }
 
     public function getselectedpermissions(){
-        $role_id=Input::get('role_id');
+        $role_id=Request::get('role_id');
 
         $permissions=DB::table('permission_role')->where('role_id',$role_id)->get();
 

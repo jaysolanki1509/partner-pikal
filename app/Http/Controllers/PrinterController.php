@@ -12,7 +12,7 @@ use App\Printer;
 use App\PrinterItemBind;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -89,10 +89,10 @@ class PrinterController extends Controller {
 	{
 		$owner_id = Auth::id();
 
-		$printer_name = Input::get('printer_name');
-		$mac_add = Input::get('mac_address');
-		$printer_mfg = Input::get('printer_mfg');
-		$printer_ip = Input::get('printer_ip');
+		$printer_name = Request::get('printer_name');
+		$mac_add = Request::get('mac_address');
+		$printer_mfg = Request::get('printer_mfg');
+		$printer_ip = Request::get('printer_ip');
 
 		//if ( isset($printer_name) && $printer_name != '' && isset($mac_add) && $mac_add != ''  ) {
 		if ( isset($printer_name) && $printer_name != ''  ) {
@@ -103,10 +103,10 @@ class PrinterController extends Controller {
                 $printr_obj->printer_mfg = $printer_mfg;
             }
             if(isset($printer_ip) && sizeof($printer_ip)>0){
-                $printr_obj->printer_ip = Input::get('printer_type')=='network' && $printer_mfg=='epson'?"TCP:".$printer_ip:$printer_ip;
+                $printr_obj->printer_ip = Request::get('printer_type')=='network' && $printer_mfg=='epson'?"TCP:".$printer_ip:$printer_ip;
             }
-			$printr_obj->printer_type = Input::get('printer_type');
-			$printr_obj->mac_address = Input::get('printer_type')=='bluetooth'?trim($mac_add):"TCP:".trim($mac_add);
+			$printr_obj->printer_type = Request::get('printer_type');
+			$printr_obj->mac_address = Request::get('printer_type')=='bluetooth'?trim($mac_add):"TCP:".trim($mac_add);
 			$printr_obj->created_by = $owner_id;
 			$printr_obj->updated_by = $owner_id;
 			$result = $printr_obj->save();
@@ -118,7 +118,7 @@ class PrinterController extends Controller {
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->with('error','Please fill all the details.');
+			return redirect()->back()->withInput(Request::all())->with('error','Please fill all the details.');
 		}
 
 	}
@@ -158,7 +158,7 @@ class PrinterController extends Controller {
 	 */
 	public function update($id)
 	{
-		$pr = Validator::make(Input::all(), [
+		$pr = Validator::make(Request::all(), [
 			'printer_name' => 'required',
 			'printer_type' => 'required'
 		]);
@@ -167,20 +167,20 @@ class PrinterController extends Controller {
 		{
 			$owner_id = Auth::user()->id;
 
-			$mac_add = Input::get('mac_address');
-            $printer_mfg = Input::get('printer_mfg');
-            $printer_ip = Input::get('printer_ip');
+			$mac_add = Request::get('mac_address');
+            $printer_mfg = Request::get('printer_mfg');
+            $printer_ip = Request::get('printer_ip');
 
 			$printer = Printer::find($id);
-			$printer->printer_name = Input::get('printer_name');
+			$printer->printer_name = Request::get('printer_name');
             if(isset($printer_mfg) && sizeof($printer_mfg)>0){
                 $printer->printer_mfg = $printer_mfg;
             }
             if(isset($printer_ip) && sizeof($printer_ip)>0){
-                $printer->printer_ip = Input::get('printer_type')=='network' && $printer_mfg=='epson'?"TCP:".$printer_ip:$printer_ip;
+                $printer->printer_ip = Request::get('printer_type')=='network' && $printer_mfg=='epson'?"TCP:".$printer_ip:$printer_ip;
             }
-			$printer->printer_type = Input::get('printer_type');
-			$printer->mac_address = Input::get('printer_type')=='bluetooth'?trim($mac_add):"TCP:".trim($mac_add);
+			$printer->printer_type = Request::get('printer_type');
+			$printer->mac_address = Request::get('printer_type')=='bluetooth'?trim($mac_add):"TCP:".trim($mac_add);
 			$printer->updated_by = $owner_id;
 			$result = $printer->save();
 
@@ -189,7 +189,7 @@ class PrinterController extends Controller {
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($pr->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($pr->errors());
 		}
 	}
 
@@ -236,7 +236,7 @@ class PrinterController extends Controller {
 
 		if ($request->ajax()) {
 
-			$cat_id = Input::get('cat_id');
+			$cat_id = Request::get('cat_id');
 
 			//if outlet session is set than load list according session outlet
 			$ot_id = Session::get('outlet_session');
@@ -302,10 +302,10 @@ class PrinterController extends Controller {
 
 		$owner_id = Auth::id();
 
-		$ot_id = Input::get('outlet_id');
-		$cat_id = Input::get('cat_id');
-		$item_id = Input::get('item_id');
-		$printer_id = Input::get('printer_id');
+		$ot_id = Request::get('outlet_id');
+		$cat_id = Request::get('cat_id');
+		$item_id = Request::get('item_id');
+		$printer_id = Request::get('printer_id');
 
 
 		if( isset($item_id) && sizeof($item_id) > 0 ) {

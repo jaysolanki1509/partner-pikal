@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\State;
 use App\Vendor;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
@@ -65,30 +65,30 @@ class VendorsController extends Controller {
         if (isset($v) && $v->passes())
         {
             $owner_id = Auth::user()->id;
-            $save_continue = Input::get('saveContinue');
-            $city = Input::get('cities');
-            $country = Input::get('countries');
-            $states = Input::get('states');
-            $vendor_gst = trim(Input::get('vendor_gst'));
-            $address = Input::get('address');
+            $save_continue = Request::get('saveContinue');
+            $city = Request::get('cities');
+            $country = Request::get('countries');
+            $states = Request::get('states');
+            $vendor_gst = trim(Request::get('vendor_gst'));
+            $address = Request::get('address');
 
             $vendor = new Vendor();
-            $vendor->name = Input::get('name');
+            $vendor->name = Request::get('name');
             $vendor->address = isset($address)?$address:"";
-            $vendor->type = Input::get('type');
-            $vendor->contact_person = Input::get('contact_person');
-            $vendor->contact_number = Input::get('contact_number');
+            $vendor->type = Request::get('type');
+            $vendor->contact_person = Request::get('contact_person');
+            $vendor->contact_number = Request::get('contact_number');
             $vendor->vendor_gst = strlen($vendor_gst)>0?$vendor_gst:NULL;
             if(isset($city) && sizeof($city)>0) {
-                $vendor->city_id = Input::get('cities');
+                $vendor->city_id = Request::get('cities');
             }
             if(isset($country) && sizeof($country)>0) {
-                $vendor->country_id = Input::get('countries');
+                $vendor->country_id = Request::get('countries');
             }
             if(isset($states) && sizeof($states)>0) {
-                $vendor->state_id = Input::get('states');
+                $vendor->state_id = Request::get('states');
             }
-            $vendor->pincode = Input::get('pincode');
+            $vendor->pincode = Request::get('pincode');
             $vendor->created_by = $owner_id;
             $vendor->updated_by = $owner_id;
             $result = $vendor->save();
@@ -105,7 +105,7 @@ class VendorsController extends Controller {
 
         } else {
 
-            return redirect()->back()->withInput(Input::all())->withErrors($v->errors());
+            return redirect()->back()->withInput(Request::all())->withErrors($v->errors());
         }
 
 	}
@@ -154,7 +154,7 @@ class VendorsController extends Controller {
 	public function update($id)
 	{
 
-        $v = Validator::make(Input::all(), [
+        $v = Validator::make(Request::all(), [
             'name' => 'required',
             //'contact_number' => 'required|numeric|digits_between:10,11',
         ]);
@@ -162,19 +162,19 @@ class VendorsController extends Controller {
         if (isset($v) && $v->passes())
         {
             $owner_id = Auth::user()->id;
-            $vendor_gst = trim(Input::get('vendor_gst'));
+            $vendor_gst = trim(Request::get('vendor_gst'));
 
             $vendor = Vendor::find($id);
-            $vendor->name = Input::get('name');
-            $vendor->address = Input::get('address');
-            $vendor->type = Input::get('type');
-            $vendor->contact_person = Input::get('contact_person');
-            $vendor->contact_number = Input::get('contact_number');
-            $vendor->city_id = Input::get('cities');
+            $vendor->name = Request::get('name');
+            $vendor->address = Request::get('address');
+            $vendor->type = Request::get('type');
+            $vendor->contact_person = Request::get('contact_person');
+            $vendor->contact_number = Request::get('contact_number');
+            $vendor->city_id = Request::get('cities');
             $vendor->vendor_gst = strlen($vendor_gst)>0?$vendor_gst:NULL;
-            $vendor->country_id = Input::get('countries');
-            $vendor->state_id = Input::get('states');
-            $vendor->pincode = Input::get('pincode');
+            $vendor->country_id = Request::get('countries');
+            $vendor->state_id = Request::get('states');
+            $vendor->pincode = Request::get('pincode');
             $vendor->updated_by = $owner_id;
             $result = $vendor->save();
 
@@ -183,7 +183,7 @@ class VendorsController extends Controller {
             }
 
         } else {
-            return redirect()->back()->withInput(Input::all())->withErrors($v->errors());
+            return redirect()->back()->withInput(Request::all())->withErrors($v->errors());
         }
 
 	}

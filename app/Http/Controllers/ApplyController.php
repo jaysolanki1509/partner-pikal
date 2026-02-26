@@ -8,20 +8,20 @@
 namespace App\Http\Controllers;
 use App\Outletimage;
 use App\Outlet;
-use Input;
+use Request;
 use Validator;
 use Redirect;
-use Request;
+
 use Session;
 class ApplyController extends Controller {
     public function multiple_upload() {
         // getting all of the post data
-        $files = Input::file('images');
+        $files = Request::file('images');
         if(!isset($files[0])){
             return Redirect::back()->with('error','Please select image.');
         }
         // Making counting of uploaded images
-        $id=Input::get('restau_id');
+        $id=Request::get('restau_id');
 
 
         $file_count = count($files);
@@ -60,12 +60,12 @@ class ApplyController extends Controller {
     }
     public function upload() {
         // getting all of the post data
-        $files= Input::get('raw_data');
+        $files= Request::get('raw_data');
         //print_r($files);exit;
-        $image=Input::file('image');
+        $image=Request::file('image');
         if(!isset($image))
             return Redirect::back()->with('error','Please select image.');
-        $id=Input::get('restau_id');
+        $id=Request::get('restau_id');
        //print_r($image->getClientOriginalName());exit;
         $removebase64=str_replace('data:image/png;base64,', '', $files);
         //print_r($removebase64);exit;
@@ -73,13 +73,13 @@ class ApplyController extends Controller {
 
         $destinationPath =  'uploads/profileimage';
         //  $filename = $file->getClientOriginalName();
-        Input::file('image')->move($destinationPath, $file);
+        Request::file('image')->move($destinationPath, $file);
         //file_put_contents($destinationPath,$file);
 
         Outlet::where("id",$id)->update(array('Outlet_image'=>$image->getClientOriginalName()));
 
         // Making counting of uploaded images
-        $id=Input::get('restau_id');
+        $id=Request::get('restau_id');
 
         return Redirect::to('outlet/'.$id);
        // $file_count = count($files);
@@ -108,10 +108,10 @@ class ApplyController extends Controller {
     public function destroy()
     {
 
-        Outletimage::where('id',Input::get('Outletimage_id'))->delete();
+        Outletimage::where('id',Request::get('Outletimage_id'))->delete();
 
             Session::flash('flash_message', 'Successfully deleted the File!');
-            return Redirect::to('outlet/'.Input::get('outlet_id').'#images');
+            return Redirect::to('outlet/'.Request::get('outlet_id').'#images');
 
     }
 }

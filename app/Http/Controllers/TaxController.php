@@ -7,7 +7,7 @@ use App\Tax;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Outlet;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
 
@@ -46,13 +46,13 @@ class TaxController extends Controller {
 	 */
 	public function store()
 	{
-        //print_r(Input::get('tax_percentage'));exit;
+        //print_r(Request::get('tax_percentage'));exit;
         $outletdetails=Outlet::Outletbyownerid(Auth::user()->id);
 
         $tax=new Tax();
         $tax->outlet_id=$outletdetails[0]->id;
-        $tax->tax_type=Input::get('tax_name');
-        $tax->tax_percent=Input::get('tax_percentage');
+        $tax->tax_type=Request::get('tax_name');
+        $tax->tax_percent=Request::get('tax_percentage');
         $tax->created_by=Auth::user()->id;
         $success = $tax->save();
         if($success)
@@ -97,8 +97,8 @@ class TaxController extends Controller {
 
         $user_id=Auth::user()->id;
         $tax=Tax::find($id);
-        $tax->tax_type=Input::get('tax_name');
-        $tax->tax_percent=Input::get('tax_percentage');
+        $tax->tax_type=Request::get('tax_name');
+        $tax->tax_percent=Request::get('tax_percentage');
         $tax->outlet_id=$outletdetails[0]->id;
 
         $success=$tax->save();

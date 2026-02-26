@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 
 $sess_outlet_id = Session::get('outlet_session');
-$order_date = Input::get('order_date');
+$order_date = Request::get('order_date');
 if ( isset($order_date)) {
     $start_date = $order_date;
     $end_date = $order_date;

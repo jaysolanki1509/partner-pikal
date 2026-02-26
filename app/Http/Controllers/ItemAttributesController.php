@@ -11,7 +11,7 @@ use App\Owner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -72,9 +72,9 @@ class ItemAttributesController extends Controller {
 		if (isset($p) && $p->passes())
 		{
 			$owner_id = Auth::id();
-			$save_continue = Input::get('saveContinue');
-			$name = Input::get('name');
-			$outlet_id  = Input::get('outlet_id');
+			$save_continue = Request::get('saveContinue');
+			$name = Request::get('name');
+			$outlet_id  = Request::get('outlet_id');
 			$sess_outlet_id = Session::get('outlet_session');
 
 			/*if (isset($sess_outlet_id) && $sess_outlet_id != '') {
@@ -107,7 +107,7 @@ class ItemAttributesController extends Controller {
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 	}
 
@@ -152,9 +152,9 @@ class ItemAttributesController extends Controller {
 	{
 
 		$owner_id = Auth::id();
-		$save_continue = Input::get('saveContinue');
-		$name = Input::get('name');
-		$outlet_id  = Input::get('outlet_id');
+		$save_continue = Request::get('saveContinue');
+		$name = Request::get('name');
+		$outlet_id  = Request::get('outlet_id');
 		$sess_outlet_id = Session::get('outlet_session');
 
 		/*if (isset($sess_outlet_id) && $sess_outlet_id != '') {
@@ -198,7 +198,7 @@ class ItemAttributesController extends Controller {
 	 */
 	public function destroy()
 	{
-		$atr_id = Input::get('att_id');
+		$atr_id = Request::get('att_id');
 
 		$check = ItemAttribute::find($atr_id)->delete();
 

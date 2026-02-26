@@ -88,7 +88,7 @@ class ContactController extends Controller {
     public function getContactUsForm(){
 
         //Get all the data and store it inside Store Variable
-        $data = Input::all();
+        $data = Request::all();
 
         //Validation rules
         $rules = array (

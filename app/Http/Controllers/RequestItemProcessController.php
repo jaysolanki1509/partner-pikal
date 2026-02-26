@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 
 class RequestItemProcessController extends Controller {
 
@@ -293,7 +293,7 @@ class RequestItemProcessController extends Controller {
 
 										$error = true;
 										DB::rollBack();
-										return redirect()->back()->withInput(Input::all())->with('error','Something Wrong In Input');
+										return redirect()->back()->withInput(Request::all())->with('error','Something Wrong In Input');
 
 									}
 
@@ -301,7 +301,7 @@ class RequestItemProcessController extends Controller {
 
 									$error = true;
 									DB::rollBack();
-									return redirect()->back()->withInput(Input::all())->with('error','Something Wrong In Input');
+									return redirect()->back()->withInput(Request::all())->with('error','Something Wrong In Input');
 
 								}
 
@@ -480,7 +480,7 @@ class RequestItemProcessController extends Controller {
 														} else {
 															$error = true;
 															DB::rollBack();
-															return redirect()->back()->withInput(Input::all())->with('error','Something Wrong In Input1');
+															return redirect()->back()->withInput(Request::all())->with('error','Something Wrong In Input1');
 														}
 
 													} else {
@@ -560,7 +560,7 @@ class RequestItemProcessController extends Controller {
 														} else {
 															$error = true;
 															DB::rollBack();
-															return redirect()->back()->withInput(Input::all())->with('error','Something Wrong In Input2');
+															return redirect()->back()->withInput(Request::all())->with('error','Something Wrong In Input2');
 														}
 
 														break;
@@ -634,7 +634,7 @@ class RequestItemProcessController extends Controller {
 													if ( !$result1 ) {
 														$error = true;
 														DB::rollBack();
-														return redirect()->back()->withInput(Input::all())->with('error','Something Wrong In Input');
+														return redirect()->back()->withInput(Request::all())->with('error','Something Wrong In Input');
 
 													}
 
@@ -642,14 +642,14 @@ class RequestItemProcessController extends Controller {
 
 													$error = true;
 													DB::rollBack();
-													return redirect()->back()->withInput(Input::all())->with('error','Something Wrong In Input');
+													return redirect()->back()->withInput(Request::all())->with('error','Something Wrong In Input');
 												}
 
 											} else {
 
 												$error = true;
 												DB::rollBack();
-												return redirect()->back()->withInput(Input::all())->with('error','Something Wrong In Input');
+												return redirect()->back()->withInput(Request::all())->with('error','Something Wrong In Input');
 
 
 											}
@@ -657,7 +657,7 @@ class RequestItemProcessController extends Controller {
 										} else {
 											$error = true;
 											DB::rollBack();
-											return redirect()->back()->withInput(Input::all())->with('error','Something Wrong In Input');
+											return redirect()->back()->withInput(Request::all())->with('error','Something Wrong In Input');
 
 										}
 									}*/
@@ -666,13 +666,13 @@ class RequestItemProcessController extends Controller {
 
 								$error = true;
 								DB::rollBack();
-								return redirect()->back()->withInput(Input::all())->with('error','Something Wrong In Input');
+								return redirect()->back()->withInput(Request::all())->with('error','Something Wrong In Input');
 							}
 
 						} else {
 							$error = true;
 							DB::rollBack();
-							return redirect()->back()->withInput(Input::all())->with('error','Something Wrong In Input');
+							return redirect()->back()->withInput(Request::all())->with('error','Something Wrong In Input');
 						}
 
 
@@ -680,7 +680,7 @@ class RequestItemProcessController extends Controller {
 					} catch( \Exception $e ) {
 						$error = true;
 						DB::rollBack();
-						return redirect()->back()->withInput(Input::all())->with('error', $e->getMessage());
+						return redirect()->back()->withInput(Request::all())->with('error', $e->getMessage());
 					}
 
 				}
@@ -701,7 +701,7 @@ class RequestItemProcessController extends Controller {
 			} else {
 
 				DB::rollBack();
-				return redirect()->back()->withInput(Input::all())->with('error','Something Wrong In Input');
+				return redirect()->back()->withInput(Request::all())->with('error','Something Wrong In Input');
 
 				if( preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"])){
 					DB::rollBack();
@@ -716,7 +716,7 @@ class RequestItemProcessController extends Controller {
 		} else {
 
 			DB::rollBack();
-			return redirect()->back()->withInput(Input::all())->with('error','Something Wrong In Input');
+			return redirect()->back()->withInput(Request::all())->with('error','Something Wrong In Input');
 
 			if( preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"])){
 				DB::rollBack();
@@ -781,12 +781,12 @@ class RequestItemProcessController extends Controller {
 
 	public function setisfiedResponse() {
 
-		$input = Input::all();
+		$input = Request::all();
 		$owner_id = Auth::id();
 
 		if ( isset($input) && sizeof($input) > 0 ) {
 
-			$input = Input::all();
+			$input = Request::all();
 			$response = array();
 
 			$search = $input['sSearch'];
@@ -911,7 +911,7 @@ class RequestItemProcessController extends Controller {
 
 	public function satisfiedResponselist() {
 
-		$id = Input::get('id');
+		$id = Request::get('id');
 		$data = array();
 
 		$request = ItemRequest::join('unit as u','u.id','=','item_request.satisfied_unit_id')
@@ -947,12 +947,12 @@ class RequestItemProcessController extends Controller {
 
 	public function getRequestedItems()
 	{
-//		$date = Input::get("date");
+//		$date = Request::get("date");
 //		print_r($date);exit;
 
-		$from_date = Input::get("from_date");
-		$to_date = Input::get("to_date");
-		$selected_user_id = Input::get("selected_user_id");
+		$from_date = Request::get("from_date");
+		$to_date = Request::get("to_date");
+		$selected_user_id = Request::get("selected_user_id");
 //		print_r($selected_user_id);exit;
 
 //		print_r($from_date);
@@ -1059,7 +1059,7 @@ class RequestItemProcessController extends Controller {
 
         $users = Owner::where('created_by', $admin)->orWhere('id',$admin)->get();
 
-        $units = Unit::all()->lists('name','id');
+        $units = Unit::all()->pluck('name','id');
         $units[''] = 'Select unit';
 
         $owners = ['' => 'Select User'];
@@ -1091,7 +1091,7 @@ class RequestItemProcessController extends Controller {
 	}
 
 	public function getResponseItemDelete(){
-	    $request_id = Input::get("id");
+	    $request_id = Request::get("id");
 
         $requsest = ItemRequest::find($request_id);
 
@@ -1112,25 +1112,25 @@ class RequestItemProcessController extends Controller {
 	public function responseUpdate(){
 
 
-        $req_id = Input::get('request_id');
-        $item_id = Input::get('item_id');
+        $req_id = Request::get('request_id');
+        $item_id = Request::get('item_id');
         $menu_item = Menu::find($item_id);
 
         $reqObj = ItemRequest::find($req_id);
         $reqObj->what_item_id  = $item_id;
         $reqObj->what_item = $menu_item->item;
-        $reqObj->unit_id = Input::get('req_unit');
-        $reqObj->price = Input::get('price');
-        $reqObj->owner_to = Input::get('req_owner_to_id');
-        $reqObj->owner_by = Input::get('req_owner_by_id');
-        $reqObj->location_for = Input::get('req_location_id');
-        $reqObj->when = Input::get('requested_date');
-        $reqObj->qty = Input::get('requested_qty');
-        $reqObj->satisfied_by = Input::get('res_owner_id');
-        $reqObj->satisfied_when = Input::get('satisfied_date').' '.Input::get('time');
-        $reqObj->statisfied_qty = Input::get('responsed_qty');
-        $reqObj->satisfied_unit_id = Input::get('res_unit');
-        $reqObj->location_from = Input::get('res_location_id');
+        $reqObj->unit_id = Request::get('req_unit');
+        $reqObj->price = Request::get('price');
+        $reqObj->owner_to = Request::get('req_owner_to_id');
+        $reqObj->owner_by = Request::get('req_owner_by_id');
+        $reqObj->location_for = Request::get('req_location_id');
+        $reqObj->when = Request::get('requested_date');
+        $reqObj->qty = Request::get('requested_qty');
+        $reqObj->satisfied_by = Request::get('res_owner_id');
+        $reqObj->satisfied_when = Request::get('satisfied_date').' '.Request::get('time');
+        $reqObj->statisfied_qty = Request::get('responsed_qty');
+        $reqObj->satisfied_unit_id = Request::get('res_unit');
+        $reqObj->location_from = Request::get('res_location_id');
         $result = $reqObj->save();
 
         if($result){
@@ -1355,11 +1355,11 @@ class RequestItemProcessController extends Controller {
 		$owner_id = Auth::id();
 		$admin = Owner::menuOwner();
 
-		$item_id = Input::get('item_id');
-		$item_name = Input::get('item_name');
-		$req_qty = Input::get('req_qty');
-		$req_id = Input::get('req_id');
-		$flag = Input::get('flag');
+		$item_id = Request::get('item_id');
+		$item_name = Request::get('item_name');
+		$req_qty = Request::get('req_qty');
+		$req_id = Request::get('req_id');
+		$flag = Request::get('flag');
 
 		if ( $flag == 'open') {
 
@@ -1378,18 +1378,18 @@ class RequestItemProcessController extends Controller {
 			return view('requestItemProcess.requestProcessStockDetail',array('stock'=>$loc_qty_arr,'req_id'=>$req_id,'flag'=>$flag,'locations'=>$locations,'item_name'=>$item_name,'req_qty'=>$req_qty));
 
 		} else if( $flag == 'stock') {
-		    $loc_id = Input::get('location_id');
+		    $loc_id = Request::get('location_id');
 
 			$stock_detail = StockAge::where('location_id',$loc_id)->where('item_id',$item_id)->where('quantity','>',0)->get();
 			return view('requestItemProcess.stockAgeViewList',array('stock'=>$stock_detail,'flag'=>$flag));
 
 		} else if( $flag == 'process' ) {
 
-			$transaction_id = Input::get('transaction_id');
-			$satisfy_qty = Input::get('satisfy_qty');
-			//$satisfy_when = Input::get('satisfy_date');
+			$transaction_id = Request::get('transaction_id');
+			$satisfy_qty = Request::get('satisfy_qty');
+			//$satisfy_when = Request::get('satisfy_date');
 			$response = array();
-            $loc_id = Input::get('location_id');
+            $loc_id = Request::get('location_id');
 			$total_qty = 0;
 			$today = date('Y-m-d');
 			DB::beginTransaction();
@@ -1617,12 +1617,12 @@ class RequestItemProcessController extends Controller {
 
 	public function getProcessStockDetail(){
 
-		$loc_id = Input::get('loc_id');
-		$satisfied_date = Input::get('satisfied_date');
-		$user_id = Input::get('user_id');
-		$loc_text = Input::get('loc_text');
+		$loc_id = Request::get('loc_id');
+		$satisfied_date = Request::get('satisfied_date');
+		$user_id = Request::get('user_id');
+		$loc_text = Request::get('loc_text');
 		$owner_id = Auth::id();
-        $view = Input::get('view');
+        $view = Request::get('view');
 
 
 		$item_requests = ItemRequest::groupBy('item_request.owner_by')

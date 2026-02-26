@@ -26,7 +26,7 @@ use App\Event;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use phpDocumentor\Reflection\Types\Integer;
@@ -53,7 +53,7 @@ class BookingController extends Controller
         for($i=1;$i<=20;$i++){
             $one_to_twenty[$i]=$i;
         }
-        $salutation = Salutation::all()->lists("name","id");
+        $salutation = Salutation::all()->pluck("name","id");
 
         foreach ($room_types as $type){
             $room[$type->name] = $type->rooms;
@@ -69,22 +69,22 @@ class BookingController extends Controller
     public function bookingRoom() {
 
         $sess_outlet_id = Session::get('outlet_session');
-        $check_in = Input::get("check_in");
-        $room_id = Input::get("room_id");
-        $days = Input::get("days");
-        $salutation = Input::get("salutation");
-        $first_name = Input::get("first_name");
-        $last_name = Input::get("last_name");
-        $contact_no = Input::get("contact_no");
-        $adult = Input::get("adult");
-        $child = Input::get("child");
-        $no_of_rooms = Input::get("no_of_rooms");
-        $reservation_type = Input::get("reservation_type");
+        $check_in = Request::get("check_in");
+        $room_id = Request::get("room_id");
+        $days = Request::get("days");
+        $salutation = Request::get("salutation");
+        $first_name = Request::get("first_name");
+        $last_name = Request::get("last_name");
+        $contact_no = Request::get("contact_no");
+        $adult = Request::get("adult");
+        $child = Request::get("child");
+        $no_of_rooms = Request::get("no_of_rooms");
+        $reservation_type = Request::get("reservation_type");
         $logged_in_user = Auth::id();
-        $deposit = Input::get("deposit");
+        $deposit = Request::get("deposit");
 
 
-        $getGuestNo = Guest::where('outlet_id',$sess_outlet_id)->lists('guest_no');
+        $getGuestNo = Guest::where('outlet_id',$sess_outlet_id)->pluck('guest_no');
         if(isset($getGuestNo) && sizeof($getGuestNo)>0){
             $gno = max($getGuestNo);
             $gno++;
@@ -189,8 +189,8 @@ class BookingController extends Controller
 
     public function loadCalender(){
 
-        $start = Input::get("start_date");
-        $end = Input::get("end_date");
+        $start = Request::get("start_date");
+        $end = Request::get("end_date");
         $count = 1;
 
         $outlet_id = Session::get('outlet_session');
@@ -297,8 +297,8 @@ class BookingController extends Controller
 
     public function checkRoomDetails(){
 
-        $booking_id = Input::get('booking_id');
-        $room_id = Input::get('room_id');
+        $booking_id = Request::get('booking_id');
+        $room_id = Request::get('room_id');
         $outlet_id = Session::get('outlet_session');
 
         $bookings = Booking::join("booking_rooms","bookings.id","=","booking_id")
@@ -338,10 +338,10 @@ class BookingController extends Controller
             $one_to_twenty[$i]=$i;
         }
 
-        $salutations = Salutation::all()->lists("name","id");
+        $salutations = Salutation::all()->pluck("name","id");
 
-        $room_types = RoomTypes::where('outlet_id',$outlet_id)->lists("name","id");
-        $rooms = Room::where('outlet_id',$outlet_id)->lists("name","id");
+        $room_types = RoomTypes::where('outlet_id',$outlet_id)->pluck("name","id");
+        $rooms = Room::where('outlet_id',$outlet_id)->pluck("name","id");
         $outlet = Outlet::find($outlet_id);
         $all_tax = [];
         if(isset($outlet) && sizeof($outlet)>0){
@@ -351,9 +351,9 @@ class BookingController extends Controller
             }
         }
 
-        $country = Country::all()->lists('name','id');
-        $state = State::all()->lists('name','id');
-        $city = City::all()->lists('name','id');
+        $country = Country::all()->pluck('name','id');
+        $state = State::all()->pluck('name','id');
+        $city = City::all()->pluck('name','id');
 
 
         return view('booking.form', array('country'=>$country,'state'=>$state,'city'=>$city,'all_tax'=>$all_tax,'rooms'=>$rooms,'room_types'=>$room_types,'booking'=>$bookings, 'salutations'=>$salutations,'one_to_twenty'=>$one_to_twenty));
@@ -361,9 +361,9 @@ class BookingController extends Controller
 
     public function calcRoomTaxTotal(){
 
-        $sub_total = Input::get("sub_total");
-        $tax_slab = Input::get("tax_slab");
-        $booking_id = Input::get("booking_id");
+        $sub_total = Request::get("sub_total");
+        $tax_slab = Request::get("tax_slab");
+        $booking_id = Request::get("booking_id");
         $booking = Booking::find($booking_id);
 
         $outlet_id = Session::get('outlet_session');
@@ -404,7 +404,7 @@ class BookingController extends Controller
 
     public function update($id){
 
-        $inputs = Input::all();
+        $inputs = Request::all();
         $outlet_id = Session::get('outlet_session');
         //Guest Details
         $guest_id = $inputs['guest_id'];
@@ -495,7 +495,7 @@ class BookingController extends Controller
 
                 if($check == 0){            //If guest name and booking name is not same.
 
-                    $getGuestNo = Guest::where('outlet_id',$outlet_id)->lists('guest_no');
+                    $getGuestNo = Guest::where('outlet_id',$outlet_id)->pluck('guest_no');
                     if(isset($getGuestNo) && sizeof($getGuestNo)>0){
                         $gno = max($getGuestNo);
                         $gno++;
@@ -581,7 +581,7 @@ class BookingController extends Controller
 
     public function destroy($id){
 
-        $booking_rooms_id = BookingRooms::where("booking_id",$id)->lists('id');
+        $booking_rooms_id = BookingRooms::where("booking_id",$id)->pluck('id');
         if(isset($booking_rooms_id) && sizeof($booking_rooms_id)>0){
             $user_id = Auth::id();
             foreach ($booking_rooms_id as $bk_id){
@@ -610,8 +610,8 @@ class BookingController extends Controller
 
         if ($request->ajax()) {
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
 
             Session::set('from_session',$from_date);
             Session::set('to_session',$to_date);
@@ -652,8 +652,8 @@ class BookingController extends Controller
 
         if ($request->ajax()) {
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
 
             Session::set('from_session',$from_date);
             Session::set('to_session',$to_date);
@@ -694,9 +694,9 @@ class BookingController extends Controller
 
         if ($request->ajax()) {
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
-            $reservation_type = Input::get('reservation_type');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
+            $reservation_type = Request::get('reservation_type');
 
             Session::set('from_session',$from_date);
             Session::set('to_session',$to_date);
@@ -743,8 +743,8 @@ class BookingController extends Controller
 
         if ($request->ajax()) {
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
 
             Session::set('from_session',$from_date);
             Session::set('to_session',$to_date);
@@ -787,8 +787,8 @@ class BookingController extends Controller
 
         if ($request->ajax()) {
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
 
             Session::set('from_session',$from_date);
             Session::set('to_session',$to_date);
@@ -851,8 +851,8 @@ class BookingController extends Controller
 
         if ($request->ajax()) {
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
 
             Session::set('from_session', $from_date);
             Session::set('to_session', $to_date);
@@ -916,19 +916,19 @@ class BookingController extends Controller
 
         if ($request->ajax()) {
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
 
             Session::set('from_session', $from_date);
             Session::set('to_session', $to_date);
             $outlet_id = Session::get('outlet_session');
 
-            $room_types = RoomTypes::where('outlet_id',$outlet_id)->lists('name','id');
+            $room_types = RoomTypes::where('outlet_id',$outlet_id)->pluck('name','id');
             $i = 0;
             $record = [];
             foreach ($room_types as $id=>$type){
 
-                $rooms = Room::where('room_type_id',$id)->lists('id');
+                $rooms = Room::where('room_type_id',$id)->pluck('id');
 
                 $booked_rooms = Booking::join('booking_rooms','booking_rooms.booking_id','=',"bookings.id")
                                 ->whereIn('booking_rooms.room_id',$rooms)

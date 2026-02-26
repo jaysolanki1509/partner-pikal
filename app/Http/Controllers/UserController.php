@@ -13,7 +13,7 @@ use App\State;
 use App\City;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
@@ -76,11 +76,11 @@ class UserController extends Controller {
             //print_r($outlet_arr);exit;
 
 		$data['action'] = "add";
-		$data['states'] = State::all()->lists('name','id');
-		$data['cities'] = City::all()->lists('name','id');
+		$data['states'] = State::all()->pluck('name','id');
+		$data['cities'] = City::all()->pluck('name','id');
 		$data['outlet_id'] = $outlet_arr;
 		$data['outlet_select'] = '';
-		$data['roles'] = Role::all()->lists('name','id');
+		$data['roles'] = Role::all()->pluck('name','id');
         //$data['order_type'] = Utils::getOrderType();
 		return view("users.create",$data);
 	}
@@ -109,23 +109,23 @@ class UserController extends Controller {
             $user_id = Auth::user()->id;
             $account_id = Auth::user()->account_id;
 
-            /*$ord_receive = Input::get('order_receive');
+            /*$ord_receive = Request::get('order_receive');
             if ( isset($ord_receive) && sizeof($ord_receive) > 0 ) {
                 $ord_receive = json_encode($ord_receive);
             }*/
 
             $owner = new Owner();
             $owner->account_id = $account_id;
-            $owner->user_name=Input::get("user_name");
-            $owner->email=Input::get("email");
-            $owner->password=Hash::make(Input::get('password'));
-            $owner->contact_no=Input::get("contact_no");
-            $owner->state=Input::get("states");
-            $owner->city=Input::get("cities");
-            $owner->role_id=Input::get("roles");
+            $owner->user_name=Request::get("user_name");
+            $owner->email=Request::get("email");
+            $owner->password=Hash::make(Request::get('password'));
+            $owner->contact_no=Request::get("contact_no");
+            $owner->state=Request::get("states");
+            $owner->city=Request::get("cities");
+            $owner->role_id=Request::get("roles");
             $owner->created_by=$user_id;
             //$owner->order_receive = $ord_receive;
-            $user_identifier = Input::get("user_identifier");
+            $user_identifier = Request::get("user_identifier");
             $owner->user_identifier=isset($user_identifier)?$user_identifier:0;
 
             if( isset($request->web_login) && $request->web_login == 1 )
@@ -135,7 +135,7 @@ class UserController extends Controller {
 
             $is_success = $owner->save();
 
-            $outlet_id  = Input::get('outlet_id');
+            $outlet_id  = Request::get('outlet_id');
             $sess_outlet_id = Session::get('outlet_session');
 
             if (isset($sess_outlet_id) && $sess_outlet_id != '') {
@@ -147,14 +147,14 @@ class UserController extends Controller {
             $mapper->owner_id = $owner->id;
             $mapper->save();
 
-            //DB::table('outlets_mapper')->insert(['outlet_id'=>Input::get('outlet_id'),'owner_id'=>$owner->id]);
+            //DB::table('outlets_mapper')->insert(['outlet_id'=>Request::get('outlet_id'),'owner_id'=>$owner->id]);
 
             $pass=str_random(6);
-            /*$email=Input::get("email");
+            /*$email=Request::get("email");
 
             $ownerid=$owner->id;
             if($ownerid!=''){
-                Mail::send('emails.newpassword', ['password' => $pass,'ownerid'=>$ownerid,'username'=>Input::get("user_name")], function($message) use ($email)
+                Mail::send('emails.newpassword', ['password' => $pass,'ownerid'=>$ownerid,'username'=>Request::get("user_name")], function($message) use ($email)
                 {
                     $message->from('we@foodklub.in', 'FOODKLUB');
                     $message->to($email, 'FoodKlub');
@@ -176,14 +176,14 @@ class UserController extends Controller {
     }
 
     public function passwordchange(){
-        //print_r(Input::all());exit;
+        //print_r(Request::all());exit;
         //Loged in user password change
-        if(isset(Input::all()['password']) && isset(Input::all()['new_password']) && isset(Input::all()['confirm_new_password']) ){
-            $old_pass=Input::all()['password'];
-            $new_password = Input::all()['new_password'];
-            $conf_password = Input::all()['confirm_new_password'];
+        if(isset(Request::all()['password']) && isset(Request::all()['new_password']) && isset(Request::all()['confirm_new_password']) ){
+            $old_pass=Request::all()['password'];
+            $new_password = Request::all()['new_password'];
+            $conf_password = Request::all()['confirm_new_password'];
             if($new_password!=$conf_password){
-                return redirect()->back()->withInput(Input::all())->with('error','New Password and Confirm Password is not matching.');
+                return redirect()->back()->withInput(Request::all())->with('error','New Password and Confirm Password is not matching.');
             }
             $user = Auth::user();
             if(Hash::check($old_pass, $user->password)){
@@ -191,12 +191,12 @@ class UserController extends Controller {
                 $user->password = Hash::make($new_password);
                 $user->save();
             }else{
-                return redirect()->back()->withInput(Input::all())->with('error','Your Old password is not correct.');
+                return redirect()->back()->withInput(Request::all())->with('error','Your Old password is not correct.');
             }
             //Specific User Password change
-        }elseif (isset(Input::all()['password']) && isset(Input::all()['owner_id'])){
-            $password = Input::all()['password'];
-            $owner_id = Input::all()['owner_id'];
+        }elseif (isset(Request::all()['password']) && isset(Request::all()['owner_id'])){
+            $password = Request::all()['password'];
+            $owner_id = Request::all()['owner_id'];
             $user = Owner::find($owner_id);
             $user->password = Hash::make($password);
             $user->save();
@@ -204,7 +204,7 @@ class UserController extends Controller {
             echo "success";exit;
 
         }else{
-            return redirect()->back()->withInput(Input::all())->with('error','Some required fields missing data.');
+            return redirect()->back()->withInput(Request::all())->with('error','Some required fields missing data.');
         }
         return Redirect('/changepass')->with('success','Password updated successfully');
 
@@ -234,9 +234,9 @@ class UserController extends Controller {
         /*if ( isset($owner_details->order_receive) && $owner_details->order_receive != '' ) {
             $owner_details->order_receive = json_decode($owner_details->order_receive);
         }*/
-        $roles = Role::all()->lists('name','id');
-        $states = State::all()->lists('name','id');
-        $cities = City::all()->lists('name','id');
+        $roles = Role::all()->pluck('name','id');
+        $states = State::all()->pluck('name','id');
+        $cities = City::all()->pluck('name','id');
         $result = OutletMapper::getOutletIdByOwnerId($id);
         $selected_outlet = '';
         if(isset($result) && sizeof($result)>0){
@@ -272,10 +272,10 @@ class UserController extends Controller {
 	 */
 	public function update($id)
 	{
-		$all = Input::all();
+		$all = Request::all();
 
 
-        /*$ord_receive = Input::get('order_receive');
+        /*$ord_receive = Request::get('order_receive');
         if ( isset($ord_receive) && sizeof($ord_receive) > 0 ) {
             $ord_receive = json_encode($ord_receive);
         }*/
@@ -290,7 +290,7 @@ class UserController extends Controller {
         //$user->order_receive = $ord_receive;
         /*if(isset($all['password']))
             $user->password = Hash::make($all['password']);*/
-        $user_identifier = Input::get("user_identifier");
+        $user_identifier = Request::get("user_identifier");
         $user->user_identifier=isset($user_identifier)?$user_identifier:0;
 
         if( isset($all['web_login']) && $all['web_login'] == 1 )
@@ -300,7 +300,7 @@ class UserController extends Controller {
 
         $user->save();
 
-        $outlet_id  = Input::get('outlet_id');
+        $outlet_id  = Request::get('outlet_id');
         $sess_outlet_id = Session::get('outlet_session');
 
         if (isset($sess_outlet_id) && $sess_outlet_id != '') {
@@ -330,14 +330,14 @@ class UserController extends Controller {
 	}
 
 	public function checkOrderReceive(){
-        $order_receive = Input::get("order_receive");
+        $order_receive = Request::get("order_receive");
 	    if($order_receive != "null")
-	        $order_receive = explode(",",Input::get("order_receive"));
+	        $order_receive = explode(",",Request::get("order_receive"));
         else
             $order_receive = NULL;
 
-	    $outlet_id = Input::get("outlet_id");
-	    $owner_id = Input::get("owner_id");
+	    $outlet_id = Request::get("outlet_id");
+	    $owner_id = Request::get("owner_id");
 
         if($outlet_id == '' || $owner_id == '')
         {
@@ -358,7 +358,7 @@ class UserController extends Controller {
 
                 if ($flag == 0) {
 
-                    $getoutlet_order_receive = OutletMapper::where('outlet_id', "=", $outlet_id)->lists('order_receive');
+                    $getoutlet_order_receive = OutletMapper::where('outlet_id', "=", $outlet_id)->pluck('order_receive');
                     if (isset($order_receive) && sizeof($order_receive) > 0) {
                         foreach ($order_receive as $key => $value) {
                             foreach ($getoutlet_order_receive as $out_key => $out_val) {

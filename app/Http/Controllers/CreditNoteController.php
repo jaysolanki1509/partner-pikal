@@ -142,7 +142,7 @@ class CreditNoteController extends Controller {
         $itemwise_tax = OutletSetting::checkAppSetting($outlet_id,'itemWiseTax');
         $itemwise_discount = OutletSetting::checkAppSetting($outlet_id,'itemWiseDiscount');
         //$owner = Owner::menuOwner();
-        //$menu = Menu::where('created_by',$owner)->lists('item','id');
+        //$menu = Menu::where('created_by',$owner)->pluck('item','id');
 
         return view("creditnotes.form",array(
                                             'action'=>"add",
@@ -213,7 +213,7 @@ class CreditNoteController extends Controller {
 
 	public function getCraditNote(){
 
-	    $cn_id = Input::get("cn_id");
+	    $cn_id = Request::get("cn_id");
         $creditNote = CreditNote::find($cn_id);
 
         $data = [];

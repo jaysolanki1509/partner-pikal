@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Role;
 use App\Owner;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 
 
 class RoleController extends Controller {
@@ -55,9 +55,9 @@ class RoleController extends Controller {
      */
     public function store()
     {
-        $user=Owner::where('id',Input::get('user_id'))->first();
-        $role_id=Input::get('role_id');
-        Owner::where('id', Input::get('user_id'))->update(['role_id' => $role_id]);
+        $user=Owner::where('id',Request::get('user_id'))->first();
+        $role_id=Request::get('role_id');
+        Owner::where('id', Request::get('user_id'))->update(['role_id' => $role_id]);
 
         return Redirect('/check_roles')->with('success', 'Role is assigned ');
     }
@@ -69,7 +69,7 @@ class RoleController extends Controller {
     }
 
     public function store_permission(){
-        print_r(Input::all());exit;
+        print_r(Request::all());exit;
     }
     /**
      * Display the specified resource.

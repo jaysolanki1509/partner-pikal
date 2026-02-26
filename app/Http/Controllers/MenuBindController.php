@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Outlet;
 use App\OutletMapper;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use App\Menu;
 use App\menu_option;
 
@@ -32,7 +32,7 @@ class MenuBindController extends Controller {
 		$user_id=Auth::user()->id;
 		$menu_owner=Owner::menuOwner();
 
-		$menus=DB::table("menu_titles")->where('created_by',$menu_owner)->lists('title','id');
+		$menus=DB::table("menu_titles")->where('created_by',$menu_owner)->pluck('title','id');
 		$menus[0] = 'Select Category';
 		ksort($menus);
 
@@ -238,7 +238,7 @@ class MenuBindController extends Controller {
 
 	public function ajaxMenuItemsList(){
 
-		$title_id = Input::get('title_id');
+		$title_id = Request::get('title_id');
 		$user_id = Auth::id();
 		$menu_owner=Owner::menuOwner();
 		//getting menu items of menu title

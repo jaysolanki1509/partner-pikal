@@ -40,7 +40,7 @@ use DatePeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use DateTime;
 use Illuminate\Support\Facades\Response;
@@ -67,7 +67,7 @@ class ReportController extends Controller {
     {
         $menu_owner=Owner::menuOwner();
         $menu_items['0'] = "All Items";
-        $menu_items=Menu::getMenuByUserId($menu_owner)->lists('item','id');
+        $menu_items=Menu::getMenuByUserId($menu_owner)->pluck('item','id');
         $menu_title = MenuTitle::getMenuTitleByCreatedBy($menu_owner);
         $m_titles = array();
         $m_titles['0'] = 'All Categories';
@@ -126,13 +126,13 @@ class ReportController extends Controller {
     public function show()
     {
         $menu_owner = Owner::menuOwner();
-        $menu_items = Menu::getMenuByUserId($menu_owner)->lists('item','id');
-        $selected_items = Input::get("item_id");
-        $from_date = Input::get("from_date");
-        $to_date = Input::get("to_date");
-        $outlet_id = Input::get("outlet_id");
-        $cat_id = Input::get('cat_id');
-		$flag = Input::get('flag');
+        $menu_items = Menu::getMenuByUserId($menu_owner)->pluck('item','id');
+        $selected_items = Request::get("item_id");
+        $from_date = Request::get("from_date");
+        $to_date = Request::get("to_date");
+        $outlet_id = Request::get("outlet_id");
+        $cat_id = Request::get('cat_id');
+		$flag = Request::get('flag');
 		$sess_outlet_id = Session::get('outlet_session');
 
         $blank = false;
@@ -144,10 +144,10 @@ class ReportController extends Controller {
 		}
         if(((isset($selected_items[0]) && $selected_items[0] == '0') || $selected_items == '') && $cat_id != '0'){
             //$selected_items[] = 0;
-            $selected_items = Menu::getmenubymenutitleid($cat_id)->lists('id');
+            $selected_items = Menu::getmenubymenutitleid($cat_id)->pluck('id');
         }
         if($cat_id == '0' && ((isset($selected_items[0]) && $selected_items[0] == '0') || $selected_items == '')){
-            $selected_items = Menu::where('created_by','=',$menu_owner)->lists('id');
+            $selected_items = Menu::where('created_by','=',$menu_owner)->pluck('id');
         }
 
         if ( $blank == true ) {
@@ -272,13 +272,13 @@ class ReportController extends Controller {
     }
 
     public function export_item_excel(){
-        //$user_id=Input::get('restau_id');
+        //$user_id=Request::get('restau_id');
         $menu_owner = Owner::menuOwner();
-        $menu_items = Menu::getMenuByUserId($menu_owner)->lists('item','id');
-        $selected_items = Input::get("item_id");
-        $from_date = Input::get("from_date");
-        $to_date = Input::get("to_date");
-        $outlet_id = Input::get("outlet_id");
+        $menu_items = Menu::getMenuByUserId($menu_owner)->pluck('item','id');
+        $selected_items = Request::get("item_id");
+        $from_date = Request::get("from_date");
+        $to_date = Request::get("to_date");
+        $outlet_id = Request::get("outlet_id");
 
         $date_array=$this->createDateRangeArray($from_date,$to_date);
         $result=[];
@@ -422,12 +422,12 @@ class ReportController extends Controller {
 	}
 
 	public function getdetailedreport(){
-		$fromdate = Input::get("from_date");
-		$todate = Input::get("to_date");
+		$fromdate = Request::get("from_date");
+		$todate = Request::get("to_date");
 		$today_dt = strtotime($todate);
 		$fromdate_dt = strtotime($fromdate);
 		if ($today_dt < $fromdate_dt){
-			return Redirect('/')->withInput(Input::all())->with('failure','ToDate must be greaterthan FromDate.');
+			return Redirect('/')->withInput(Request::all())->with('failure','ToDate must be greaterthan FromDate.');
 		}
 		$orders=DB::table("orders")
 			->join("order_items","order_items.order_id","=","orders.order_id")
@@ -496,9 +496,9 @@ class ReportController extends Controller {
 
     public function get_detail_report_pdf(){
 
-        $outlet_id = Input::get('outlet_id');
-        $from_date = Input::get('from_date');
-        $to_date = Input::get('to_date');
+        $outlet_id = Request::get('outlet_id');
+        $from_date = Request::get('from_date');
+        $to_date = Request::get('to_date');
 
         $pdf_files=DailyReportPdf::where('outlet_id',$outlet_id)
 				->where('report_date', '>=', $from_date)
@@ -567,7 +567,7 @@ class ReportController extends Controller {
 
     public function ajax_detail_discount_report(){
 
-        $outlet_id = Input::get('outlet_id');
+        $outlet_id = Request::get('outlet_id');
 
 		$sess_outlet_id = Session::get('outlet_session');
 
@@ -575,8 +575,8 @@ class ReportController extends Controller {
 			$outlet_id = $sess_outlet_id;
 		}
 
-		$from_date = Input::get('from_date');
-        $to_date = Input::get('to_date');
+		$from_date = Request::get('from_date');
+        $to_date = Request::get('to_date');
 
 		Session::set('from_session',$from_date);
 		Session::set('to_session',$to_date);
@@ -674,8 +674,8 @@ class ReportController extends Controller {
     }
 
     public function ajax_summary_report(){
-        $outlet_id = Input::get('outlet_id');
-        $flag = Input::get('flag');
+        $outlet_id = Request::get('outlet_id');
+        $flag = Request::get('flag');
 
 		$sess_outlet_id = Session::get('outlet_session');
 
@@ -683,8 +683,8 @@ class ReportController extends Controller {
 			$outlet_id = $sess_outlet_id;
 		}
 
-		$from_date = Input::get('from_date');
-		$to_date = Input::get('to_date');
+		$from_date = Request::get('from_date');
+		$to_date = Request::get('to_date');
 
 		//set session
 		Session::set('from_session',$from_date);
@@ -1227,7 +1227,7 @@ class ReportController extends Controller {
 
     public function selectslots(){
 
-        $outlet_id = Input::get('outlet_id');
+        $outlet_id = Request::get('outlet_id');
         $timeslots = Timeslot::gettimeslotbyoutletid($outlet_id);
 
         return $timeslots;
@@ -1237,9 +1237,9 @@ class ReportController extends Controller {
 
 		if ($request->ajax()) {
 
-			$from_date = Input::get('from_date');
-			$to_date = Input::get('to_date');
-			$outlet_id = Input::get('outlet_id');
+			$from_date = Request::get('from_date');
+			$to_date = Request::get('to_date');
+			$outlet_id = Request::get('outlet_id');
 
 			$sess_outlet_id = Session::get('outlet_session');
 			Session::set('from_session',$from_date);
@@ -1441,8 +1441,8 @@ class ReportController extends Controller {
 
         if ($request->ajax()) {
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
 
             $data = array();
             $table_header = array();
@@ -1600,24 +1600,24 @@ class ReportController extends Controller {
         $hasOwner = Owner::hasCreatedBy();
         $users = array();
 
-		$all_user = Owner::where('created_by', Auth::id())->lists('id');
+		$all_user = Owner::where('created_by', Auth::id())->pluck('id');
 		$all_user[] = Auth::id();
 
         if ($hasOwner) {
-            $users = Owner::where('id', Auth::id())->lists('user_name', 'id');
+            $users = Owner::where('id', Auth::id())->pluck('user_name', 'id');
         } else {
 
-			$users = Owner::where('created_by', Auth::id())->lists('user_name', 'id');
+			$users = Owner::where('created_by', Auth::id())->pluck('user_name', 'id');
             $users[Auth::id()] = Auth::user()->user_name;
         }
 
         if ($request->ajax()) {
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
-            $outlet_id = Input::get('outlet_id');
-            $user_id = Input::get('user_id');
-            $status_id = Input::get('status_id');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
+            $outlet_id = Request::get('outlet_id');
+            $user_id = Request::get('user_id');
+            $status_id = Request::get('status_id');
 
             $status_arr = Expense::getStatus();
             $status = isset($status_arr[$status_id])?$status_arr[$status_id]:'all';
@@ -1716,13 +1716,13 @@ class ReportController extends Controller {
 
 		if ($request->ajax()) {
 
-			$cat_id = Input::get('cat_id');
-			$from_date = Input::get('from_date');
-			$to_date = Input::get('to_date');
-			$item_id = Input::get('item_id');
-			$show_qty = Input::get('show_qty');
-			$show_total = Input::get('show_total');
-			$flag = Input::get('flag');
+			$cat_id = Request::get('cat_id');
+			$from_date = Request::get('from_date');
+			$to_date = Request::get('to_date');
+			$item_id = Request::get('item_id');
+			$show_qty = Request::get('show_qty');
+			$show_total = Request::get('show_total');
+			$flag = Request::get('flag');
 			$data = array();$response = array();
 			$menu_owner = Owner::menuOwner();
 			$itm_id_arr= array();$itm_name_arr = array();
@@ -1737,7 +1737,7 @@ class ReportController extends Controller {
 			} else {
 				$items = Menu::where('menu_title_id',$cat_id)->get();
                 if($cat_id == 'all') {
-                    $user_cat = MenuTitle::where('created_by', $menu_owner)->lists('id');
+                    $user_cat = MenuTitle::where('created_by', $menu_owner)->pluck('id');
                     $items = Menu::whereIn('menu_title_id',$user_cat)->get();
                 }
             }
@@ -1750,7 +1750,7 @@ class ReportController extends Controller {
 
 						foreach( $date_arr as $dt ) {
 						    if($cat_id == 'all') {
-						        $user_cat = MenuTitle::where('created_by', $menu_owner)->lists('id');
+						        $user_cat = MenuTitle::where('created_by', $menu_owner)->pluck('id');
                                 //print_r($user_cat);exit;
                                 $result = Purchase::join('menus', 'menus.id', '=', 'purchase.item_id')
                                     ->join('menu_titles', 'menu_titles.id', '=', 'menus.menu_title_id')
@@ -1827,8 +1827,8 @@ class ReportController extends Controller {
             $menu_owner = Owner::menuOwner();
             $locations = Location::where('created_by', $menu_owner)->get();
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
 
 			Session::set('from_session',$from_date);
 			Session::set('to_session',$to_date);
@@ -1836,9 +1836,9 @@ class ReportController extends Controller {
 			$from_date = $from_date." 00:00:00";
 			$to_date = $to_date." 23:59:59";
 
-            $user_id = Input::get('user_id');
-            $location_id = Input::get('location_id');
-            $request_from = Input::get('request'); //app or web
+            $user_id = Request::get('user_id');
+            $location_id = Request::get('location_id');
+            $request_from = Request::get('request'); //app or web
             $data = array();
 
             $item_requests = ItemRequest::join('menus', 'menus.id', '=', 'item_request.what_item_id')
@@ -1874,7 +1874,7 @@ class ReportController extends Controller {
 
             /*$total_item_ids = ItemRequest::whereBetween('when', array($from_date, $to_date))
                 ->groupBy('item_request.what_item_id')
-                ->lists('what_item_id');*/
+                ->pluck('what_item_id');*/
 
             $result = array();$loc_arr = array();
             $date_arr = $this->createDateRangeArray($from_date, $to_date);
@@ -1929,15 +1929,15 @@ class ReportController extends Controller {
 
         $hasOwner = Owner::hasCreatedBy();
         if ($hasOwner) {
-            $users = Owner::where('id', Auth::id())->lists('user_name', 'id');
+            $users = Owner::where('id', Auth::id())->pluck('user_name', 'id');
         } else {
-            $users = Owner::where('created_by', Auth::id())->lists('user_name', 'id');
+            $users = Owner::where('created_by', Auth::id())->pluck('user_name', 'id');
             $users[Auth::id()] = Auth::user()->user_name;
         }
         if (!$hasOwner){
             $users['all'] = 'All Users';
         }
-        $locations = Location::where('created_by',Auth::id())->lists('name','id');
+        $locations = Location::where('created_by',Auth::id())->pluck('name','id');
         $locations['all'] = 'All Locations';
 
 //        if( preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"])){
@@ -1952,14 +1952,14 @@ class ReportController extends Controller {
 	public function stockResponseReport(Request $request) {
 
 		$menu_owner = Owner::menuOwner();
-		$flag = Input::get('flag');
+		$flag = Request::get('flag');
 
         if ($request->ajax() || ( isset($flag) && $flag == 'export')) {
 
 			$locations = Location::where('created_by', $menu_owner)->get();
 
-			$from_date = Input::get('from_date');
-			$to_date = Input::get('to_date');
+			$from_date = Request::get('from_date');
+			$to_date = Request::get('to_date');
 
 //echo $flag;exit;
 			Session::set('from_session',$from_date);
@@ -1968,9 +1968,9 @@ class ReportController extends Controller {
 			$from_date = $from_date." 00:00:00";
 			$to_date = $to_date." 23:59:59";
 
-			$user_id = Input::get('user_id');
-			$location_id = Input::get('location_id');
-			$request_from = Input::get('request'); //app or web
+			$user_id = Request::get('user_id');
+			$location_id = Request::get('location_id');
+			$request_from = Request::get('request'); //app or web
 			$data = array();
 
 			$item_requests = ItemRequest::join('unit', 'item_request.satisfied_unit_id', '=', 'unit.id')
@@ -2004,7 +2004,7 @@ class ReportController extends Controller {
 			/*$total_item_ids = ItemRequest::whereBetween('satisfied_when', array($from_date, $to_date))
 				->where('item_request.satisfied', '=', 'Yes')
 				->groupBy('item_request.what_item_id')
-				->lists('what_item_id');*/
+				->pluck('what_item_id');*/
 
 			$result = array();$loc_arr = array();
 			$date_arr = $this->createDateRangeArray($from_date, $to_date);
@@ -2296,16 +2296,16 @@ class ReportController extends Controller {
 
         $hasOwner = Owner::hasCreatedBy();
         if ($hasOwner) {
-            $users = Owner::where('id', Auth::id())->lists('user_name', 'id');
+            $users = Owner::where('id', Auth::id())->pluck('user_name', 'id');
         } else {
-            $users = Owner::where('created_by', Auth::id())->lists('user_name', 'id');
+            $users = Owner::where('created_by', Auth::id())->pluck('user_name', 'id');
             $users[Auth::id()] = Auth::user()->user_name;
         }
 
         if (!$hasOwner){
             $users['all'] = 'All Users';
         }
-        $locations = Location::where('created_by',$menu_owner)->lists('name','id');
+        $locations = Location::where('created_by',$menu_owner)->pluck('name','id');
         $locations['all'] = 'All Locations';
 
         return view('report.stockResponseReport', array('users' => $users,'locations' => $locations));
@@ -2318,8 +2318,8 @@ class ReportController extends Controller {
 
 		if ($request->ajax()) {
 
-			$from_date = Input::get('from_date');
-			$to_date = Input::get('to_date');
+			$from_date = Request::get('from_date');
+			$to_date = Request::get('to_date');
 
 			Session::set('from_session',$from_date);
 			Session::set('to_session',$to_date);
@@ -2327,7 +2327,7 @@ class ReportController extends Controller {
 			$from_date = $from_date." 00:00:00";
 			$to_date = $to_date." 23:59:59";
 
-			$location_id = Input::get('location_id');
+			$location_id = Request::get('location_id');
 
 			$locations = Location::where('created_by',$admin)->get();
 			$data = array();
@@ -2353,7 +2353,7 @@ class ReportController extends Controller {
 
 			$total_item_ids = ItemRequest::whereBetween('when', array($from_date, $to_date))
 				->groupBy('item_request.what_item_id')
-				->lists('what_item_id');
+				->pluck('what_item_id');
 
 			$result = array();$loc_arr = array();
 			$date_arr = $this->createDateRangeArray($from_date, $to_date);
@@ -2391,7 +2391,7 @@ class ReportController extends Controller {
 
 			return view('report.closingStockReportList',array('data'=>$data));
 		}
-		$locations = Location::where('created_by',$admin)->lists('name','id');
+		$locations = Location::where('created_by',$admin)->pluck('name','id');
 		$locations[''] = 'All Location';
 
 
@@ -2404,10 +2404,10 @@ class ReportController extends Controller {
 
 		if ($request->ajax()) {
 
-			$from_date = Input::get('from_date');
-			$to_date = Input::get('to_date');
-			$location_id = Input::get('location_id');
-			$item_id = Input::get('item_id');
+			$from_date = Request::get('from_date');
+			$to_date = Request::get('to_date');
+			$location_id = Request::get('location_id');
+			$item_id = Request::get('item_id');
 
 
 		}
@@ -2437,11 +2437,11 @@ class ReportController extends Controller {
 
         if ($request->ajax()) {
 
-			$report_type = Input::get('report_type');
+			$report_type = Request::get('report_type');
             $outlet_id = Session::get('outlet_session');
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
 
 			Session::set('from_session',$from_date);
 			Session::set('to_session',$to_date);
@@ -2576,10 +2576,10 @@ class ReportController extends Controller {
 
 		if ($request->ajax()) {
 
-			$from_date = Input::get('from_date');
-			$to_date = Input::get('to_date');
-			$report_type = Input::get('report_type');
-			$ot_id = Input::get('outlet_id');
+			$from_date = Request::get('from_date');
+			$to_date = Request::get('to_date');
+			$report_type = Request::get('report_type');
+			$ot_id = Request::get('outlet_id');
 
 			Session::set('from_session',$from_date);
 			Session::set('to_session',$to_date);
@@ -2621,14 +2621,14 @@ class ReportController extends Controller {
         if ($request->ajax()) {
 
             $sess_outlet_id = Session::get('outlet_session');
-            $outlet_id = Input::get('outlet_id');
+            $outlet_id = Request::get('outlet_id');
 
             if (isset($sess_outlet_id) && $sess_outlet_id != '') {
                 $outlet_id = $sess_outlet_id;
             }
 
-			$from_date = Input::get('from_date');
-			$to_date = Input::get('to_date');
+			$from_date = Request::get('from_date');
+			$to_date = Request::get('to_date');
 
 			Session::set('from_session',$from_date);
 			Session::set('to_session',$to_date);
@@ -2662,11 +2662,11 @@ class ReportController extends Controller {
 
 		if ($request->ajax()) {
 
-			$from_date = Input::get('from_date');
-			$to_date = Input::get('to_date');
-			$loc_id = Input::get('location_id');
-			$item_id = Input::get('item_id');
-			$cat_id = Input::get('cat_id');
+			$from_date = Request::get('from_date');
+			$to_date = Request::get('to_date');
+			$loc_id = Request::get('location_id');
+			$item_id = Request::get('item_id');
+			$cat_id = Request::get('cat_id');
 
 
 			$param = array(
@@ -2701,7 +2701,7 @@ class ReportController extends Controller {
 
     public function getBarChartDateData(){
 
-        $day = Input::get('day');
+        $day = Request::get('day');
 
         $from = Carbon::now()->startOfDay()->subDays($day);
         $to = Carbon::now()->endOfDay()->subDays($day);
@@ -2867,7 +2867,7 @@ class ReportController extends Controller {
 
     public function getPieChartDateData(){
 
-        $day = Input::get('day');
+        $day = Request::get('day');
 
         $to = Carbon::now()->endOfDay()->subDays($day);
         $from = Carbon::now()->startOfDay()->subDays($day);
@@ -2982,10 +2982,10 @@ class ReportController extends Controller {
 
 		if ($request->ajax()) {
 
-			$loc_id = Input::get('location_id');
+			$loc_id = Request::get('location_id');
 
-			$from_date = Input::get('from_date');
-			$to_date = Input::get('to_date');
+			$from_date = Request::get('from_date');
+			$to_date = Request::get('to_date');
 
 			Session::set('from_session',$from_date);
 			Session::set('to_session',$to_date);
@@ -3061,7 +3061,7 @@ class ReportController extends Controller {
 
 		if ($request->ajax())
 		{
-			$input = Input::all();
+			$input = Request::all();
 			$response = array();
 
 			$search = $input['sSearch'];
@@ -3223,9 +3223,9 @@ class ReportController extends Controller {
 
 		if ($request->ajax()) {
 
-			$ot_id = Input::get('ot_id');
-			$from = Input::get('from_date');
-			$to = Input::get('to_date');
+			$ot_id = Request::get('ot_id');
+			$from = Request::get('from_date');
+			$to = Request::get('to_date');
 
 			$pay_opt = PaymentOption::where('name','Online')->first();
 			$source = Sources::where('name','UPI')->first();
@@ -3252,7 +3252,7 @@ class ReportController extends Controller {
 			return view('report.paymentReportList',array('orders'=>$orders,'outlet_id'=>$ot_id));
 		}
 
-		$outlets = Outlet::all()->lists('name','id');
+		$outlets = Outlet::all()->pluck('name','id');
 		$outlets['all'] = 'All';
 		return view('report.paymentReport',array('outlets'=>$outlets));
 	}
@@ -3264,15 +3264,15 @@ class ReportController extends Controller {
 
 		if ($request->ajax()) {
 
-			$from_date = Input::get('from_date');
-			$to_date = Input::get('to_date');
+			$from_date = Request::get('from_date');
+			$to_date = Request::get('to_date');
 
             //convert to session time
             $from = Utils::getSessionTime($from_date,'from');
             $to = Utils::getSessionTime($to_date,'to');
 
-			$mobile = Input::get('mobile');
-			$table_no = Input::get('table_no');
+			$mobile = Request::get('mobile');
+			$table_no = Request::get('table_no');
 
 			Session::set('from_session',$from_date);
 			Session::set('to_session',$to_date);
@@ -3328,12 +3328,12 @@ class ReportController extends Controller {
 	public function saleReport( Request $request ) {
 
 		$outlet_id = Session::get('outlet_session');
-		$flag = Input::get('flag');
+		$flag = Request::get('flag');
 
 		if ( $request->ajax() || ( isset($flag) && $flag == 'export')) {
 
-			$from_date = Input::get('from_date');
-			$to_date = Input::get('to_date');
+			$from_date = Request::get('from_date');
+			$to_date = Request::get('to_date');
 
 			Session::set('from_session',$from_date);
 			Session::set('to_session',$to_date);
@@ -3457,9 +3457,9 @@ class ReportController extends Controller {
 
         if ( $request->ajax() ) {
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
-            $outlet_id = Input::get('outlet_id');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
+            $outlet_id = Request::get('outlet_id');
 
             Session::set('from_session',$from_date);
             Session::set('to_session',$to_date);
@@ -3514,7 +3514,7 @@ class ReportController extends Controller {
 
         }
 
-        $outlets = Outlet::all()->lists('name','id');
+        $outlets = Outlet::all()->pluck('name','id');
         $outlets['all'] = 'All';
 
         return view('report.duplicateInvoiceNo',array('outlets'=>$outlets));
@@ -3525,10 +3525,10 @@ class ReportController extends Controller {
 
         if ($request->ajax()) {
 
-            $outlet_id = Input::get('outlet_id');
+            $outlet_id = Request::get('outlet_id');
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
 
             Session::set('from_session',$from_date);
             Session::set('to_session',$to_date);
@@ -3542,7 +3542,7 @@ class ReportController extends Controller {
 
         }
 
-        $outlets = Outlet::where("active","Yes")->lists("name","id");
+        $outlets = Outlet::where("active","Yes")->pluck("name","id");
         $outlets[""] = "Select Outlet";
 
 
@@ -3555,9 +3555,9 @@ class ReportController extends Controller {
 
             $outlet_id = Session::get('outlet_session');
 
-            $from_date = Input::get('from_date');
-            $to_date = Input::get('to_date');
-            $flag = Input::get('flag');
+            $from_date = Request::get('from_date');
+            $to_date = Request::get('to_date');
+            $flag = Request::get('flag');
 
             Session::set('from_session',$from_date);
             Session::set('to_session',$to_date);

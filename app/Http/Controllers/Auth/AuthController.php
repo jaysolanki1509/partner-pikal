@@ -14,7 +14,7 @@ use App\Services\Registrar;
 use Illuminate\Support\Facades\Session;
 use View;
 
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use App\Owner;
 use App\Country;
@@ -135,9 +135,9 @@ class AuthController extends Controller  {
     public function postLogin(Request $request)
     {
 
-        $usernameinput = Input::get('email');
-        $password = Input::get('password');
-        $remember = Input::get('remember');
+        $usernameinput = Request::get('email');
+        $password = Request::get('password');
+        $remember = Request::get('remember');
 
         $field = filter_var($usernameinput, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
 

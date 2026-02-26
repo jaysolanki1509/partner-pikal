@@ -12,7 +12,7 @@ use App\StaffShift;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -37,7 +37,7 @@ class AttendanceController extends Controller {
 		$outlet_id = Session::get('outlet_session');
 
 		if( $_SERVER['HTTP_USER_AGENT'] == 'android_app') {
-			$outlet_id = Input::get('outlet_id');
+			$outlet_id = Request::get('outlet_id');
 		}
 
 		$att_arr = array();
@@ -92,8 +92,8 @@ class AttendanceController extends Controller {
 			$outlet_id = $this->outlet_id;
 		}
 
-		$staff_id = Input::get('staff_id');
-		$type = Input::get('type');
+		$staff_id = Request::get('staff_id');
+		$type = Request::get('type');
 
 		if( $type == 'out') {
 			//check for in time of user on same date
@@ -146,9 +146,9 @@ class AttendanceController extends Controller {
 
 		if ($request->ajax()) {
 
-			$from = Input::get('from_date');
-			$to = Input::get('to_date');
-			$staff_id = Input::get('staff_id');
+			$from = Request::get('from_date');
+			$to = Request::get('to_date');
+			$staff_id = Request::get('staff_id');
 
 			$report_obj = new ReportController();
 			$date_arr = $report_obj->createDateRangeArray($from, $to);
@@ -269,8 +269,8 @@ class AttendanceController extends Controller {
 
 	public function attendanceDetail() {
 
-		$date = Input::get('date');
-		$stf_id = Input::get('staff_id');
+		$date = Request::get('date');
+		$stf_id = Request::get('staff_id');
 
 		$att_detail = Attendance::where('staff_id',$stf_id)->whereDate('created_at','=',$date)->get();
 
@@ -357,8 +357,8 @@ class AttendanceController extends Controller {
 		if (isset($p) && $p->passes())
 		{
 			$owner_id = Auth::id();
-			$save_continue = Input::get('saveContinue');
-			$name = Input::get('name');
+			$save_continue = Request::get('saveContinue');
+			$name = Request::get('name');
 
 			$sft_role = new StaffRole();
 			$sft_role->name = $name;
@@ -376,7 +376,7 @@ class AttendanceController extends Controller {
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 
 
@@ -393,14 +393,14 @@ class AttendanceController extends Controller {
 
 	public function updateStaffRole($id) {
 
-		$p = Validator::make(Input::all(), [
+		$p = Validator::make(Request::all(), [
 			'name' => 'required|unique:staff_roles,name,'.$id
 		]);
 
 		if (isset($p) && $p->passes())
 		{
 			$owner_id = Auth::id();
-			$name = Input::get('name');
+			$name = Request::get('name');
 
 			$sft_role = StaffRole::find($id);
 			$sft_role->name = $name;
@@ -410,11 +410,11 @@ class AttendanceController extends Controller {
 			if ( $result ) {
 				return Redirect::route('attendance.staffrole')->with('success','staff role has been udpated successfully');
 			} else {
-				return redirect()->back()->withInput(Input::all())->with('error','There is some error, Please try again later');
+				return redirect()->back()->withInput(Request::all())->with('error','There is some error, Please try again later');
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 
 
@@ -448,10 +448,10 @@ class AttendanceController extends Controller {
 		if (isset($p) && $p->passes())
 		{
 			$owner_id = Auth::id();
-			$save_continue = Input::get('saveContinue');
-			$name = Input::get('name');
-			$from = Input::get('from');
-			$to = Input::get('to');
+			$save_continue = Request::get('saveContinue');
+			$name = Request::get('name');
+			$from = Request::get('from');
+			$to = Request::get('to');
 
 			$slots = array();
 
@@ -481,7 +481,7 @@ class AttendanceController extends Controller {
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 
 
@@ -497,16 +497,16 @@ class AttendanceController extends Controller {
 
 	public function updateStaffShift($id) {
 
-		$p = Validator::make(Input::all(), [
+		$p = Validator::make(Request::all(), [
 			'name' => 'required|unique:staff_shifts,name,'.$id
 		]);
 
 		if (isset($p) && $p->passes())
 		{
 			$owner_id = Auth::id();
-			$name = Input::get('name');
-			$from = Input::get('from');
-			$to = Input::get('to');
+			$name = Request::get('name');
+			$from = Request::get('from');
+			$to = Request::get('to');
 
 			$slots = array();
 
@@ -529,11 +529,11 @@ class AttendanceController extends Controller {
 			if ( $result ) {
 				return Redirect::route('attendance.staffshift')->with('success','staff shift has been udpated successfully');
 			} else {
-				return redirect()->back()->withInput(Input::all())->with('error','There is some error, Please try again later');
+				return redirect()->back()->withInput(Request::all())->with('error','There is some error, Please try again later');
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 
 	}
@@ -566,7 +566,7 @@ class AttendanceController extends Controller {
 
 		$shifts = StaffShift::where('created_by',$owner)->get();
 
-		$roles = StaffRole::where('created_by',$owner)->lists('name','id');
+		$roles = StaffRole::where('created_by',$owner)->pluck('name','id');
 		$sft = array();
 
 		if ( isset($shifts) && sizeof($shifts) > 0 ) {
@@ -613,12 +613,12 @@ class AttendanceController extends Controller {
 		if (isset($p) && $p->passes())
 		{
 			$owner_id = Auth::id();
-			$save_continue = Input::get('saveContinue');
-			$name = Input::get('name');
-			$per_day = Input::get('per_day');
-			$per_day_hours = Input::get('per_day_hours');
-			$shift_id = Input::get('staff_shift_id');
-			$role_id = Input::get('staff_role_id');
+			$save_continue = Request::get('saveContinue');
+			$name = Request::get('name');
+			$per_day = Request::get('per_day');
+			$per_day_hours = Request::get('per_day_hours');
+			$shift_id = Request::get('staff_shift_id');
+			$role_id = Request::get('staff_role_id');
 
 			$sess_outlet_id = Session::get('outlet_session');
 
@@ -647,7 +647,7 @@ class AttendanceController extends Controller {
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 
 	}
@@ -658,7 +658,7 @@ class AttendanceController extends Controller {
 		$staff = Staff::find($id);
 
 		$shifts = StaffShift::where('created_by',$owner)->get();
-		$roles = StaffRole::where('created_by',$owner)->lists('name','id');
+		$roles = StaffRole::where('created_by',$owner)->pluck('name','id');
         $sft = array();
 
         if ( isset($shifts) && sizeof($shifts) > 0 ) {
@@ -695,7 +695,7 @@ class AttendanceController extends Controller {
 			'staff_shift_id.required' => 'Shift is required!',
 		];
 
-		$p = Validator::make(Input::all(), [
+		$p = Validator::make(Request::all(), [
 			'name' => 'required',
 			'per_day'=> 'required',
 			'per_day_hours'=> 'required',
@@ -713,11 +713,11 @@ class AttendanceController extends Controller {
 				$outlet_id = $sess_outlet_id;
 			}
 
-			$name = Input::get('name');
-			$per_day = Input::get('per_day');
-			$per_day_hours = Input::get('per_day_hours');
-			$shift_id = Input::get('staff_shift_id');
-			$role_id = Input::get('staff_role_id');
+			$name = Request::get('name');
+			$per_day = Request::get('per_day');
+			$per_day_hours = Request::get('per_day_hours');
+			$shift_id = Request::get('staff_shift_id');
+			$role_id = Request::get('staff_role_id');
 
 
 			$staff = Staff::find($id);
@@ -734,11 +734,11 @@ class AttendanceController extends Controller {
 			if ( $result ) {
 				return Redirect::route('attendance.staff')->with('success','staff has been udpated successfully');
 			} else {
-				return redirect()->back()->withInput(Input::all())->with('error','There is some error, Please try again later');
+				return redirect()->back()->withInput(Request::all())->with('error','There is some error, Please try again later');
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 
 	}
@@ -771,8 +771,8 @@ class AttendanceController extends Controller {
 
 		$owner = Owner::menuOwner();
 
-		$shifts = StaffShift::where('created_by',$owner)->lists('name','id');
-		$roles = StaffRole::where('created_by',$owner)->lists('name','id');
+		$shifts = StaffShift::where('created_by',$owner)->pluck('name','id');
+		$roles = StaffRole::where('created_by',$owner)->pluck('name','id');
 
 		return view("attendance.createstaffing",array('shifts'=>$shifts,'roles'=>$roles,'action'=>'add'));
 
@@ -797,10 +797,10 @@ class AttendanceController extends Controller {
 		if (isset($p) && $p->passes())
 		{
 			$owner_id = Auth::id();
-			$save_continue = Input::get('saveContinue');
-			$qty = Input::get('qty');
-			$shift_id = Input::get('staff_shift_id');
-			$role_id = Input::get('staff_role_id');
+			$save_continue = Request::get('saveContinue');
+			$qty = Request::get('qty');
+			$shift_id = Request::get('staff_shift_id');
+			$role_id = Request::get('staff_role_id');
 
 			$sess_outlet_id = Session::get('outlet_session');
 
@@ -827,7 +827,7 @@ class AttendanceController extends Controller {
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 
 	}
@@ -837,8 +837,8 @@ class AttendanceController extends Controller {
 		$owner = Owner::menuOwner();
 		$staffing = Staffing::find($id);
 
-		$shifts = StaffShift::where('created_by',$owner)->lists('name','id');
-		$roles = StaffRole::where('created_by',$owner)->lists('name','id');
+		$shifts = StaffShift::where('created_by',$owner)->pluck('name','id');
+		$roles = StaffRole::where('created_by',$owner)->pluck('name','id');
 
 		return view("attendance.createstaffing",array('staffing'=>$staffing,'shifts'=>$shifts,'roles'=>$roles,'action'=>'edit'));
 
@@ -853,7 +853,7 @@ class AttendanceController extends Controller {
 			'staff_shift_id.required' => 'Shift is required!',
 		];
 
-		$p = Validator::make(Input::all(), [
+		$p = Validator::make(Request::all(), [
 			'outlet_id' => 'required',
 			'qty'=> 'required',
 			'staff_role_id'=> 'required',
@@ -864,10 +864,10 @@ class AttendanceController extends Controller {
 		{
 			$owner_id = Auth::id();
 
-			$outlet_id = Input::get('outlet_id');
-			$qty = Input::get('qty');
-			$shift_id = Input::get('staff_shift_id');
-			$role_id = Input::get('staff_role_id');
+			$outlet_id = Request::get('outlet_id');
+			$qty = Request::get('qty');
+			$shift_id = Request::get('staff_shift_id');
+			$role_id = Request::get('staff_role_id');
 
 
 			$staff = Staffing::find($id);
@@ -880,11 +880,11 @@ class AttendanceController extends Controller {
 			if ( $result ) {
 				return Redirect::route('attendance.staffing')->with('success','staffing has been udpated successfully');
 			} else {
-				return redirect()->back()->withInput(Input::all())->with('error','There is some error, Please try again later');
+				return redirect()->back()->withInput(Request::all())->with('error','There is some error, Please try again later');
 			}
 
 		} else {
-			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+			return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
 		}
 
 	}

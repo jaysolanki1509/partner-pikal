@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Roles;
 use App\Permissions;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use App\Termsandcondition;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Validator;
@@ -58,24 +58,24 @@ class TermsandconditionController extends Controller {
             'terms.required' => 'Terms is required!',
         ];
 
-        $p = Validator::make(Input::all(), [
+        $p = Validator::make(Request::all(), [
             'terms' => 'required',
         ], $messages);
         if (isset($p) && $p->passes()) {
             $terms = Termsandcondition::all();
             if (sizeof($terms) > 0) {
                 $termsandcondition = Termsandcondition::find($terms[0]->{'id'});
-                $termsandcondition->terms_condition = Input::get('terms');
+                $termsandcondition->terms_condition = Request::get('terms');
                 $termsandcondition->save();
                 return view('termsandcondition.index', array('terms' => $termsandcondition));
             } else {
                 $termsandcondition = new Termsandcondition();
-                $termsandcondition->terms_condition = Input::get('terms');
+                $termsandcondition->terms_condition = Request::get('terms');
                 $termsandcondition->save();
                 return view('termsandcondition.index', array('terms' => $termsandcondition));
             }
         } else {
-            return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
+            return redirect()->back()->withInput(Request::all())->withErrors($p->errors());
         }
     }
 

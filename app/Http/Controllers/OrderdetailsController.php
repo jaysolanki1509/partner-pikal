@@ -10,9 +10,8 @@ use App\status;
 use App\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
-use Piyushpatil\Androidpushnotification;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -73,7 +72,7 @@ class OrderdetailsController extends Controller {
 
                 }
             }
-            if (Input::get('type') == "ajax") {
+            if (Request::get('type') == "ajax") {
                 return $allorder;
             } else {
                 return view('orderdetails.index', array('order' => $allorder, 'status' => $allstatus, 'Outlet' => $Outlet, 'totalOutletcount' => $totalOutletunderuser));
@@ -83,7 +82,7 @@ class OrderdetailsController extends Controller {
 
     }
     public function getstatus(){
-        $outlet_id=Input::get('rest_id');
+        $outlet_id=Request::get('rest_id');
 //        print_r($outlet_id);exit;
         $allstatus=array();
         $status=status::getallstatusofOutlet($outlet_id);
@@ -103,14 +102,14 @@ class OrderdetailsController extends Controller {
     }
     public function nextstatus(){
 
-        $currents=Input::get('currentstatus');
-        $oid=Input::get('oid');
-        $outlet_id = Input::get('outlet_id');
+        $currents=Request::get('currentstatus');
+        $oid=Request::get('oid');
+        $outlet_id = Request::get('outlet_id');
         $getcurrentstatus=status::getstatusbyname($currents);
         $getnextstatus1=status::where('status',$currents)->where('outlet_id',$outlet_id)->first();
 
         if ( isset($getnextstatus1) && sizeof($getnextstatus1) > 0 ) {
-            $getnextstatus=status::getstatusbyitssequenceandoutletid($getnextstatus1->order,Input::get('outlet_id'));
+            $getnextstatus=status::getstatusbyitssequenceandoutletid($getnextstatus1->order,Request::get('outlet_id'));
 
             if(isset($getnextstatus) && sizeof($getnextstatus) > 0 ){
 
@@ -182,14 +181,14 @@ class OrderdetailsController extends Controller {
 
     }
     public function searchorder(){
-        $order_id=Input::get('order_id');
-        $phone_number=Input::get('phone_number');
-        $name=Input::get('name');
-        $status=Input::get('status');
-        $address=Input::get('address');
-        $table=Input::get('table');
-        $ordertype=Input::get('ordertype');
-        $date=Input::get('dt');
+        $order_id=Request::get('order_id');
+        $phone_number=Request::get('phone_number');
+        $name=Request::get('name');
+        $status=Request::get('status');
+        $address=Request::get('address');
+        $table=Request::get('table');
+        $ordertype=Request::get('ordertype');
+        $date=Request::get('dt');
 
 
         $restloggedinuser=Outlet::getoutletbyownerid(Auth::user()->id);
@@ -204,7 +203,7 @@ class OrderdetailsController extends Controller {
     }
 
     public function getordernotification(){
-            $user_id=Input::get('user_id');
+            $user_id=Request::get('user_id');
             $datetime = date("Y-m-d H:i:s", time() - 30);
            // $allOutletofloggedinuser=Outlet::Outletbyownerid($user_id);
 
@@ -228,12 +227,12 @@ class OrderdetailsController extends Controller {
             return 'success';
         }
     public function getallorderdetails(){
-        $outlet_id=Input::get('rest_id');
+        $outlet_id=Request::get('rest_id');
       //  print_r($outlet_id);exit;
-        $status=Input::get('status');
+        $status=Request::get('status');
 
       // $date=date('Y-m-d');
-        $getlastupdatedtime=Input::get('lasttime');
+        $getlastupdatedtime=Request::get('lasttime');
 //        print_r($getlastupdatedtime);exit;
         //$date=date('Y-m-d');
         $datetime= date('Y-m-d H:i:s',strtotime($getlastupdatedtime));
@@ -334,14 +333,14 @@ class OrderdetailsController extends Controller {
 
 
     public function currentorderdetails(){
-            $outlet_id=Input::get('outlet_id');
+            $outlet_id=Request::get('outlet_id');
 
 
 
-            $order_id=Input::get('order_id');
+            $order_id=Request::get('order_id');
             $retname=Outlet::findOutlet($outlet_id);
             //$date=date('Y-m-d');
-            $getlastupdatedtime=Input::get('lasttime');
+            $getlastupdatedtime=Request::get('lasttime');
             //$date=date('Y-m-d');
             $datetime= date('Y-m-d H:i:s',strtotime($getlastupdatedtime));
             $orders=$retname->orderdetail()->where('order_id','=',$order_id)->where('created_at', '>=',new Carbon($datetime))->orderBy('created_at', 'desc')->get();

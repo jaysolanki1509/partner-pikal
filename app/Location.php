@@ -29,7 +29,7 @@ class Location extends Model {
 
         /*location array*/
         $locations = array('' => 'Select Location');
-        //$locations_list = Location::where('created_by',$owner_id)->lists('name','id');
+        //$locations_list = Location::where('created_by',$owner_id)->pluck('name','id');
 
         $sess_outlet_id = Session::get('outlet_session');
         $login_user =Auth::id();

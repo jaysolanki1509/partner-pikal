@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Salutation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 
 class SalutationController extends Controller {
@@ -40,8 +40,8 @@ class SalutationController extends Controller {
 	 */
 	public function store()
 	{
-        $name = Input::get('name');
-        $save_continue = Input::get('saveContinue');
+        $name = Request::get('name');
+        $save_continue = Request::get('saveContinue');
         $owner_id = Auth::id();
 
         $salutation = new Salutation();
@@ -100,7 +100,7 @@ class SalutationController extends Controller {
         $salutation = Salutation::find($id);
         if(isset($salutation) && sizeof($salutation)>0) {
 
-            $name = Input::get('name');
+            $name = Request::get('name');
             $owner_id = Auth::id();
 
             $salutation->name = $name;

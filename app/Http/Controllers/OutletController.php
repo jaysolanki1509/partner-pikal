@@ -40,7 +40,7 @@ use Illuminate\Auth\Guard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
@@ -101,10 +101,10 @@ class OutletController extends Controller {
             $admin_user_list = Owner::lists('user_name','id');
             $users = Owner::lists('user_name','id');
         }else if($created_by==''){
-            $users=DB::table('owners')->where('created_by',Auth::id())->lists('user_name','id');
+            $users=DB::table('owners')->where('created_by',Auth::id())->pluck('user_name','id');
             $users[Auth::id()]= Auth::user()->user_name;
         }else{
-            $users=DB::table('owners')->where('created_by',$created_by)->lists('user_name','id');
+            $users=DB::table('owners')->where('created_by',$created_by)->pluck('user_name','id');
             $users[$created_by]= DB::table('owners')->where('id',$created_by)->first()->user_name;
         }
         $users[''] = 'Select User';
@@ -135,11 +135,11 @@ class OutletController extends Controller {
     {
 
         //get invoice prefix
-        $dine_in_pre = Input::get('dine_in_prefix');
-        $take_away_pre = Input::get('take_away_prefix');
-        $home_delivery_pre = Input::get('home_delivery_prefix');
-        /*$sources = Input::get('source');*/
-        $status_sms = Input::get('status_sms');
+        $dine_in_pre = Request::get('dine_in_prefix');
+        $take_away_pre = Request::get('take_away_prefix');
+        $home_delivery_pre = Request::get('home_delivery_prefix');
+        /*$sources = Request::get('source');*/
+        $status_sms = Request::get('status_sms');
 
         if ( isset($dine_in_pre) && $dine_in_pre != '' ) {
             $prefix_arr['dine_in'] = $dine_in_pre;
@@ -155,7 +155,7 @@ class OutletController extends Controller {
             $prefix_arr_json = json_encode($prefix_arr);
         }
 
-        $all_payment_option = PaymentOption::all()->lists("name","id");
+        $all_payment_option = PaymentOption::all()->pluck("name","id");
         $po_id = array();
         $online_id = "";
         foreach ($all_payment_option as $id => $name){
@@ -166,7 +166,7 @@ class OutletController extends Controller {
                 }
             }
         }
-        $all_source = Sources::all()->lists("name","id");
+        $all_source = Sources::all()->pluck("name","id");
         $source_array = array();
         foreach ($all_source as $id => $name) {
             if(in_array(strtolower($name),["payu","paytm","upi"])){
@@ -325,8 +325,8 @@ class OutletController extends Controller {
 
             for ($i=0; $i <= $no; $i++)
             {
-                $fnm=Input::get('opening_time'.$i);
-                $fval=Input::get('closing_time'.$i);
+                $fnm=Request::get('opening_time'.$i);
+                $fval=Request::get('closing_time'.$i);
 
                 if(isset($fnm)|| isset($fval))
                 {
@@ -471,9 +471,9 @@ class OutletController extends Controller {
 
     public function storeBindOutlet()
     {
-        $outlet_id = Input::get('outlet_id');
-        $owner_id = Input::get('owner_id');
-        $receive_order = Input::get("order_receive");
+        $outlet_id = Request::get('outlet_id');
+        $owner_id = Request::get('owner_id');
+        $receive_order = Request::get("order_receive");
 
         if($outlet_id == '' || $owner_id == '')
         {
@@ -509,7 +509,7 @@ class OutletController extends Controller {
 
                 $owner = Owner::find($owner_id);
                 if( isset($owner) && $owner->created_by!=""){
-                    $locations = Location::where('outlet_id',$outlet_id)->lists('id');
+                    $locations = Location::where('outlet_id',$outlet_id)->pluck('id');
                     if(sizeof($locations)>0 )
                     foreach ($locations as $index=>$location_id){
                         $get_location = Location::find($location_id);
@@ -638,7 +638,7 @@ class OutletController extends Controller {
         $rest_latlong=Outletlatlong::getouletlatlongbyoutletid($id);
 
         $owner_id = Owner::menuOwner();
-        $printers_list = Printer::where('created_by',$owner_id)->lists('printer_name','id');
+        $printers_list = Printer::where('created_by',$owner_id)->pluck('printer_name','id');
         $printers = array();
         $printers[''] = 'Select Printers';
         foreach ($printers_list as $key=>$value){
@@ -757,9 +757,9 @@ class OutletController extends Controller {
             }
         }
 
-        $sources = Sources::all()->lists('name','id');
-        $payment_options = PaymentOption::all()->lists('name','id');
-        $payment_options_without_source = PaymentOption::where("without_source",1)->lists('id');
+        $sources = Sources::all()->pluck('name','id');
+        $payment_options = PaymentOption::all()->pluck('name','id');
+        $payment_options_without_source = PaymentOption::where("without_source",1)->pluck('id');
 
         //Delivery charge slabs
         $delivery_charges = '';
@@ -839,21 +839,21 @@ class OutletController extends Controller {
         $locality=locality::all();
         $Outlet_type = OutletType::all();
         $selectedOutletType=OutletTypeMapper::getoutlettypemapper($id);
-        //$users=DB::table('owners')->lists('user_name','id');
+        //$users=DB::table('owners')->pluck('user_name','id');
         $logged_in_user = Auth::user();
         $created_by = Auth::user()->created_by;
         $outlet_mapper = array();
-        $outlet_mapper = OutletMapper::where("outlet_id",$id)->lists("owner_id");
+        $outlet_mapper = OutletMapper::where("outlet_id",$id)->pluck("owner_id");
 
         if($logged_in_user->user_name == "govind"){
             $admin_user_list = Owner::lists('user_name','id');
             $users = Owner::lists('user_name','id');
         }else if($created_by==''){
-            $users=DB::table('owners')->where('created_by',Auth::id())->lists('user_name','id');
+            $users=DB::table('owners')->where('created_by',Auth::id())->pluck('user_name','id');
             $users[Auth::id()]= Auth::user()->user_name;
             $admin_user_list[Auth::id()]= Auth::user()->user_name;
         }else{
-            $users=DB::table('owners')->where('created_by',$created_by)->lists('user_name','id');
+            $users=DB::table('owners')->where('created_by',$created_by)->pluck('user_name','id');
             $users[$created_by]= DB::table('owners')->where('id',$created_by)->first()->user_name;
             $admin_user_list[$created_by]= DB::table('owners')->where('id',$created_by)->first()->user_name;
         }
@@ -892,7 +892,7 @@ class OutletController extends Controller {
         $payment_options = PaymentOption::get();
 
         //get selected sources
-        $sel_sources = OutletSourceMapper::where('outlet_id',$id)->lists('source_id');
+        $sel_sources = OutletSourceMapper::where('outlet_id',$id)->pluck('source_id');
 
         //session time array
         $session_time_arr = array('1'=>'1','2'=>'2','3'=>'3','4'=>'4','5'=>'5','6'=>'6','7'=>'7','8'=>'8','9'=>'9','10'=>'10','11'=>'11','12'=>'12');
@@ -945,12 +945,12 @@ class OutletController extends Controller {
     public function update($id,CreateOutletRequest $request)
     {
         //get invoice prefix
-        $dine_in_pre = trim(Input::get('dine_in_prefix'));
-        $take_away_pre = Input::get('take_away_prefix');
-        $home_delivery_pre = Input::get('home_delivery_prefix');
-        $sources = Input::get('source');
-        $status_sms = Input::get('status_sms');
-        $bind_user = Input::get('bind_user');
+        $dine_in_pre = trim(Request::get('dine_in_prefix'));
+        $take_away_pre = Request::get('take_away_prefix');
+        $home_delivery_pre = Request::get('home_delivery_prefix');
+        $sources = Request::get('source');
+        $status_sms = Request::get('status_sms');
+        $bind_user = Request::get('bind_user');
 
 
         if ( isset($dine_in_pre) && $dine_in_pre != '' ) {
@@ -1090,9 +1090,9 @@ class OutletController extends Controller {
 
              for ($i=0; $i <= $no; $i++)
             {
-                $fnm=Input::get('opening_time'.$i);
+                $fnm=Request::get('opening_time'.$i);
 
-                $fval=Input::get('closing_time'.$i);
+                $fval=Request::get('closing_time'.$i);
 
 
                     if(isset($fnm)|| isset($fval))
@@ -1169,8 +1169,8 @@ class OutletController extends Controller {
         //updated if previously added or added if the Outlet is new Outlet latitude longitude
         if(sizeof($getpreviouslatlong)>0){
             $Outlet_latlong = Outlet::find($id);
-            $Outlet_latlong->lat = Input::get('latitude');
-            $Outlet_latlong->long = Input::get('longitude');
+            $Outlet_latlong->lat = Request::get('latitude');
+            $Outlet_latlong->long = Request::get('longitude');
             $Outlet_latlong->save();
         }
 
@@ -1178,8 +1178,8 @@ class OutletController extends Controller {
     }
 
     public function importOutletexcel(){
-        if (Input::hasFile('file1')) {
-            $file = Input::file('file1');
+        if (Request::hasFile('file1')) {
+            $file = Request::file('file1');
 
             $type =($file->getMimeType());
             if ($type == 'application/vnd.ms-office' || $type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || $type =='application/zip'){
@@ -1433,17 +1433,17 @@ class OutletController extends Controller {
 
 //    public function addlocation(){
 //        $Outlet_latlong=new Outletlatlong();
-//        $Outlet_latlong->outlet_id=Input::get('outlet_id');
-//        $Outlet_latlong->latitude=Input::get('latitude');
-//        $Outlet_latlong->longitude=Input::get('longitude');
+//        $Outlet_latlong->outlet_id=Request::get('outlet_id');
+//        $Outlet_latlong->latitude=Request::get('latitude');
+//        $Outlet_latlong->longitude=Request::get('longitude');
 //        $Outlet_latlong->save();
 //        //    return "added Outlet Location";
 //        return view('Outlets.show',array('Outlet_latlong'=>$Outlet_latlong));
 //    }
 
     public function importoutletotherdetails(){
-        if (Input::hasFile('outletfile')) {
-            $file = Input::file('outletfile');
+        if (Request::hasFile('outletfile')) {
+            $file = Request::file('outletfile');
 
             $type =($file->getMimeType());
             if ($type == 'application/vnd.ms-office' || $type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || $type =='application/zip'){
@@ -1538,10 +1538,10 @@ class OutletController extends Controller {
     }
 
     public function dailyreport(){
-            $reporttype=Input::get('reporttype');
-            $userid= Input::get('userid');
-        $fromdate=date('Y-m-d',strtotime(Input::get('from_date')));
-        $todate=date('Y-m-d',strtotime(Input::get('to_date')));
+            $reporttype=Request::get('reporttype');
+            $userid= Request::get('userid');
+        $fromdate=date('Y-m-d',strtotime(Request::get('from_date')));
+        $todate=date('Y-m-d',strtotime(Request::get('to_date')));
 
             $getrestaurant=Outlet::where('owner_id',$userid)->get();
 
@@ -1620,12 +1620,12 @@ class OutletController extends Controller {
 
     public function updatePrinters(){
 
-        $outlet_id = Input::get('outlet_id');
-        $kot_printer = Input::get('kot_printer');
-        $duplicate_kot_printer = Input::get('duplicate_kot_printer');
-        $bill_printer = Input::get('bill_printer');
-        $res_printer = Input::get('response_printer');
-        $dup_kot_count = Input::get('duplicate_kot_count');
+        $outlet_id = Request::get('outlet_id');
+        $kot_printer = Request::get('kot_printer');
+        $duplicate_kot_printer = Request::get('duplicate_kot_printer');
+        $bill_printer = Request::get('bill_printer');
+        $res_printer = Request::get('response_printer');
+        $dup_kot_count = Request::get('duplicate_kot_count');
 
         $outlet = Outlet::findOutlet($outlet_id);
         $printer = array();
@@ -1666,7 +1666,7 @@ class OutletController extends Controller {
 
         if ($request->ajax())
         {
-            $owner_id = Input::get('owner_id');
+            $owner_id = Request::get('owner_id');
             $owner_data = Owner::find($owner_id);
             $owner_arr = array();
             if(isset($owner_data) && sizeof($owner_data)>0){
@@ -1701,9 +1701,9 @@ class OutletController extends Controller {
 
     public function updatePaymentMode(){
 
-        $all_payment_detail = Input::all();
+        $all_payment_detail = Request::all();
 
-        $outlet_id = Input::get('outlet_id');
+        $outlet_id = Request::get('outlet_id');
 
         unset($all_payment_detail['outlet_id']);
         
@@ -1730,12 +1730,12 @@ class OutletController extends Controller {
 
     public function updatePaymentId(){
 
-        $all_payment_detail = Input::all();
+        $all_payment_detail = Request::all();
 
-        $outlet_id = Input::get('outlet_id');
-        $zoho_username = Input::get("zoho_username");
-        $zoho_password = Input::get("zoho_password");
-        $zoho_org_id = Input::get("zoho_organization_id");
+        $outlet_id = Request::get('outlet_id');
+        $zoho_username = Request::get("zoho_username");
+        $zoho_password = Request::get("zoho_password");
+        $zoho_org_id = Request::get("zoho_organization_id");
 
         unset($all_payment_detail['outlet_id']);
         unset($all_payment_detail['zoho_username']);
@@ -1781,7 +1781,7 @@ class OutletController extends Controller {
         $outlet_id = Session::get('outlet_session');
 
 
-        $taxes = Input::get('taxes');
+        $taxes = Request::get('taxes');
 
         $tx_arr = json_decode($taxes,true);
 
@@ -1820,10 +1820,10 @@ class OutletController extends Controller {
 
     public function updateOrderTypeTaxes() {
 
-        $outlet_id = Input::get('outlet_id');
-        $dine_in = Input::get('dine_in');
-        $take_away = Input::get('take_away');
-        $home_delivery = Input::get('home_delivery');
+        $outlet_id = Request::get('outlet_id');
+        $dine_in = Request::get('dine_in');
+        $take_away = Request::get('take_away');
+        $home_delivery = Request::get('home_delivery');
 
 
         if ( $dine_in != 'select' || $take_away != 'select' || $home_delivery != 'select' ) {
@@ -1876,8 +1876,8 @@ class OutletController extends Controller {
 
     public function storeDeliveryCharge() {
 
-        $outlet_id = Input::get('outlet_id');
-        $charges = Input::get('charges');
+        $outlet_id = Request::get('outlet_id');
+        $charges = Request::get('charges');
 
         $del_charge = array();
 
@@ -1942,8 +1942,8 @@ class OutletController extends Controller {
     #TODO: store tax detial like pan no. and gst no.
     public function storeTaxDetail() {
 
-        $outlet_id = Input::get('outlet_id');
-        $tax_details = Input::get('tx_detail');
+        $outlet_id = Request::get('outlet_id');
+        $tax_details = Request::get('tx_detail');
         $tx_details = array();
 
         $ot = Outlet::find($outlet_id);
@@ -2047,8 +2047,8 @@ class OutletController extends Controller {
 
     public function updateAppLayout(){
 
-        $outlet_id = Input::get("outlet_id");
-        $app_layout = Input::get("app_layout");
+        $outlet_id = Request::get("outlet_id");
+        $app_layout = Request::get("app_layout");
         $result = false;
         if(isset($outlet_id) && sizeof($outlet_id)>0){
 
@@ -2106,7 +2106,7 @@ class OutletController extends Controller {
     #TODO: Edit Bill layout
     public function editBillTemplate() {
 
-        $flag = Input::get("flag");
+        $flag = Request::get("flag");
         $outlet_id = Session::get('outlet_session');
         $outlet = Outlet::find($outlet_id);
 
@@ -2130,7 +2130,7 @@ class OutletController extends Controller {
     #TODO: Update Bill layout
     public function updateBillTemplate() {
 
-        $fields = Input::all();
+        $fields = Request::all();
         //print_r($fields);exit;
         $outlet_id = Session::get('outlet_session');
 
@@ -2427,7 +2427,7 @@ class OutletController extends Controller {
 
         if ($request->ajax()) {
 
-            $fields = Input::get("fields");
+            $fields = Request::get("fields");
             $result = false;
 
             if(isset($outlet_id) && sizeof($outlet_id)>0) {
@@ -2477,7 +2477,7 @@ class OutletController extends Controller {
 
         if ($request->ajax()) {
 
-            $outlet_id = Input::get('outlet_id');
+            $outlet_id = Request::get('outlet_id');
             $Outlet = Outlet::find($outlet_id);
 
             if(isset($Outlet->tinno) && $Outlet->tinno != ''){
@@ -2570,7 +2570,7 @@ class OutletController extends Controller {
 
             $owner_id = OutletMapper::getOutletUsers($outlet_id);
 
-            $printers_list = Printer::whereIn('created_by',$owner_id['user_id'])->lists('printer_name','id');
+            $printers_list = Printer::whereIn('created_by',$owner_id['user_id'])->pluck('printer_name','id');
 
             $printers = array();
             $printers[''] = 'Select Printers';
@@ -2690,9 +2690,9 @@ class OutletController extends Controller {
                 }
             }
 
-            $sources = Sources::all()->lists('name','id');
-            $payment_options = PaymentOption::all()->lists('name','id');
-            $payment_options_without_source = PaymentOption::where("without_source",1)->lists('id');
+            $sources = Sources::all()->pluck('name','id');
+            $payment_options = PaymentOption::all()->pluck('name','id');
+            $payment_options_without_source = PaymentOption::where("without_source",1)->pluck('id');
 
             //Delivery charge slabs
             $delivery_charges = '';
@@ -2744,8 +2744,8 @@ class OutletController extends Controller {
 
     public function storeOutletStatus(){
 
-        $outlet_id = Input::get("outlet_id");
-        $outlet_status = Input::get("outlet_status");
+        $outlet_id = Request::get("outlet_id");
+        $outlet_status = Request::get("outlet_status");
         $result = false;
         if(isset($outlet_id) && sizeof($outlet_id)>0){
 

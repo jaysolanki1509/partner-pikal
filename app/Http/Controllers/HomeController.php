@@ -37,7 +37,7 @@ use App\Utils;
 use Aws\CloudFront\Exception\Exception;
 use DateInterval;
 use DateTime;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\City;
@@ -112,7 +112,7 @@ class HomeController extends Controller {
 
 	public function dashboardOrderData(){
 
-        $day = Input::get('day');
+        $day = Request::get('day');
 
         $selected_date = Carbon::now()->subDays($day);
         $sod = Carbon::now()->startOfDay()->subDays($day); //start of day
@@ -181,7 +181,7 @@ class HomeController extends Controller {
     }
 
     public function dashboardreport(){
-        $getdays=Input::get('selecteddates');
+        $getdays=Request::get('selecteddates');
         $orddetails=DB::table('order_details');
         if($getdays=='today'){
             $date=date('Y-m-d');
@@ -220,8 +220,8 @@ class HomeController extends Controller {
 
     public function updateUser($id)
     {
-        Owner::where('id',$id)->update(array('lang'=>Input::get('language')));
-        app()->setLocale(Input::get('language'));
+        Owner::where('id',$id)->update(array('lang'=>Request::get('language')));
+        app()->setLocale(Request::get('language'));
 
         return view('home');
     }
@@ -328,7 +328,7 @@ class HomeController extends Controller {
 exit;
         //ini_set('max_execution_time', 0);
 
-        $date = Input::get('date');
+        $date = Request::get('date');
 
         $orders = order_details::where('outlet_id',23)
                                 ->where('orders.table_end_date','>=', (new Carbon($date))->startOfDay())
@@ -479,7 +479,7 @@ exit;
     //set outlet session
     public function setOutletSession() {
 
-        $outlet_id = Input::get('outlet_id');
+        $outlet_id = Request::get('outlet_id');
         Session::set('outlet_session',$outlet_id);
 
     }
@@ -747,7 +747,7 @@ return;
 
         if ($request->ajax()) {
 
-            $ac_id = Input::get('account_id');
+            $ac_id = Request::get('account_id');
             $acc_obj = Account::find($ac_id);
 
             return view('Outlets.settingsFields',array('account'=>$acc_obj));
@@ -764,13 +764,13 @@ return;
     #TODO: Store account Settings
     public function storeAccountSettings() {
 
-        $account_id = Input::get('account_id');
-        $en_inv = Input::get('enable_inventory');
-        $active = Input::get('active');
-        $cancellation_report = Input::get('enable_cancellation_report');
-        $allow_order_delete = Input::get('allow_order_delete');
-        $enable_feedback = Input::get('enable_feedback');
-        $can_invoice_reset = Input::get('can_invoice_reset');
+        $account_id = Request::get('account_id');
+        $en_inv = Request::get('enable_inventory');
+        $active = Request::get('active');
+        $cancellation_report = Request::get('enable_cancellation_report');
+        $allow_order_delete = Request::get('allow_order_delete');
+        $enable_feedback = Request::get('enable_feedback');
+        $can_invoice_reset = Request::get('can_invoice_reset');
 
         $acc_obj = Account::find($account_id);
 
@@ -903,10 +903,10 @@ return;
             $owners = Owner::all();
             $data = array();
 
-            $send_summary = Input::get('send_report');
-            $ot_id = Input::get('outlet_id');
+            $send_summary = Request::get('send_report');
+            $ot_id = Request::get('outlet_id');
 
-            $from_date = Input::get('from_date');
+            $from_date = Request::get('from_date');
 
             //convert to session time
             $from = Utils::getSessionTime($from_date,'from');
@@ -1273,8 +1273,8 @@ return;
             $res_id = $res_id1;
             $user_identifier = $user_identifier1;
         } else {
-            $ord_type = Input::json('order_type');
-            $res_id = Input::json('res_id');
+            $ord_type = Request::json('order_type');
+            $res_id = Request::json('res_id');
         }
 
         $outlet = Outlet::find($res_id);
@@ -1349,7 +1349,7 @@ return;
 
     public function autoProcessIndex(){
 
-        $all_outlets = Outlet::where("active","Yes")->lists("name","id");
+        $all_outlets = Outlet::where("active","Yes")->pluck("name","id");
         $all_outlets[""] = "Select Outlet";
 
         return view('Outlets.autoProcessOutlet',array('active_outlets'=>$all_outlets));
@@ -1357,7 +1357,7 @@ return;
 
     public function getOutletSettings(){
 
-        $outlet_id = Input::get("outlet_id");
+        $outlet_id = Request::get("outlet_id");
         $found = DB::table("outlet_auto_process")->where("outlet_id",$outlet_id)->first();
         if(isset($found) && sizeof($found)){
             return view('Outlets.outletSettings',array('set'=>"true"));
@@ -1369,8 +1369,8 @@ return;
 
     public function storeOutletSettings(){
 
-        $active = Input::get('active');
-        $outlet_id =Input::get("outlet_id");
+        $active = Request::get('active');
+        $outlet_id =Request::get("outlet_id");
         if(isset($active) && sizeof($active)>0){
 
             DB::table('outlet_auto_process')->insert(
@@ -1392,7 +1392,7 @@ return;
      */
     public function autoProcessOrders(){
 
-        $outlet_id = Input::get("outlet_id");
+        $outlet_id = Request::get("outlet_id");
 
         $orders = order_details::join("outlets","outlets.id","=","orders.outlet_id")
                                 ->where("outlet_id", "=", $outlet_id)
@@ -1669,12 +1669,12 @@ return;
         if(isset($sess_outlet_id) && trim($sess_outlet_id) != "") {
 
             $order_count = order_details::where('outlet_id',$sess_outlet_id)->where('table_end_date','<=',$date)->count();
-            $order_arr = order_details::where('outlet_id',$sess_outlet_id)->where('table_end_date','<=',$date)->lists('order_id');
+            $order_arr = order_details::where('outlet_id',$sess_outlet_id)->where('table_end_date','<=',$date)->pluck('order_id');
             $order_cancellation_mapper_count = OrderCancellation::where('outlet_id',$sess_outlet_id)->where('created_at','<=',$date)->count();
             $order_history_count = OrderHistory::whereIn('order_id',$order_arr)->count();
             $order_item_option_count = OrderItemOption::whereIn('order_id',$order_arr)->count();
             $order_invoice_count = invoice_detail::whereIn('order_id',$order_arr)->count();
-            $order_items_arr = OrderItem::whereIn('order_id',$order_arr)->lists('id');
+            $order_items_arr = OrderItem::whereIn('order_id',$order_arr)->pluck('id');
             $order_items_count = OrderItem::whereIn('order_id',$order_arr)->count();
             $order_items_attr_count = order_item_attributes::whereIn('order_item_id',$order_items_arr)->count();
             $order_payment_mode_count = order_payment_mode::whereIn('order_id',$order_arr)->count();

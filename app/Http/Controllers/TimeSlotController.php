@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Outlet;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
 
@@ -94,21 +94,21 @@ class TimeSlotController extends Controller
      */
     public function update()
     {
-        $outlet_id = Input::get('outlet_id');
+        $outlet_id = Request::get('outlet_id');
 
         Timeslot::where('outlet_id',$outlet_id)->delete();
 
-        $count = Input::get('count');
+        $count = Request::get('count');
 
         for($i=0;$i<=$count;$i++){
-            $from_time = Input::get('opening_time'.$i);
+            $from_time = Request::get('opening_time'.$i);
             if(!isset($from_time)) {
                 continue;
             }
-            $to_time = Input::get('closing_time'.$i);
+            $to_time = Request::get('closing_time'.$i);
             $ts = new Timeslot();
             $ts->outlet_id = $outlet_id;
-            $ts->slot_name = Input::get('slot_name'.$i);
+            $ts->slot_name = Request::get('slot_name'.$i);
             $ts->from_time = $from_time;
             $ts->to_time = $to_time;
             $result = $ts->save();
@@ -135,7 +135,7 @@ class TimeSlotController extends Controller
     }
 
     public static function gettimeslotbyoutletid(){
-        $id = Input::get('outlet_id');
+        $id = Request::get('outlet_id');
         return Timeslot::gettimeslotbyoutletid($id);
     }
 
