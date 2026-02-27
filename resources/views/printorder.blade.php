@@ -3,8 +3,8 @@
         @if( $order['updated'] == 1 && $order['duplicate_watermark'] == 1)
             <div style="position: absolute; top: 0px; right: 0px; bottom: 0px; left: 0px; margin: auto; width: 100%; display: block; height: 50px; float: none; text-align: center; text-transform: uppercase; font-weight: bold; font-size: 36px; transform: rotate(-45deg); color: rgb(0, 0, 0); opacity: 0.2;">duplicate</div>
         @endif
-
-        @if( isset($order) && sizeof($order) )
+        
+        @if( isset($order) )
 
         <table cellpadding="0" cellspacing="0" style=" max-width:100%;
                                                         margin:auto;
@@ -52,7 +52,7 @@
 
                             </td>
                         </tr>
-                        @if(isset($order['custom_fields']) && sizeof($order['custom_fields'])>0)
+                        @if(isset($order['custom_fields']) )
                             <?php $i=0; ?>
                             @foreach($order['custom_fields'] as $custom)
                                 @if($i%2 == 0)<tr>@endif
@@ -94,7 +94,7 @@
                         font-weight:bold;">Amount
                             </td>
                         </tr>
-                        @if( isset($order['item']) && sizeof($order['item']) > 0 )
+                        @if( isset($order['item']) )
                             @for( $i=0; $i<sizeof($order['item']); $i++)
                                 <tr>
                                     <td class="bill-item">{!! $order['item'][$i]['name'] !!}</td>
@@ -103,18 +103,18 @@
                                     <td class="bill-item" style="text-align: right">{!! number_format($order['item'][$i]['amount'],2) !!}</td>
                                 </tr>
 
-                                @if( ( isset($order['item'][$i]['slab']) && sizeof($order['item'][$i]['slab']) > 0 ) || ( isset($order['item'][$i]['discount']) && sizeof($order['item'][$i]['discount']) > 0 ) )
+                                @if( ( isset($order['item'][$i]['slab']) ) || ( isset($order['item'][$i]['discount']) ) )
                                     <tr style="line-height:initial;">
                                         <td class="bill-item-tax">
                                             <?php $j=0;?>
-                                            @if ( isset($order['item'][$i]['slab']) && sizeof($order['item'][$i]['slab']) > 0 )
+                                            @if ( isset($order['item'][$i]['slab']) )
                                                 @for( $j=0; $j<sizeof($order['item'][$i]['slab']); $j++)
                                                     @if ( $j > 0 ) | @endif
                                                         {!! $order['item'][$i]['slab'][$j]['tax_name'] !!}({!! $order['item'][$i]['slab'][$j]['tax_parc'] !!}%) : {!! $order['item'][$i]['slab'][$j]['tax_val'] !!}
                                                 @endfor
                                             @endif
 
-                                            @if ( isset($order['item'][$i]['discount']) && sizeof($order['item'][$i]['discount']) > 0 )
+                                            @if ( isset($order['item'][$i]['discount']) )
                                                 @if ( $j > 0 ) | @endif
                                                 Discount @if($order['item'][$i]['discount']['type'] == 'percentage')({{ $order['item'][$i]['discount']['value'] }}%) @endif : {{ $order['item'][$i]['discount']['amount'] }}
                                             @endif
@@ -126,7 +126,7 @@
                                     </tr>
                                 @endif
 
-                                @if( isset($order['item'][$i]['options']) && sizeof($order['item'][$i]['options']) > 0 )
+                                @if( isset($order['item'][$i]['options']) )
                                     @for( $j=0; $j<sizeof($order['item'][$i]['options']); $j++)
                                         <tr>
                                             <td class="bill-option-item">{!! $order['item'][$i]['options'][$j]['name'] !!}</td>
@@ -162,7 +162,7 @@
             @endif
             @if($order['discount'] > 0  && $order['discount_after_tax'] == 0 && $order['itemwise_tax'] == 0 )
                 <tr class="item" style="height:15px">
-                    @if(isset($order['discount_type']) && sizeof($order['discount_type'])>0
+                    @if(isset($order['discount_type']) 
                         && $order['discount_type'] != "fixed"  && trim($order['discount_type']) != "")
                         <td class='col-md-6' style="  padding:0 5px 0 5px;vertical-align:top; font-size:12px;">Discount ({{$order['discount_type']}})</td>
                     @else
@@ -176,7 +176,7 @@
 
             {{--Display taxes--}}
 
-            @if( isset($order['taxes'] ) && sizeof($order['taxes']) > 0 )
+            @if( isset($order['taxes'] ) )
 
                 @foreach( $order['taxes'] as $tx )
 
@@ -215,7 +215,7 @@
 
             @if( $order['discount'] > 0  && ( $order['discount_after_tax'] == 1 || $order['itemwise_tax'] == 1 ) )
                 <tr class="item" style="height:15px">
-                    @if(isset($order['discount_type']) && sizeof($order['discount_type'])>0
+                    @if(isset($order['discount_type'])
                         && $order['discount_type'] != "fixed" && trim($order['discount_type']) != "")
                         <td class='col-md-6' style="  padding:0 5px 0 5px;vertical-align:top; font-size:12px;">Discount ({{$order['discount_type']}})</td>
                     @else
@@ -244,7 +244,7 @@
 
             <tr style="height:15px">
                 <td style="  padding:5px;vertical-align:top;border-top:2px solid #ccc;font-weight:bold;text-align:left; ">
-                    Total @if( isset($order['taxes'] ) && sizeof($order['taxes']) > 0 )(Including Tax)@endif: &nbsp; &nbsp;
+                    Total @if( isset($order['taxes'] ) )(Including Tax)@endif: &nbsp; &nbsp;
                 </td>
                 <td  colspan="3" style="  padding:5px;vertical-align:top;width:500px;  border-top:2px solid #ccc;font-weight:bold;text-align:right; ">
                     {!! number_format($order['total'],2) !!}
@@ -265,7 +265,7 @@
                 </td>
             </tr>
             <tr>
-                @if(isset($order['city_name']->name) && sizeof($order['city_name']->name)>0)
+                @if(isset($order['city_name']->name) )
                     <td class='col-md-6' colspan="4" style="text-align: center">Subject To {{$order['city_name']->name}} Jurisdiction</td>
                 @else
                     <td class='col-md-6' colspan="4" style="text-align: center">Subject To Local Jurisdiction</td>

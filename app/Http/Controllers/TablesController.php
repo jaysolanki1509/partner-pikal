@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use App\Tables;
 use App\Timeslot;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Query\Builder ;
 
 class TablesController extends Controller {
 
@@ -389,7 +389,8 @@ class TablesController extends Controller {
 				if(isset($orders) != NULL) {
 					$formatted_dt1=Carbon::parse($orders->startdate);
 					$formatted_dt2=Carbon::now();
-					$date_diff=$formatted_dt1->diff($formatted_dt2)->format('%H:%I:%S');
+					$date_diff = $formatted_dt1->diff($formatted_dt2)->format('%H:%I:%S');
+					// $date_diff=$formatted_dt1->diff($formatted_dt2)->format('%H:%I:%S');
 					$tables [$key]['startdate'] = $date_diff;
 					// $tables [$key]['startdate'] = $orders->startdate;
 					$tables [$key]['person_no'] = $orders->person_no;

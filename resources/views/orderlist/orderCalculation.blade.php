@@ -72,8 +72,7 @@ if( isset($order->default_taxes) && $order->default_taxes != '' ) {
 
 }
 ?>
-
-@if ( isset($taxes) && sizeof($taxes) > 0 )
+@if ( isset($taxes) && !empty($taxes) )
     <div class="col-md-12 mx-auto" style="text-align: center" >
         <select id="outlet_tax">
             <option value="">Select Tax Slab</option>
@@ -141,7 +140,7 @@ if( isset($order->default_taxes) && $order->default_taxes != '' ) {
 
             @if ( $compare_tax != '' )
 
-                @if ( isset($taxes) && sizeof($taxes) > 0 )
+                @if ( isset($taxes) && !empty($taxes) )
 
                     <div id='tax_calc' class="col-md-12" style="width: 100%;">
 
@@ -385,7 +384,7 @@ if( isset($order->default_taxes) && $order->default_taxes != '' ) {
 
             @if ( $compare_tax != '' )
 
-                @if ( isset($taxes) && sizeof($taxes) > 0 )
+                @if ( isset($taxes) && !empty($taxes) )
 
                     <div id='edit_tax_calc' class="col-md-12" style="width: 100%;">
 

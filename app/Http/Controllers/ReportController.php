@@ -151,7 +151,8 @@ class ReportController extends Controller {
         }
 
         if ( $blank == true ) {
-            array_push($selected_items,0);
+            // array_push($selected_items, 0);
+            $selected_items->push(0);
         }
 
 		//set session
@@ -771,9 +772,11 @@ class ReportController extends Controller {
                 if (sizeof($order_arr = $orders->get()) > 0) {
 
                     foreach ($order_arr as $or) {
-
+                        $discount_valueTotal = isset($or->discount_value) && !empty($or->discount_value) ? $or->discount_value : 0.00;
+                        $item_discount_valueTotal = isset($or->item_discount_value) && !empty($or->item_discount_value) ? $or->item_discount_value : 0.00;
                         //get discount amount and non chargeable amount
-                        $disc_amt = floatval($or->discount_value + $or->item_discount_value);
+                        $TotalDiscount = number_format((float)($discount_valueTotal + $item_discount_valueTotal), 2);
+                        $disc_amt = $TotalDiscount;
                         $st_amt = floatval($or->totalcost_afterdiscount);
                         if ($disc_amt == '') {
                             $disc_amt = 0;
@@ -787,13 +790,13 @@ class ReportController extends Controller {
                         //get total cash and prepaid amount
                         $payment_modes = OrderPaymentMode::where('order_id',$or->order_id)->get();
 
-                        if ( isset($payment_modes) && sizeof($payment_modes) > 0 ) {
+                        if ( isset($payment_modes) && !empty($payment_modes) ) {
                             foreach ( $payment_modes as $py_mode ) {
 
                                 $check_payment_type = PaymentOption::find($py_mode->payment_option_id);
                                 $source = Sources::find($py_mode->source_id);
                                 $upi_status = false;
-                                if ( isset($check_payment_type) && sizeof($check_payment_type) != '' ) {
+                                if ( isset($check_payment_type) && $check_payment_type != '' ) {
 
                                     if ( strtolower($check_payment_type->name) == 'cash' ) {
                                         $t_cash += $py_mode->amount;
@@ -1023,41 +1026,42 @@ class ReportController extends Controller {
                 $total_gross_average += $avg;
 
                 if(isset($unique_items)){
-                    $date_data[$date]['total_unique_item_sell'] =  sizeof($unique_items) or 0;
-                    $excel_data[$n]['Total Unique Items Sell'] = sizeof($unique_items)==0?"NA":sizeof($unique_items);
+                    $date_data[$date]['total_unique_item_sell'] =  isset($unique_items) or 0;
+                    $excel_data[$n]['Total Unique Items Sell'] = isset($unique_items)==0 ? "NA" : isset($unique_items);
                 }else{
                     $date_data[$date]['total_unique_item_sell'] =  0;
                     $excel_data[$n]['Total Unique Items Sell'] = 0;
                 }
-                $total_unique_item_sell += sizeof($unique_items);
+                $total_unique_item_sell += isset($unique_items);
 
-                $excel_data[$n]['Total Items Sell'] = $total_item_sell==0?"NA":$total_item_sell;
+                $excel_data[$n]['Total Items Sell'] = $total_item_sell==0 ? "NA" : $total_item_sell;
                 $date_data[$date]['total_item_sell'] = $total_item_sell;
                 $total_item_sell += $total_item_sell;
 
                 //Total Person visit
-                $excel_data[$n]['Total Persons Visits'] = $t_person==0?"NA":$t_person;
+                $excel_data[$n]['Total Persons Visits'] = $t_person==0 ? "NA" : $t_person;
                 $date_data[$date]['total_person_visit'] =  $t_person;
                 $total_person_visit += $t_person;
 
-                $excel_data[$n]['Top Selling Item'] = $data['top_selling_item']==""?"NA":$data['top_selling_item'];
+                $excel_data[$n]['Top Selling Item'] = $data['top_selling_item']=="" ? "NA" : $data['top_selling_item'];
                 $date_data[$date]['top_selling_item'] =  $data['top_selling_item'];
 
                 //Lowest Order of the day
-                $excel_data[$n]['Lowest Order'] = $l_order==0?"NA":$l_order;
+                $excel_data[$n]['Lowest Order'] = $l_order==0 ? "NA" : $l_order;
                 $date_data[$date]['lowest_order'] =  $l_order;
 
                 //Highest order of the day
-                $excel_data[$n]['Highest Order'] = $h_order==0?"NA":$h_order;
+                $excel_data[$n]['Highest Order'] = $h_order==0 ? "NA" : $h_order;
                 $date_data[$date]['highest_order'] =  $h_order;
 
-                $excel_data[$n]['Cancel Order'] = $data['cancel_order']==0?"NA":$data['cancel_order'];
+                $excel_data[$n]['Cancel Order'] = $data['cancel_order']==0 ? "NA" : $data['cancel_order'];
                 $date_data[$date]['cancel_order_count'] =  $data['cancel_order'];
                 $total_cancel_order_count += $data['cancel_order'];
 
-                $excel_data[$n]['Cancel Order Amount'] = $data['cancel_amount']==0?"NA":$data['cancel_amount'];
+                $excel_data[$n]['Cancel Order Amount'] = $data['cancel_amount']==0 ? "NA" : $data['cancel_amount'];
                 $date_data[$date]['cancel_order_amount'] =  $data['cancel_amount'];
-                $total_cancel_order_amount += $data['cancel_amount'];
+
+                $total_cancel_order_amount = (int) $total_cancel_order_amount + (int) $data['cancel_amount'];
 
                 if(isset($active_items)) {
                     $excel_data[$n]['Active Items'] = sizeof($active_items) == 0 ? "NA" : sizeof($active_items);
@@ -1118,7 +1122,7 @@ class ReportController extends Controller {
             $excel_data[$n]['Lowest Order'] = "NA";
             $excel_data[$n]['Highest Order'] = "NA";
             $excel_data[$n]['Cancel Order'] = $total_cancel_order_count==0?"NA":$total_cancel_order_count;
-            $excel_data[$n]['Cancel Order Amount'] = $total_cancel_order_amount==0?"NA":$total_cancel_order_amount;
+            $excel_data[$n]['Cancel Order Amount'] = $total_cancel_order_amount==0 ? "NA" : $total_cancel_order_amount;
             $excel_data[$n]['Active Items'] = "NA";
             $excel_data[$n]['Total Sale Per Person'] = "NA";
             $excel_data[$n]['Today Unique Mobiles'] = $today_unique_mobiles==0?"NA":$today_unique_mobiles;
@@ -2516,15 +2520,18 @@ class ReportController extends Controller {
 					if($data['orders'][$i]->totalcost_afterdiscount == $data['orders'][$i]->discount_value)
 						$total_noncharg_disc += $data['orders'][$i]->discount_value;
 					else
-						$total_simple_disc += $data['orders'][$i]->discount_value;
+                        $discount_valueTotal = isset($data['orders'][$i]->discount_value) && !empty($data['orders'][$i]->discount_value) ? $data['orders'][$i]->discount_value : 0.00;
+
+                        $Total = isset($data['orders'][$i]->item_discount_value) && !empty($data['orders'][$i]->item_discount_value) ? $data['orders'][$i]->item_discount_value : 0.00;
+						$total_simple_disc += $discount_valueTotal;
 					$html .= '<tr id="'.$data['orders'][$i]->order_id.'">
                                 <td>'.$data['orders'][$i]->invoice_no.'</td>
                                 <td>'.$data['orders'][$i]->table_no.'</td>
                                 <td>'.ReportController::get_order_type($data['orders'][$i]->order_type).'</td>
                                 <td>'.$data['itemlist'][ $data['orders'][$i]->order_id].'</td>
                                 <td>'.$data['orders'][$i]->reason.'</td>
-                                <td>'.number_format($data['orders'][$i]->totalprice,2).'</td>
-                                <td>'.number_format($data['orders'][$i]->discount_value + $data['orders'][$i]->item_discount_value,2).'</td>
+                                <td>'.$data['orders'][$i]->totalprice.'</td>
+                                <td>'.number_format((float)($discount_valueTotal + $item_discount_valueTotal), 2).'</td>
                                 <td>'.$created_by->user_name.'</td>
                                 <td>'.Carbon::parse($data['orders'][$i]->table_end_date)->format('d-m-Y  h:i A').'</td>
                             </tr>';
@@ -3375,7 +3382,7 @@ class ReportController extends Controller {
                     $pay_mode = 'UnPaid';
                     if( $ord->poi != 0 ) {
                         $mode = PaymentOption::find($ord->poi);
-                        if ( isset($mode) && sizeof($mode) > 0 ) {
+                        if ( isset($mode) && !empty($mode) ) {
                             $pay_mode = $mode->name;
                         }
 

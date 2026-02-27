@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Swift_Mailer;
 use Swift_SmtpTransport;
+// use Throwable;
 
 class Handler extends ExceptionHandler {
 
@@ -31,9 +32,10 @@ class Handler extends ExceptionHandler {
 	 * @param  \Exception  $e
 	 * @return void
 	 */
-	public function report(Exception $e)
+	public function report($e)
 	{
-        if ($e instanceof Exception) {
+        // if ($e instanceof Exception) {
+        if ($e instanceof Exception || $e instanceof \Error) {
 
             if (env("APP_ENV") == "jlkfdf") {
 
@@ -83,7 +85,7 @@ class Handler extends ExceptionHandler {
 	 * @param  \Exception  $e
 	 * @return \Illuminate\Http\Response
 	 */
-	public function render($request, Exception $e)
+	public function render($request, $e)
 	{
         if($this->isHttpException($e))
         {

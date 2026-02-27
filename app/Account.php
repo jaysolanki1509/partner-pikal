@@ -21,12 +21,11 @@ class Account extends Model {
     public static function canResetInvoice() {
 
         $account_id=Auth::user()->account_id;
-
-        if(isset($account_id) && sizeof($account_id)>0) {
+        
+        if(isset($account_id) && !empty($account_id)) {
 
             $account = Account::find($account_id);
-
-            if(isset($account) && sizeof($account)>0) {
+            if(isset($account) && !empty($account)) {
                 return $account->can_invoice_reset;
             } else {
                 return 0;

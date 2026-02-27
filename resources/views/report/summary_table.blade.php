@@ -45,7 +45,7 @@ $no=0;
                       $gross_average+=$sum['gross_average'];          $total_item_sell+=$sum['total_item_sell'];
                       $total_person_visit+=$sum['total_person_visit']; $lowest_order+=$sum['lowest_order'];
                       $highest_order+=$sum['highest_order'];          $cancel_order_count+=$sum['cancel_order_count'];
-                      $cancel_order_amount+=$sum['cancel_order_amount'];
+                    $cancel_order_amount = (int) $cancel_order_amount + (int) $sum['cancel_order_amount'];
 
                     //total bifurcation
                     $bifurcation = json_decode($sum['total_bifurcation'],true);

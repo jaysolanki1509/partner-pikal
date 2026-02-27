@@ -51,6 +51,10 @@ $admin = \Illuminate\Support\Facades\Auth::user()->created_by;
             } else {
                 $table_no = $order->table_no;
             }
+            // echo "Order <pre>";
+            // print_r($orders);
+            // echo "</pre>";
+            // exit;
             ?>
             <tr>
                 {{--<td data-sort-value="{{ $no }}">{!! $no !!}</td>--}}
@@ -61,7 +65,12 @@ $admin = \Illuminate\Support\Facades\Auth::user()->created_by;
                 <td>{!! \App\Http\Controllers\Api\v1\ApiController::get_order_type($order->order_type) !!}</td>
 
                 <td>{!! $itemlist[$order->order_id] !!}</td>
-                <td style="text-align: right;">{!! number_format($order->discount_value + $order->item_discount_value,2) !!}</td>
+                @if(isset($order->discount_value))
+                   
+                    <td style="text-align: right;">{!! number_format((float)($order->discount_value ?? 0) + (float)($order->item_discount_value ?? 0.00), 2) !!}</td>
+                @else
+                    <td style="text-align: right;">0.00</td>
+                @endif
                 <td style="text-align: right;">{!! $order->totalprice !!}</td>
                 <?php $grand_total += $order->totalprice; ?>
                 <td>{!! $order->payment_mode !!}</td>

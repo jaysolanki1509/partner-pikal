@@ -284,14 +284,14 @@ class Utils extends Model {
         if ( $flag == 'from') {
 
             $date_val = $date." ".$from_time;
-            if ( isset($outlet_obj) && sizeof($outlet_obj) > 0 ) {
+            if ( isset($outlet_obj->id) ) {
                 $date_val = date('Y-m-d H:i:s', strtotime($date_val . "+$outlet_obj->session_time hours"));
             }
-
+            
         } else {
-
+            
             $date_val = $date." ".$to_time;
-            if ( isset($outlet_obj) && sizeof($outlet_obj) > 0 ) {
+            if ( isset($outlet_obj->id) ) {
                 $date_val = date('Y-m-d H:i:s', strtotime($date_val . "+$outlet_obj->session_time hours"));
             }
 

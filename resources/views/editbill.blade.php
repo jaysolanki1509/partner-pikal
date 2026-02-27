@@ -1,5 +1,5 @@
 
-@if( isset($order) && sizeof($order) > 0 )
+@if( isset($order) && !empty($order) )
 
     <input type="hidden" id="edit_order_id" value="{!! $order->order_id !!}" />
     <div class="col-md-4">
@@ -140,7 +140,7 @@
     <div style="clear:both"></div>
     <div class="form-group" id="edit_calculation" style="margin-top:40px;">
 
-        @if ( isset($order) && sizeof($order) > 0 && $order->itemwise_tax == 0 )
+        @if ( isset($order) && $order->itemwise_tax == 0 )
             <?php
                 echo $calculation = \App\Http\Controllers\newordercontroller::orderCalculation($order,$order->order_type,'edit_inv',$order->tax_percent,$order->delivery_charge,$order->discount_type,$order->discount_value);
             ?>

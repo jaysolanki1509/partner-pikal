@@ -143,7 +143,9 @@ class AuthController extends Controller  {
 
         //check useris active? account table
         $owner = Owner::where($field, $usernameinput)->select('account_id','web_login')->first();
-        if (isset($owner) && sizeof($owner) > 0){
+        // if (isset($owner) && sizeof($owner) > 0){
+        if (!empty($owner) && (is_array($owner) || $owner instanceof Countable)) {
+
             $account_id = $owner->account_id;
             $account_status = Account::find($account_id);
             if (isset($account_status) && sizeof($account_status) > 0) {

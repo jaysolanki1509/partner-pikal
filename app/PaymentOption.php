@@ -26,7 +26,8 @@ class PaymentOption extends Model {
         $pay_opt_arr = array();
 
         $outlet_obj = Outlet::find($outlet_id);
-        if ( isset($outlet_obj) && sizeof($outlet_obj) > 0 ) {
+        
+        if ( isset($outlet_obj) && !empty($outlet_obj) ) {
 
             $pay_opt = json_decode($outlet_obj->payment_options,true);
 
@@ -35,8 +36,8 @@ class PaymentOption extends Model {
 
                     $pay_mode_arr = array();
                     $p_mode = PaymentOption::find($key);
-
-                    if ( isset($p_mode) && sizeof($p_mode) > 0 ) {
+                    
+                    if ( isset($p_mode) && !empty($p_mode) ) {
 
                         $pay_mode_arr['mode_id'] = $p_mode->id;
                         $pay_mode_arr['mode_name'] = $p_mode->name;
@@ -58,7 +59,8 @@ class PaymentOption extends Model {
                                 $pay_mode_arr['mode_name'] = $p_mode->name;
 
                                 $source = Sources::find($op);
-                                if (isset($source) && sizeof($source) > 0) {
+                                
+                                if (isset($source->id)) {
                                     $pay_mode_arr['source_id'] = $source->id;
                                     $pay_mode_arr['source_name'] = $source->name;
                                 } else {
@@ -104,7 +106,7 @@ class PaymentOption extends Model {
 
         $payment_option = PaymentOption::find($p_id);
 
-        if(isset($payment_option) && sizeof($payment_option)>0){
+        if(isset($payment_option) && !empty($payment_option)){
             return $payment_option->name;
         }else{
             return "UnPaid";

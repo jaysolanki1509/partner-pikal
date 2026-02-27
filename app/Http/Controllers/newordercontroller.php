@@ -328,7 +328,7 @@ class newordercontroller extends Controller {
         $order_info['is_custom'] = $order->is_custom;
 
 
-        if( isset($order) && sizeof($order) > 0 ) {
+        if( isset($order) ) {
 
             $order_items = OrderItem::select('order_items.id','order_items.item_price as itm_price','order_items.item_quantity as itm_quantity',
                                             'order_items.item_name as itm_name','order_items.tax_slab as tax_slab',
@@ -563,13 +563,13 @@ class newordercontroller extends Controller {
 
         $consumer = array();
 
-        if ( isset($order) && sizeof($order) > 0 ) {
+        if ( isset($order) && !empty($order) ) {
 
             $invoice_number = $this->generateInvoiceNumber($outlet_id, $o_id, $order->order_type);
 
-            if(isset($order->user_id) && sizeof($order->user_id)>0) {
+            if(isset($order->user_id) && !empty($order->user_id)) {
                 $check_customer = Customer::find($order->user_id);
-                if (isset($check_customer) && sizeof($check_customer) > 0) {
+                if (isset($check_customer) && !empty($check_customer)) {
 
                     $consumer['mobile_number'] = $check_customer->mobile_number;
                     $consumer['first_name'] = $check_customer->first_name;
@@ -857,7 +857,7 @@ class newordercontroller extends Controller {
 
             $order = order_details::join('outlets as ot','orders.outlet_id','=','ot.id')->where('order_id',$ord_id)->first();
 
-            if ( isset($order) && sizeof($order) > 0 ) {
+            if ( isset($order) && !empty($order) ) {
                 $inv = substr($inv_no,-$order->invoice_digit);
             }
 
@@ -915,7 +915,7 @@ class newordercontroller extends Controller {
             if ( trim($mobile) != 0 || strlen(trim($name)) != 0 ) {
 
                 $check_customer = Customer::where('mobile_number',$mobile)->where('mobile_number','!=',0)->first();
-                if (  isset($check_customer) && sizeof($check_customer) > 0 ) {
+                if (  isset($check_customer) && !empty($check_customer) ) {
 
                     $check_customer->address = $address;
                     $check_customer->first_name = $name;
@@ -1135,7 +1135,7 @@ class newordercontroller extends Controller {
             ->first();
 
         $item_arr = array();
-        if( isset($order) && sizeof($order) > 0 ) {
+        if( isset($order) && !empty($order) ) {
 
             $order_items = OrderItem::select('order_items.id as item_id','order_items.item_price as itm_price','order_items.item_quantity as itm_quantity','order_items.item_name as itm_name')
                 ->where('order_items.order_id',$o_id)
@@ -1164,7 +1164,7 @@ class newordercontroller extends Controller {
             $check_upi_status = DB::table('icici_upi_transaction')->where('bill_no',$order->order_unique_id)->orderBy('txnid', 'desc')->first();
         }*/
 
-        if(isset($order->user_id) && sizeof($order->user_id)){
+        if(isset($order->user_id)){
             $user = Customer::find($order->user_id);
 
             $order->customer_name = isset($user->first_name)?$user->first_name:"";
@@ -1238,7 +1238,7 @@ class newordercontroller extends Controller {
         if ( isset($ord_id) ) {
 
             $order = order_details::join('outlets as ot','orders.outlet_id','=','ot.id')->where('order_id',$ord_id)->first();
-            if ( isset($order) && sizeof($order) > 0 ) {
+            if ( isset($order) ) {
                 $inv = substr($inv_no,-$order->invoice_digit);
             }
 
@@ -1252,7 +1252,7 @@ class newordercontroller extends Controller {
             if ( $mobile != '' || $name != '' ) {
 
                 $check_customer = Customer::where('mobile_number',$mobile)->where('mobile_number','!=',0)->first();
-                if (  isset($check_customer) && sizeof($check_customer) > 0 ) {
+                if (  isset($check_customer) && !empty($check_customer)) {
 
                     $check_customer->address = $address;
                     $check_customer->first_name = $name;
@@ -1425,8 +1425,7 @@ class newordercontroller extends Controller {
             $po_array = PaymentOption::lists('name','id');
             $outlet_options_arr = array();
             $outlet_source_arr = array();
-
-            if(isset($payment_options) && sizeof($payment_options)) {
+            if(isset($payment_options) && !empty($payment_options)) {
 
                 $payment_option_array = json_decode($payment_options, true);
                 $outlet_options = array_keys($payment_option_array);
@@ -1525,7 +1524,7 @@ class newordercontroller extends Controller {
 
                             if( $py_mode->payment_option_id != 0 ) {
 
-                                if ( isset($mode) && sizeof($mode) > 0 ) {
+                                if ( isset($mode) && !empty($mode) ) {
                                     $mode_name .= $mode->name;
                                 }
 
@@ -2357,7 +2356,7 @@ class newordercontroller extends Controller {
         $source_id = $payment_option_id = $delivery_charge = $total = 0;
 
 
-        if( isset($order) && sizeof($order)  > 0 ) {
+        if( isset($order) && !empty($order) ) {
 
             $order = $order['order'];
 
@@ -2402,13 +2401,13 @@ class newordercontroller extends Controller {
             $cust_name = Input::get('name');
             $paid_type = 'cash';
 
-            if ( isset($item_id) && sizeof($item_id) > 0 ) {
-                for( $i=0; $i<sizeof($item_id); $i++ ) {
+            if ( isset($item_id) && !empty($item_id) ) {
+                for( $i=0; $i<count($item_id); $i++ ) {
                     $qty = $item_qty[$i];
                     $price = floatval($item_price[$i]);
 
                     //check item options has been selected for this item or not
-                    if ( isset($item_options[$i]) && sizeof($item_options[$i]) > 0 ) {
+                    if ( isset($item_options[$i]) && !empty($item_options[$i]) ) {
 
                         foreach ( $item_options[$i] as $opt ) {
                             $total += $opt['option_price'] * $qty;
@@ -2425,7 +2424,7 @@ class newordercontroller extends Controller {
         if ( $mobile != '' || $cust_name != '' ) {
 
             $check_customer = Customer::where('mobile_number',$mobile)->where('mobile_number','!=',0)->first();
-            if (  isset($check_customer) && sizeof($check_customer) > 0 ) {
+            if (  isset($check_customer) && !empty($check_customer) ) {
 
                 $check_customer->address = $address;
                 $check_customer->email = $email;
@@ -3009,7 +3008,7 @@ class newordercontroller extends Controller {
         $disc_mode = Input::get('disc_mode');
         $delivery_charge = Input::get('delivery_charge');
         $order_type = Input::get('order_type');
-
+        
         //get order detail
         $order = order_details::where('order_id',$order_id)->join('outlets as ot','orders.outlet_id','=','ot.id')
                             ->select('orders.*','ot.invoice_prefix as invoice_prefix','ot.invoice_date as inv_date',

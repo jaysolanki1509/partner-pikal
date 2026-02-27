@@ -82,7 +82,9 @@ return [
 
 	'key' => env('APP_KEY', 'SomeRandomString'),
 
-	'cipher' => MCRYPT_RIJNDAEL_128,
+	// 'cipher' => 'MCRYPT_RIJNDAEL_128',
+	// 'cipher' => 'AES-256-CBC',
+	'cipher' => env('APP_CIPHER', 'MCRYPT_RIJNDAEL_128'),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -152,7 +154,7 @@ return [
         'Illuminate\Html\HtmlServiceProvider',
         'Barryvdh\Debugbar\ServiceProvider',
         'Orchestra\Imagine\ImagineServiceProvider',
-        'Piyushpatil\Androidpushnotification\AndroidpushnotificationServiceProvider',
+        // 'Piyushpatil\Androidpushnotification\AndroidpushnotificationServiceProvider',
         'Maatwebsite\Excel\ExcelServiceProvider',
         'Illuminate\Translation\TranslationServiceProvider',
 		'Bican\Roles\RolesServiceProvider',
@@ -213,7 +215,8 @@ return [
         'Imagine' => 'Orchestra\Imagine\Facade',
         'PushNotification' => 'Piyushpatil\Androidpushnotification\Facades\PushNotification',
         'Excel' => 'Maatwebsite\Excel\Facades\Excel',
-		'Minify' => 'Devfactory\Minify\Facades\MinifyFacade'
+		'Minify' => 'Devfactory\Minify\Facades\MinifyFacade',
+		'Gate' => 'Illuminate\Support\Facades\Gate::class',
 
 
 

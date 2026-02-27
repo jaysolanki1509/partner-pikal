@@ -18,12 +18,12 @@ public/table1.csv
 /public/table1.csv
 /vendor
 .env
-auth.json
+# auth.json
 .DS_Store
-composer.phar
+# composer.phar
 php-errors.log
 /bootstrap/compiled.php
-*.log
+# *.log
 .history
 storage/framework/cache/
 storage/cms/cache/
