@@ -1413,6 +1413,9 @@ class newordercontroller extends Controller {
 
             $slot_time = Input::get('time_slot');
             $total_slots = Timeslot::gettimeslotbyoutletid($outlet_id);
+            // echo "Hello Slot <pre>";
+            // print_r(json_encode($total_slots));
+            // echo "</pre>"; exit;
 
             $outlet = Outlet::find($outlet_id);
             $lable = 'Table';
@@ -1980,12 +1983,12 @@ class newordercontroller extends Controller {
         $day = Input::get('day');
         $month = Input::get('month');
 
-        if(isset($day) && sizeof($day)>0){
+        if(isset($day) && !empty($day)){
 
             $start_date = date('Y-m-d', strtotime(-$day . " days"));
             $end_date = date('Y-m-d', strtotime(-$day . " days"));
 
-        }else if(isset($month) && sizeof($month)>0){
+        }else if(isset($month) && !empty($month)){
 
             $start_date = date('Y-m-01');
             $end_date = date('Y-m-'.$month);
@@ -2885,7 +2888,7 @@ class newordercontroller extends Controller {
             );
 
             $httpclient = new HttpClientWrapper();
-
+            
             //send Api call
             $order_status = $httpclient->send_request('POST',$param,'http://staging.foodklub.in/pgi/icici-upi/collect-pay');
             return $order_status;

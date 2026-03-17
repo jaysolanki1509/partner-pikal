@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Session;
 $sess_outlet_id = Session::get('outlet_session');
 
 ?>
-hello {{$result->id}}
 @section('pageHeader-right')
     <a href="/tables" class="btn btn-primary"><i class="fa fa-backward"></i> Back</a>
 @stop

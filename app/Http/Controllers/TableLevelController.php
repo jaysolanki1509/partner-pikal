@@ -22,17 +22,17 @@ class TableLevelController extends Controller {
 	 * @return Response
 	 */
 	public function index()
-	{
+	{   
         $outlet_id = Session::get('outlet_session');
 
         $table_levels = TableLevel::where('outlet_id',$outlet_id)->get();
 
         $order_lable = 'Table';
 
-        if ( isset($outlet_id) && $outlet_id != '' ) {
+        if ( isset($outlet_id) ) {
             $outlet = Outlet::find($outlet_id);
-            if ( isset($outlet) && sizeof($outlet) > 0 ) {
-                if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
+            if ( isset($outlet) && !empty($outlet) ) {
+                if ( isset($outlet->order_lable)  ) {
                     $order_lable = ucwords($outlet->order_lable);
                 }
             }
@@ -54,7 +54,7 @@ class TableLevelController extends Controller {
 
         if ( isset($outlet_id) && $outlet_id != '' ) {
             $outlet = Outlet::find($outlet_id);
-            if ( isset($outlet) && sizeof($outlet) > 0 ) {
+            if ( isset($outlet) && !empty($outlet) ) {
                 if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
                     $order_lable = ucwords($outlet->order_lable);
                 }
@@ -90,7 +90,7 @@ class TableLevelController extends Controller {
 
             if ( isset($outlet_id) && $outlet_id != '' ) {
                 $outlet = Outlet::find($outlet_id);
-                if ( isset($outlet) && sizeof($outlet) > 0 ) {
+                if ( isset($outlet) && !empty($outlet) ) {
                     if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
                         $order_lable = ucwords($outlet->order_lable);
                     }
@@ -152,7 +152,7 @@ class TableLevelController extends Controller {
 
         if ( isset($outlet_id) && $outlet_id != '' ) {
             $outlet = Outlet::find($outlet_id);
-            if ( isset($outlet) && sizeof($outlet) > 0 ) {
+            if ( isset($outlet) && !empty($outlet) ) {
                 if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
                     $order_lable = ucwords($outlet->order_lable);
                 }
@@ -188,7 +188,7 @@ class TableLevelController extends Controller {
 
             if ( isset($outlet_id) && $outlet_id != '' ) {
                 $outlet = Outlet::find($outlet_id);
-                if ( isset($outlet) && sizeof($outlet) > 0 ) {
+                if ( isset($outlet) && !empty($outlet) ) {
                     if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
                         $order_lable = ucwords($outlet->order_lable);
                     }
@@ -231,7 +231,7 @@ class TableLevelController extends Controller {
 
         if ( isset($outlet_id) && $outlet_id != '' ) {
             $outlet = Outlet::find($outlet_id);
-            if ( isset($outlet) && sizeof($outlet) > 0 ) {
+            if ( isset($outlet) && !empty($outlet) ) {
                 if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
                     $order_lable = ucwords($outlet->order_lable);
                 }
@@ -239,11 +239,11 @@ class TableLevelController extends Controller {
         }
 
         //update table_level id on delete table level
-        Tables::where('table_level_id',$id)->update( array('table_level_id'=>'0'));
+        $qu = Tables::where('table_level_id',$id)->update( array('table_level_id'=>'0'));
 
         TableLevel::where('id',$id)->delete();
 
-        Session::flash('success', "$order_lable level has been deleted successfully!");
+        Session::flash('success', $order_lable . "level has been deleted successfully!");
         return Redirect::to('table-levels');
 	}
 

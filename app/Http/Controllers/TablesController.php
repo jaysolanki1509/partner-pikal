@@ -32,8 +32,8 @@ class TablesController extends Controller {
 	{
 		$httpclient = new HttpClientWrapper();
 		$token = $_COOKIE['laravel_session'];
-
-		$tables_list = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables-list',$token);
+		$url = 'https://' . $_SERVER['SERVER_NAME'] . '/api/v3/tables-list';
+		$tables_list = $httpclient->send_request('get', '', $url, $token);
 		$result = json_decode($tables_list);
 
 		$outlet_id = Session::get('outlet_session');
@@ -41,7 +41,7 @@ class TablesController extends Controller {
 
 		if ( isset($outlet_id) && $outlet_id != '' ) {
 			$outlet = Outlet::find($outlet_id);
-			if ( isset($outlet) && sizeof($outlet) > 0 ) {
+			if ( isset($outlet) && !empty($outlet) ) {
 				if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
 					$order_lable = ucwords($outlet->order_lable);
 				}
@@ -49,7 +49,7 @@ class TablesController extends Controller {
 		}
 
 
-		if ( isset($result) && $result->status == 'success' ) {
+		if ( isset($result) && $result['status'] === 'success' ) {
 			if ( isset($result->data['message'])) {
 				$result->data['message'] = str_replace('Table',$order_lable,$result->data['message']);
 			}
@@ -71,12 +71,13 @@ class TablesController extends Controller {
 		$httpclient = new HttpClientWrapper();
 		$token = $_COOKIE['laravel_session'];
 
-		$data = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables/create',$token);
+		$url = 'https://' . $_SERVER['SERVER_NAME'] . '/api/v3/tables/create';
+		$data = $httpclient->send_request('get', '', $url, $token);
 		$result = json_decode($data);
 
 
         $shape[''] = 'Select Shape';
-        if(isset($result) && sizeof($result)>0) {
+        if(isset($result) && !empty($result) ) {
             $shape = array_merge($shape, (array)$result->data->shape);
         }else{
             $shape = array();
@@ -87,7 +88,7 @@ class TablesController extends Controller {
 
 		if ( isset($outlet_id) && $outlet_id != '' ) {
 			$outlet = Outlet::find($outlet_id);
-			if ( isset($outlet) && sizeof($outlet) > 0 ) {
+			if ( isset($outlet) && !empty($outlet) ) {
 				if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
 					$order_lable = ucwords($outlet->order_lable);
 				}
@@ -127,8 +128,9 @@ class TablesController extends Controller {
         }
 
         $form_data['outlet_id'] = $outlet_id;
-
-		$data = $httpclient->send_request('post', $form_data,$_SERVER['SERVER_NAME'].'/api/v3/tables/create',$token);
+		$url = 'https://' . $_SERVER['SERVER_NAME'] . '/api/v3/tables/create';
+		$data = $httpclient->send_request('post', '',$form_data, $url, $token);
+	
 		$result = json_decode($data);
 
 		$order_lable = 'Table';
@@ -174,10 +176,15 @@ class TablesController extends Controller {
         $httpclient = new HttpClientWrapper();
         $token = $_COOKIE['laravel_session'];
 
-        $data1 = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables/'.$id.'/edit',$token);
+		$url = 'https://' . $_SERVER['SERVER_NAME'] . '/api/v3/tables/'.$id.'/edit';
+		$data1 = $httpclient->send_request('get', '', $url, $token);
+        // $data1 = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables/'.$id.'/edit',$token);
         $result1 = json_decode($data1);
-
-        $data = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables/create',$token);
+		
+		$tableListurl = 'https://' . $_SERVER['SERVER_NAME'] . '/api/v3/tables/create';
+		$data = $httpclient->send_request('get', '', $tableListurl, $token);
+		
+        // $data = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables/create',$token);
         $result = json_decode($data);
 
 		$outlet_id = Session::get('outlet_session');
@@ -238,8 +245,9 @@ class TablesController extends Controller {
 		}
 
 		$form_data['outlet_id'] = $outlet_id;
-
-        $data = $httpclient->send_request('post', $form_data,$_SERVER['SERVER_NAME'].'/api/v3/tables/update',$token);
+		$url = 'https://' . $_SERVER['SERVER_NAME'] . '/api/v3/tables/update';
+		$data = $httpclient->send_request('post', '', $url,$form_data, $token);
+        // $data = $httpclient->send_request('post', $form_data,$_SERVER['SERVER_NAME'].'/api/v3/tables/update',$token);
         $result = json_decode($data);
 
 		if ( isset($result->message)) {

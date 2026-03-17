@@ -29,7 +29,7 @@ class TablesController extends Controller
     }
 
     public function tablesList() {
-
+        
         $owner_id = Auth::id();
         //$admin_id = Owner::menuOwner();
         $sess_outlet_id = Session::get('outlet_session');

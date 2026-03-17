@@ -3,7 +3,7 @@ use Illuminate\Support\Facades\Session;
 ?>
 @extends('partials.default')
 @section('pageHeader-left')
-    @if( isset($customer) && sizeof($customer) > 0 && $customer->first_name != '' )
+    @if( isset($customer) && !empty($customer) && $customer->first_name != '' )
         {{ $customer->first_name.' '.$customer->last_name }}
     @else
         {{ 'Unknown' }}

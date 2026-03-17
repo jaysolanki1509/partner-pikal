@@ -21,7 +21,7 @@
             {{ Session::get('error') }}
         </div>
     @endif
-    @if(isset($success) && sizeof($success))
+    @if(isset($success) && !empty($success))
         <div class="alert alert-success">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times</button>
             {{ $success }}

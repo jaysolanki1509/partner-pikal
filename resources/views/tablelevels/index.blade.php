@@ -21,7 +21,7 @@
                                 <th data-sort-ignore="true">Action</th>
                             </thead>
                             <tbody>
-                                @if(isset($tablelevels) && sizeof($tablelevels) > 0 )
+                                @if(isset($tablelevels) && !empty($tablelevels) )
                                     @foreach($tablelevels as $tab)
                                         <?php
                                         ?>

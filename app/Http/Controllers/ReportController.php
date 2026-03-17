@@ -1238,6 +1238,8 @@ class ReportController extends Controller {
 
         $outlet_id = Input::get('outlet_id');
         $timeslots = Timeslot::gettimeslotbyoutletid($outlet_id);
+        // echo "Hello" . json_encode($timeslots);
+        // exit;
 
         return $timeslots;
     }

@@ -16,6 +16,7 @@ class Timeslot extends Model {
 
 
     public static function gettimeslotbyoutletid($id){
+        
         $timeslots=Timeslot::where('outlet_id',$id)->get();
         return $timeslots;
     }
