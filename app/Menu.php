@@ -274,7 +274,7 @@ class Menu extends Model {
 
         if ( isset($menu->secondary_units) && $menu->secondary_units != '') {
             $sec_unit = json_decode($menu->secondary_units);
-            if ( isset($sec_unit) && sizeof($sec_unit) > 0 ) {
+            if ( isset($sec_unit) && !empty($sec_unit) ) {
                 foreach( $sec_unit as $key=>$un ) {
                     if ( !array_key_exists($key,$other_unit)) {
                         $unit = Unit::find($key);

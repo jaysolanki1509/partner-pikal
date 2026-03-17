@@ -547,44 +547,27 @@ class PurchasesController extends Controller {
             /*Unit array*/
             $units = array('0' => 'Select Unit');
             $unit_list = Unit::lists('name','id');
-            $units = array_merge($units,$unit_list);
 
-            $invoice_bill = InvoiceBill::leftjoin('vendors', 'vendors.id', '=', 'invoice_bills.vendor_id')
-                ->leftjoin('locations', 'locations.id', '=', 'invoice_bills.location_id')
-                ->select('invoice_bills.*', 'vendors.name as vendor', 'locations.name as location')
-                ->where('invoice_bills.id',$id)
-                ->first();
+            $units = array_merge((array)$units,(array)$unit_list);
 
-            $items = Menu::where('created_by',$admin_id)
-                                ->where('is_inventory_item',1)->get();
+            $invoice_bill = InvoiceBill::leftjoin('vendors', 'vendors.id', '=', 'invoice_bills.vendor_id')->leftjoin('locations', 'locations.id', '=', 'invoice_bills.location_id')->select('invoice_bills.*', 'vendors.name as vendor', 'locations.name as location')->where('invoice_bills.id',$id)->first();
+
+            $items = Menu::where('created_by',$admin_id)->where('is_inventory_item',1)->get();
             $item_list = array();
             $item_list[''] = "Select Item";
             foreach ($items as $item){
                 $item_list[$item->id] = $item->item;
             }
-
             $vendors = Vendor::where('created_by',$admin_id)->get();
             $vendor_list = array();
             foreach ($vendors as $vendor){
                 $vendor_list[$vendor->id] = $vendor->name;
             }
+            if ( isset($invoice_bill) && !empty($invoice_bill)) {
+                $purchase_items = Purchase::select('purchase.*', 'menus.item as item','menus.id as item_id', 'unit.id as unit_id', 'unit.name as unit_name')->join('menus', 'menus.id', '=', 'purchase.item_id')->join('unit', 'unit.id', '=', 'purchase.unit_id')->where('purchase.invoice_id', $id)->get();
 
-            if ( isset($invoice_bill) && sizeof($invoice_bill) > 0 ) {
-
-                $purchase_items = Purchase::select('purchase.*', 'menus.item as item','menus.id as item_id', 'unit.id as unit_id', 'unit.name as unit_name')
-                                            ->join('menus', 'menus.id', '=', 'purchase.item_id')
-                                            ->join('unit', 'unit.id', '=', 'purchase.unit_id')
-                                            ->where('purchase.invoice_id', $id)
-                                            ->get();
-
-
-                return view('purchases.edit',array('selected_location' => $invoice_bill->location_id,'invoice'=>$invoice_bill,'items'=>$purchase_items,
-                                                    'locations'=>$locations,'units'=>$units,'action'=>'edit',
-                                                    'item_list'=>$item_list, 'vendors'=>$vendor_list));
-
+                return view('purchases.edit',array('selected_location' => $invoice_bill->location_id,'invoice'=>$invoice_bill,'items'=>$purchase_items,'locations'=>$locations,'units'=>$units,'action'=>'edit','item_list'=>$item_list, 'vendors'=>$vendor_list));
             }
-
-
         }
 	}
 
@@ -632,7 +615,7 @@ class PurchasesController extends Controller {
 
             if ( $result ) {
 
-                for( $i=0; $i < sizeof($item_ids); $i++ ) {
+                for( $i=0; $i < is_array($item_ids); $i++ ) {
 
                     if ( $item_ids[$i] != '' || $item_ids[$i] != null ) {
 

@@ -351,7 +351,7 @@ if( isset($order->default_taxes) && $order->default_taxes != '' ) {
 
                 <?php
                     if($req_type != 'edit') {
-                        $s_total -= $order->discount_value;
+                        $s_total -= isset($order->discount_value) ? (float)$order->discount_value : 0;
                     }
 
                 ?>

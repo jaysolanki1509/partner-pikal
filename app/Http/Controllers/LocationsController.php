@@ -45,7 +45,6 @@ class LocationsController extends Controller {
 
 		return view('locations.index', array('locations' => $locations));
 	}
-
 	/**
 	 * Show the form for creating a new resource.
 	 *
@@ -74,7 +73,6 @@ class LocationsController extends Controller {
 			'name' => 'required',
 		],$messages);
 
-
 		if (isset($p) && $p->passes())
 		{
 			$owner_id = Auth::id();
@@ -100,8 +98,6 @@ class LocationsController extends Controller {
 			} else {
 				$default_loc = 0;
 			}
-
-
 			$location = new Location();
 			$location->name = $name;
 			$location->outlet_id = $outlet_id;
@@ -116,14 +112,12 @@ class LocationsController extends Controller {
 				} else {
 					return Redirect::route('location.index')->with('success','New Location has been added....');
 				}
-
 			}
 
 		} else {
 			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
 		}
 	}
-
 	/**
 	 * Display the specified resource.
 	 *
@@ -149,7 +143,6 @@ class LocationsController extends Controller {
 		$outlets = OutletMapper::getOutletsByOwnerId();
 
 		return view('locations.edit',array('outlets'=>$outlets,'location'=>$location,'action'=>'edit'));
-
 	}
 
 	/**
@@ -184,7 +177,7 @@ class LocationsController extends Controller {
 			if ( isset($default_loc) && $default_loc != '' ) {
 				if( isset($outlet_id) && $outlet_id != '' ) {
 					$check_location = Location::where('outlet_id',$outlet_id)->where('default_location',1)->first();
-					if ( isset($check_location) && sizeof($check_location) > 0 ) {
+					if ( isset($check_location) && !empty($check_location) ) {
 						Location::where('id',$check_location->id)->update(['default_location'=>0]);
 					}
 				} else {
@@ -204,7 +197,6 @@ class LocationsController extends Controller {
 			if ( $result ) {
 				return Redirect::route('location.index')->with('success', 'Location has been updated successfully!');
 			}
-
 		} else {
 			return redirect()->back()->withInput(Input::all())->withErrors($p->errors());
 		}
@@ -217,14 +209,13 @@ class LocationsController extends Controller {
 	 * @return Response
 	 */
 	public function destroy($id)
-	{
+	{ 
 		Location::where('id',$id)->delete();
 		Session::flash('success', 'Location has been deleted successfully!');
 		return Redirect::to('location');
 	}
 
 	public function setStockLevel(Request $request) {
-
 		$admin_id = Owner::menuOwner();
 		$owner_id = Auth::id();
 
@@ -262,7 +253,7 @@ class LocationsController extends Controller {
 										->where('item_id',$res->id)
 										->first();
 
-					if( isset($stock) && sizeof($stock) > 0 ) {
+					if( isset($stock) && !empty($stock) ) {
 						$arr[$res->id]['order_qty'] = $stock->order_qty;
 						$arr[$res->id]['reserved_qty'] = $stock->reserved_qty;
 						$arr[$res->id]['opening_qty'] = $stock->opening_qty;
@@ -276,17 +267,13 @@ class LocationsController extends Controller {
 					}
 				}
 			}
-
 			return view('locations.stockLevelList',array('arr'=>$arr,'loc_id'=>$loc_id,'cat_id'=>$cat_id));
-
 		}
-
 		$locations = Location::getLocations($admin_id);
 		$categories = MenuTitle::getCategoriesDropdown($admin_id);
 		$categories[''] = 'All Categories';
 
 		return view('locations.stockLevel',array('locations'=>$locations,'categories'=>$categories));
-
 	}
 
 	public function storeStockLevel() {
@@ -305,11 +292,9 @@ class LocationsController extends Controller {
 		if( isset($item_id) && sizeof($item_id) > 0 ) {
 			foreach( $item_id as $key=>$val ) {
 
-
 				$check_item = StockLevel::where('item_id',$val)->where('location_id',$loc_id)->first();
 
-				if ( isset($check_item) && sizeof($check_item) > 0 ) {
-
+				if ( isset($check_item) && !empty($check_item) ) {
 					$check_item->opening_qty = $opening_qty[$key];
 					$check_item->order_qty = $order_qty[$key];
 					$check_item->reserved_qty = $reserved_qty[$key];
@@ -318,9 +303,7 @@ class LocationsController extends Controller {
 					$check_item->request_item = isset($request_item[$val])?'true':'false';
 					$check_item->req_fav_item = isset($req_fav_item[$val])?true:false;
 					$check_item->save();
-
 				} else {
-
 					$add_item = new StockLevel();
 					$add_item->category_id = $cat_id[$key];
 					$add_item->item_id = $val;
@@ -333,20 +316,13 @@ class LocationsController extends Controller {
 					$add_item->request_item = isset($request_item[$val])?'true':'false';
 					$add_item->req_fav_item = isset($req_fav_item[$val])?true:false;
 					$add_item->save();
-
 				}
-
 			}
 		}
-
 		return Redirect::to('/location/stock-level')->with('success','Stock level has been set successfully');
-
 	}
 
 	public function docSign() {
-
-
-
         return view('locations.doc', array());
     }
 
@@ -395,7 +371,6 @@ class LocationsController extends Controller {
                 $accountId = $loginAccount->getAccountId();
                 if(!empty($accountId))
                 {
-
                     try {
                         //*** STEP 2 - Signature Request from a Template
                         // create envelope call is available in the EnvelopesApi
@@ -433,8 +408,5 @@ class LocationsController extends Controller {
                 }
             }
         }
-
-
     }
-
 }

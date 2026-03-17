@@ -79,13 +79,13 @@ class VendorsController extends Controller {
             $vendor->contact_person = Input::get('contact_person');
             $vendor->contact_number = Input::get('contact_number');
             $vendor->vendor_gst = strlen($vendor_gst)>0?$vendor_gst:NULL;
-            if(isset($city) && sizeof($city)>0) {
+            if(isset($city) && !empty($city)) {
                 $vendor->city_id = Input::get('cities');
             }
-            if(isset($country) && sizeof($country)>0) {
+            if(isset($country) && !empty($country)) {
                 $vendor->country_id = Input::get('countries');
             }
-            if(isset($states) && sizeof($states)>0) {
+            if(isset($states) && !empty($states)) {
                 $vendor->state_id = Input::get('states');
             }
             $vendor->pincode = Input::get('pincode');
@@ -137,10 +137,8 @@ class VendorsController extends Controller {
             $states=State::all();
             $cities=City::all();
 
-            if ( isset($vendor) && sizeof($vendor) > 0 ) {
-
+            if ( isset($vendor) && !empty($vendor)) {
                 return view('vendors.edit',array('countries' => $countries,'states' => $states,'cities' => $cities,'vendor'=>$vendor,'action'=>'edit'));
-
             }
         }
 	}

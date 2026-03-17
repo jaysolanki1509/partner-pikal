@@ -404,7 +404,7 @@ class newordercontroller extends Controller {
 
                     if ($py_mode->payment_option_id != 0) {
 
-                        if (isset($mode) && sizeof($mode) > 0) {
+                        if (!empty($mode) &&  isset($mode)) {
                             $mode_name .= $mode->name;
                         }
 
@@ -2351,13 +2351,11 @@ class newordercontroller extends Controller {
 
     public function placeOrder( $order = Null ) {
         $sess_outlet_id = Session::get('outlet_session');
-
         $person_no = $email = $table_no = $ref_id = $name = $cust_name = '';
         $source_id = $payment_option_id = $delivery_charge = $total = 0;
-
-
-        if( isset($order) && !empty($order) ) {
-
+        
+        
+        if( isset($order)) {
             $order = $order['order'];
 
             $outlet_id = $order['outlet_id'];
@@ -2381,17 +2379,16 @@ class newordercontroller extends Controller {
             $cust_name = $order['customer_name'];
 
         } else {
-
+            
             $outlet_id = $sess_outlet_id;
             $name = Auth::user()->user_name;
-
             $item_id = Input::get('item_id');
             $item_qty = Input::get('item_qty');
             $item_name = Input::get('item_name');
             $item_price = Input::get('item_price');
             $item_options = Input::get('item_options');
             $item_attribute = Input::get('item_attribute');
-
+            
             $order_date = Input::get('order_date');
             $table_no = Input::get('table_no');
             $person_no = Input::get('person_no');
@@ -2400,15 +2397,14 @@ class newordercontroller extends Controller {
             $address = Input::get('address');
             $cust_name = Input::get('name');
             $paid_type = 'cash';
-
-            if ( isset($item_id) && !empty($item_id) ) {
+            
+            
+            if ( isset($item_id) ) {
                 for( $i=0; $i<count($item_id); $i++ ) {
                     $qty = $item_qty[$i];
                     $price = floatval($item_price[$i]);
-
                     //check item options has been selected for this item or not
-                    if ( isset($item_options[$i]) && !empty($item_options[$i]) ) {
-
+                    if (!empty($item_options) && isset($item_options[$i])) {
                         foreach ( $item_options[$i] as $opt ) {
                             $total += $opt['option_price'] * $qty;
                         }

@@ -254,7 +254,7 @@ class HomeController extends Controller {
         exit;
         ini_set('max_execution_time', 0);
         $orders = order_details::all();
-        print "<pre>";
+        
         if (isset($orders) && sizeof($orders) > 0) {
             foreach ($orders as $order) {
                 //$singleorder=order_details::find($order->order_id);

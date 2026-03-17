@@ -103,7 +103,7 @@ class ExpenseController extends Controller {
 
             $outlet = Outlet::find($outlet_id);
 
-            if ( isset($outlet) && sizeof($outlet) > 0 ) {
+            if ( isset($outlet) && !empty($outlet) ) {
                 if ( !isset($outlet->authorised_users) || $outlet->authorised_users == '' || $outlet->authorised_users == 0 ) {
                     $error = "authorised user not selected for outlet";
                     return Redirect('/expenseApp')->withInput(Input::all())->with('error', $error);
@@ -447,7 +447,7 @@ class ExpenseController extends Controller {
         $exp = Expense::find($id);
 
         $outlet = Outlet::find($outlet_id);
-        if ( isset($outlet) && sizeof($outlet) > 0 ) {
+        if ( isset($outlet) && !empty($outlet)) {
             if ( !isset($outlet->authorised_users) || $outlet->authorised_users == '' || $outlet->authorised_users == 0 ) {
                 $error = "authorised user not selected for outlet";
                 return Redirect('/expense/'.$id.'/edit')->withInput(Input::all())->with('error', $error);

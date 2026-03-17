@@ -636,12 +636,17 @@ class ReportController extends Controller {
                 $count = 0;
                 for($i=0;$i<sizeof($data['orders']);$i++){
                     $total_price += $data['orders'][$i]->totalcost_afterdiscount;
-                    if($data['orders'][$i]->totalprice == 0)
+                    if($data['orders'][$i]->totalprice == 0){
                         $total_noncharg_disc += $data['orders'][$i]->discount_value + $data['orders'][$i]->item_discount_value;
-                    else
-                        $total_simple_disc += $data['orders'][$i]->discount_value + $data['orders'][$i]->item_discount_value;
+                    }else{
+                        $discount_value = isset($data['orders'][$i]->discount_value) ? (float)$data['orders'][$i]->discount_value : 0;
+                        $item_discount_value = isset($data['orders'][$i]->item_discount_value) ? (float)$data['orders'][$i]->item_discount_value : 0;
 
-                    if(($data['orders'][$i]->discount_value + $data['orders'][$i]->item_discount_value) > 0) {
+                        $total_simple_disc += $discount_value + $item_discount_value;
+                        // $total_simple_disc += $data['orders'][$i]->discount_value + $data['orders'][$i]->item_discount_value;
+                    }
+                    if (((float)($data['orders'][$i]->discount_value ?? 0) + 
+                        (float)($data['orders'][$i]->item_discount_value ?? 0)) > 0) {
                         $count++;
                         $html .= '<tr>
                                 <td>' . $data['orders'][$i]->invoice_no . '</td>
@@ -1463,9 +1468,8 @@ class ReportController extends Controller {
 
             $outlet_payment_options = Outlet::find($outlet_id);
             $payment_option_json = $outlet_payment_options['payment_options'];
-
-            if ( sizeof($payment_option_json)>0 && $payment_option_json != null) {
-
+            if ( !empty($payment_option_json) && $payment_option_json != null) {
+                
                 $payment_option_array = json_decode($payment_option_json, true );
                 $outlet_options = array_keys($payment_option_array);
                 $outlet_options_arr = array();
@@ -1640,14 +1644,12 @@ class ReportController extends Controller {
 				->where('expense_for', $outlet_id)
 				->orderBy('expense_date')
 				->orderBy('expense_by');
-
+           
 			if ( $user_id != 'all'  && $status != 'all' ) {
-
 				$result = $expense->where('expense_by', $user_id)->where('status',strtolower($status))->get();
 
 			} else if ( $user_id != 'all' && $status == 'all' ) {
-
-				$result = $expense->where('expense_by', $user_id)->get();
+                $result = $expense->where('expense_by', $user_id)->get();
 
 			} else if ( $user_id == 'all' && $status != 'all' ) {
 
@@ -2643,7 +2645,6 @@ class ReportController extends Controller {
             //convert to session time
             $from = Utils::getSessionTime($from_date,'from');
             $to = Utils::getSessionTime($to_date,'to');
-
             $counter_close_amount = SendCloseCounterStatus::where('outlet_id','=',$outlet_id)
                                                             ->where('send_close_counter_status.start_date','>=', $from)
                                                             ->where('send_close_counter_status.close_date','<=', $to)
