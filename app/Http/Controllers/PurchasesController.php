@@ -656,7 +656,7 @@ class PurchasesController extends Controller {
 
                             //Update Menu Item price which is purchased, Reason : to calculate current total item cost
                             $item = Menu::find($item_ids[$i]);
-                            if(isset($item) && sizeof($item)>0){
+                            if(isset($item->id)){
                                 $item->buy_price = $rate[$i];
                                 $item->save();
                             }
@@ -885,11 +885,11 @@ class PurchasesController extends Controller {
         $owner_id = Auth::id();
         $bill = InvoiceBill::find($id);
 
-        if ( isset($bill) && sizeof($bill) > 0 ) {
+        if ( isset($bill) && !empty($bill) ) {
 
             $purchase = Purchase::where('invoice_id',$id)->get();
 
-            if ( isset($purchase) && sizeof($purchase) > 0 ) {
+            if ( isset($purchase) &&  !empty($purchase) ) {
 
                 foreach( $purchase as $pur ) {
 
@@ -900,14 +900,14 @@ class PurchasesController extends Controller {
                         ->first();
 
                     /*if stock avalilable than remove quantity*/
-                    if (isset($check_stock) && sizeof($check_stock) > 0) {
+                    if (isset($check_stock) && !empty($check_stock) ) {
 
                         //check stock in stock table
                         $check_stock1 = Stock::where('location_id', $bill->location_id)
                             ->where('item_id', $pur->item_id)
                             ->first();
 
-                        if ( isset($check_stock1) && sizeof($check_stock1) > 0 ) {
+                        if ( isset($check_stock1) && !empty($check_stock1) ) {
 
                             //decrease previous quantity
                             $loc_qty = $check_stock1->quantity;

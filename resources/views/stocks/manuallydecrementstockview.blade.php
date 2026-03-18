@@ -31,8 +31,8 @@
                     </table>
                     @if( isset($stock_arr) && sizeof($stock_arr) > 0 )
                         @if( $display_error_msg == true ) <span class="pull-left error">Item with red color have not sufficient stock.</span> @endif
-                        <button class="pull-right btn btn-primary" style="padding:5px !important;" onclick="showStock('process',event)" id="process_btn">Decrease Stock</button>
-                        <button class="pull-right btn btn-danger" style="padding:5px !important;margin-right: 5px;" onclick="showStock('revoke',event)" id="revoke_btn">Revoke Stock</button>
+                        <button class="pull-right btn btn-primary" style="margin-top:10px !important;padding:5px !important;" onclick="showStock('process',event)" id="process_btn">Decrease Stock</button>
+                        <button class="pull-right btn btn-danger" style="margin-top:10px !important;padding:5px !important;margin-right: 5px;" onclick="showStock('revoke',event)" id="revoke_btn">Revoke Stock</button>
                     @endif
                 </div>
             </div>

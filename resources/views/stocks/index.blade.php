@@ -11,7 +11,7 @@ use Devfactory\Minify\Minify as Minify;
 @stop
 
 @section('pageHeader-right')
-    @if(isset($locations) && sizeof($locations)>0 )
+    @if(isset($locations) && !empty($locations) )
         <a href="javascript:void(0)" onclick="reservedStock();" class="btn btn-danger" title="Less Then Reserved Stock"><i class="fa fa-battery-quarter" aria-hidden="true"></i>&nbsp;Stock</a>
         <a href="javascript:void(0)" onclick="removeStock('open','');" class="btn btn-danger" title="Remove Stock"><i class="fa fa-remove"></i>&nbsp;Stock</a>
         <a href="javascript:void(0)" onclick="addStock('open','');" class="btn btn-primary" title="Add Stock"><i class="fa fa-plus"></i>&nbsp;Stock</a>
@@ -37,7 +37,7 @@ use Devfactory\Minify\Minify as Minify;
                 <div class="widget-wrap material-table-widget">
                     <div class="widget-container margin-top-0">
                         <div class="widget-content">
-                            @if(isset($locations) && sizeof($locations)>0 )
+                            @if(isset($locations) && !empty($locations) )
                                 <div class="table-responsive">
                                     <table class="table dataTable" id="StockTable">
                                         <thead>
@@ -156,6 +156,12 @@ use Devfactory\Minify\Minify as Minify;
                                 <div class="form-group col-md-6">
                                     <select id="remove_item_id" name="remove_item_id" class="form-control">
                                         <option value="" data-order-unit="">Select Item</option>
+                                        <?php 
+                                            echo "<pre>";
+                                            print_r($items);
+                                            echo "</pre>";
+                                            // exit;
+                                        ?>
                                         @foreach( $items as $itm )
                                                 <option value="{{ $itm['id'] }}" data-order-unit="{{ $itm['order_unit'] }}">{{ $itm['name'] }}</option>
                                         @endforeach

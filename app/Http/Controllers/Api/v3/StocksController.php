@@ -38,7 +38,7 @@ class StocksController extends Controller
     }
 
     public function StockTransfer() {
-
+        
         $user_id = Auth::id();
         $admin_id = Owner::menuOwner();
 
@@ -54,7 +54,7 @@ class StocksController extends Controller
             $unit_id = Input::get('unit_id');
             $price = Input::get('price');
             //print_r($item_id);exit;
-            if ( isset($item_id) && sizeof($item_id) > 0 ) {
+            if ( isset($item_id) && !empty($item_id) ) {
 
                 $error = false;
                 DB::beginTransaction();
@@ -78,7 +78,7 @@ class StocksController extends Controller
 
                         if ( isset($menu->secondary_units) && $menu->secondary_units != '') {
                             $sec_unit = json_decode($menu->secondary_units);
-                            if ( isset($sec_unit) && sizeof($sec_unit) > 0 ) {
+                            if ( isset($sec_unit) && !empty($sec_unit) ) {
                                 foreach( $sec_unit as $key=>$tran_qty ) {
                                     if ( $key == $ut_id) {
                                         $qty *= $tran_qty;
@@ -87,7 +87,7 @@ class StocksController extends Controller
                             }
                         }
 
-                        if (isset($from_loc_stock) && sizeof($from_loc_stock) > 0) {
+                        if (isset($from_loc_stock) && !empty($from_loc_stock) ) {
 
                             $remain_qty = $from_loc_stock->quantity - $qty;
                             $stock = Stock::find($from_loc_stock->id);
@@ -113,7 +113,7 @@ class StocksController extends Controller
                             ->where('item_id', $itm_id)
                             ->first();
 
-                        if (isset($for_loc_stock) && sizeof($for_loc_stock) > 0) {
+                        if (isset($for_loc_stock) && !empty($for_loc_stock) ) {
 
                             $added_qty = $for_loc_stock->quantity + $qty;
                             $for_loc_stock->quantity = $added_qty;
@@ -191,7 +191,7 @@ class StocksController extends Controller
                                 ->orderby('expiry_date', 'asc')
                                 ->get();
 
-                            if (isset($get_stock) && sizeof($get_stock) > 0) {
+                            if (isset($get_stock) && !empty($get_stock) ) {
                                 $remain_stk = 0;
                                 $first_time = true;
                                 foreach ($get_stock as $get_stk) {
@@ -224,7 +224,7 @@ class StocksController extends Controller
                                                 ->where('location_id', $to_loc)
                                                 ->where('transaction_id', $get_stk->transaction_id)->first();
 
-                                            if (isset($add_stock) && sizeof($add_stock) > 0) {
+                                            if (isset($add_stock) && !empty($add_stock) ) {
                                                 $add_stock->quantity = $add_stock->quantity + $qty;
                                                 $add_stock->updated_at = $trans_date;
                                                 $add_stock->save();
@@ -295,7 +295,7 @@ class StocksController extends Controller
                                                         ->where('location_id', $to_loc)
                                                         ->where('transaction_id', $get_stk->transaction_id)->first();
 
-                                                    if (isset($add_stock) && sizeof($add_stock) > 0) {
+                                                    if (isset($add_stock) && !empty($add_stock) ) {
                                                         $add_stock->quantity = $add_stock->quantity + $avail_stock;
                                                         $add_stock->updated_at = $trans_date;
                                                         $add_stock->save();
@@ -380,7 +380,7 @@ class StocksController extends Controller
                                                         ->where('location_id', $to_loc)
                                                         ->where('transaction_id', $get_stk->transaction_id)->first();
 
-                                                    if (isset($add_stock) && sizeof($add_stock) > 0) {
+                                                    if (isset($add_stock) && !empty($add_stock) ) {
                                                         $add_stock->quantity = $add_stock->quantity + $qty;
                                                         $add_stock->updated_at = $trans_date;
                                                         $add_stock->save();
@@ -670,7 +670,7 @@ class StocksController extends Controller
                 ->get();
 
 
-            if ( isset($menus) && sizeof($menus) > 0 ) {
+            if ( isset($menus) && !empty($menus) ) {
                 $i = 0;
                 foreach( $menus as $menu ) {
 
@@ -687,11 +687,11 @@ class StocksController extends Controller
                     //get open stock detail
                     $open_stock = StockLevel::where('location_id',$loc_id)->where('item_id',$menu->id)->first();
 
-                    if ( isset($stock) && sizeof($stock) > 0 ) {
+                    if ( isset($stock) && !empty($stock) ) {
 
                         $menu_arr[$i]['stock'] = $stock->quantity;
 
-                        if ( isset($open_stock) && sizeof($open_stock) > 0 ) {
+                        if ( isset($open_stock) && !empty($open_stock) ) {
                             $req_stock = $open_stock->opening_qty - $stock->quantity;
                             $menu_arr[$i]['open_stock'] = $req_stock;
                         } else {
@@ -701,7 +701,7 @@ class StocksController extends Controller
                     } else {
                         $menu_arr[$i]['stock'] = 0;
 
-                        if ( isset($open_stock) && sizeof($open_stock) > 0 ) {
+                        if ( isset($open_stock) && !empty($open_stock) ) {
                             $menu_arr[$i]['open_stock'] = $open_stock->opening_qty;
                         } else {
                             $menu_arr[$i]['open_stock'] = '';
@@ -740,7 +740,7 @@ class StocksController extends Controller
                 ->select('menus.id as id','menus.item as item','menus.buy_price as buy_price','menus.order_unit as order_unit','menus.secondary_units as other_units','u.name as unit','u.id as unit_id')
                 ->where('menus.menu_title_id', $cat_id)->get();
 
-            if ( isset($menus) && sizeof($menus) > 0 ) {
+            if ( isset($menus) && !empty($menus) ) {
                 $i = 0;
                 foreach( $menus as $menu ) {
 
@@ -754,10 +754,10 @@ class StocksController extends Controller
                     //get open stock detail
                     $open_stock = StockLevel::where('location_id',$loc_id)->where('item_id',$menu->id)->first();
 
-                    if ( isset($stock) && sizeof($stock) > 0 ) {
+                    if ( isset($stock) && !empty($stock) ) {
                         $menu_arr[$i]['stock'] = $stock->quantity;
 
-                        if ( isset($open_stock) && sizeof($open_stock) > 0 ) {
+                        if ( isset($open_stock) && !empty($open_stock) ) {
                             $req_stock = $open_stock->opening_qty - $stock->quantity;
                             $menu_arr[$i]['open_stock'] = $req_stock;
                         } else {
@@ -767,7 +767,7 @@ class StocksController extends Controller
                     } else {
                         $menu_arr[$i]['stock'] = 0;
 
-                        if ( isset($open_stock) && sizeof($open_stock) > 0 ) {
+                        if ( isset($open_stock) && !empty($open_stock) ) {
                             $menu_arr[$i]['open_stock'] = $open_stock->opening_qty;
                         } else {
                             $menu_arr[$i]['open_stock'] = '';
@@ -824,7 +824,7 @@ class StocksController extends Controller
             ->orderBy('mt.id','DESC')
             ->get();
 
-        if (isset($items) && sizeof($items) > 0) {
+        if (isset($items) && !empty($items) ) {
             $cnt = 0;
             foreach ($items as $itm) {
                 $sales[$cnt]['itm_name'] = $itm->item;
@@ -835,7 +835,7 @@ class StocksController extends Controller
                 if ( $report_type == 'sales with consumption' || $report_type == 'consumption' || $report_type == 'consumption wih sales' ) {
                     //get consumption of item
                     $recipe = RecipeDetails::where('menu_item_id', $itm->item_id)->first();
-                    if (isset($recipe) && sizeof($recipe) > 0) {
+                    if (isset($recipe) && !empty($recipe) ) {
 
                         $ingreds = Ingredients::join('menus as m', 'm.id', '=', 'ingredients.ing_item_id')
                             ->join('unit as u', 'm.unit_id', '=', 'u.id')
@@ -843,7 +843,7 @@ class StocksController extends Controller
                             ->where('recipeDetails_id', $recipe->id)
                             ->get();
 
-                        if (isset($ingreds) && sizeof($ingreds) > 0) {
+                        if (isset($ingreds) && !empty($ingreds) ) {
                             $no = 0;
                             foreach ($ingreds as $ing) {
 
@@ -969,7 +969,7 @@ class StocksController extends Controller
 
                 $base_stock = StockHistory::where('to_location',$loc_id)->where('item_id',$itm->id)->orderBy('created_at', 'asc')->first();
 
-                if ( isset($base_stock) && sizeof($base_stock) > 0 ) {
+                if ( isset($base_stock) && !empty($base_stock) ) {
 
                     $result[$i]['item'] = $itm->item;
                     $result[$i]['category'] = $cat_arr->title;
@@ -986,7 +986,7 @@ class StocksController extends Controller
                         ->groupBy('item_id')
                         ->first();
 
-                    if ( isset($opening_add) && sizeof($opening_add) > 0 ) {
+                    if ( isset($opening_add) && !empty($opening_add) ) {
                         $opening_stock += $opening_add->count;
                     }
 
@@ -1000,7 +1000,7 @@ class StocksController extends Controller
                         ->groupBy('item_id')
                         ->first();
 
-                    if ( isset($opening_remove) && sizeof($opening_remove) > 0 ) {
+                    if ( isset($opening_remove) && !empty($opening_remove) ) {
                         $opening_stock = $opening_stock - $opening_remove->count;
                     }
 
@@ -1015,7 +1015,7 @@ class StocksController extends Controller
                         ->groupBy('item_id')
                         ->first();
 
-                    if ( isset($added_stock_arr) && sizeof($added_stock_arr) > 0 ) {
+                    if ( isset($added_stock_arr) && !empty($added_stock_arr) ) {
                         $added_stock = $added_stock_arr->count;
                     }
 
@@ -1030,7 +1030,7 @@ class StocksController extends Controller
                         ->groupBy('item_id')
                         ->first();
 
-                    if ( isset($removed_stock_arr) && sizeof($removed_stock_arr) > 0 ) {
+                    if ( isset($removed_stock_arr) && !empty($removed_stock_arr) ) {
                         $removed_stock = $removed_stock_arr->count;
                     }
 
@@ -1096,14 +1096,14 @@ class StocksController extends Controller
 
 
         $i=0;$j=0;
-        if ( isset($item_requests) && sizeof($item_requests) > 0 ) {
+        if ( isset($item_requests) && !empty($item_requests) ) {
             foreach( $item_requests as $req ) {
 
                 $check = false;
                 $other_units = '';$unit_arr = array();
                 $menu = Menu::find($req->item_id);
 
-                if ( isset($menu) && sizeof($menu) > 0 ) {
+                if ( isset($menu) && !empty($menu) ) {
 
                     if ( $menu->unit_id == $req->unit_id ) {
                         $check = true;
@@ -1192,7 +1192,7 @@ class StocksController extends Controller
                     ->groupBy('what_item_id')
                     ->get();
 
-            if ( isset($request) && sizeof($request) > 0 ) {
+            if ( isset($request) && !empty($request) ) {
 
                 foreach( $request as $req ) {
                     $req1['what_item_id'] = $req->id;

@@ -123,7 +123,7 @@
                                     </div>
 
                                     <div class="col-md-3">
-                                        {!! Form::label('amount[]','Amount:', array('class' => 'col-md-12 control-label')) !!}) !!}
+                                        {!! Form::label('amount[]','Amount:', array('class' => 'col-md-12 control-label')) !!}
                                         <div class="col-md-12">
                                             <input type="text" value="{!! $amt_arr[$i] !!}" name="amount[]" class="amount col-md-3 form-control" placeholder="Amount" readonly>
                                         </div>
@@ -133,13 +133,13 @@
                             <div class="form-group">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        {!! Form::label('manufacture_date[]','Manufacturing Date:', array('class' => 'col-md-12 control-label')) !!}) !!}
+                                        {!! Form::label('manufacture_date[]','Manufacturing Date:', array('class' => 'col-md-12 control-label')) !!}
                                         <div class="col-md-12">
                                             <input type="text" name="manufacture_date[]" value="{!! $manufacture_date_arr[$i] !!}" class="manufacture_date col-md-3 form-control" placeholder="Manufacturing Date">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        {!! Form::label('received_date[]','Received Date:', array('class' => 'col-md-12 control-label')) !!}) !!}
+                                        {!! Form::label('received_date[]','Received Date:', array('class' => 'col-md-12 control-label')) !!}
                                         <div class="col-md-12">
                                             <input type="text" name="received_date[]" value="{!! isset($received_date_arr[$i])?$received_date_arr[$i]:null !!}" class="received_date col-md-3 form-control" placeholder="Received Date">
                                         </div>

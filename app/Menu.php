@@ -90,12 +90,16 @@ class Menu extends Model {
                     $stock = Stock::where('item_id',$menu->id)->where('location_id',$location_id)->first();
                     //get open stock detail
                     $open_stock = StockLevel::where('location_id',$location_id)->where('item_id',$menu->id)->first();
-
-                    if ( isset($stock) && sizeof($stock) > 0 ) {
+                    // echo "hello" . ' ' .$stock->count();
+                    if ( isset($stock->id) ) {
 
                         $menu_arr[$i]['stock'] = $stock->quantity;
+                        echo "isset" . isset($stock->id) ? "yes" :"no";
+                        echo "countssss" . $stock->count() ;
+                        echo "count" . $stock->count() > 0 ? "yes" :"no";
+                    echo "hellosss <pre>";print_r($open_stock);echo "</pre>"; exit;
 
-                        if ( isset($open_stock) && sizeof($open_stock) > 0 ) {
+                        if ( isset($open_stock) && $open_stock->count() > 0 ) {
                             $req_stock = $open_stock->opening_qty - $stock->quantity;
                             $menu_arr[$i]['open_stock'] = $req_stock;
                         } else {
@@ -105,7 +109,7 @@ class Menu extends Model {
                     } else {
                         $menu_arr[$i]['stock'] = 0;
 
-                        if ( isset($open_stock) && sizeof($open_stock) > 0 ) {
+                        if ( isset($open_stock) && $open_stock->count() > 0 ) {
                             $menu_arr[$i]['open_stock'] = $open_stock->opening_qty;
                         } else {
                             $menu_arr[$i]['open_stock'] = '';
@@ -274,7 +278,8 @@ class Menu extends Model {
 
         if ( isset($menu->secondary_units) && $menu->secondary_units != '') {
             $sec_unit = json_decode($menu->secondary_units);
-            if ( isset($sec_unit) && !empty($sec_unit) ) {
+            
+            if ( isset($sec_unit) && sizeof($sec_unit) > 0) {
                 foreach( $sec_unit as $key=>$un ) {
                     if ( !array_key_exists($key,$other_unit)) {
                         $unit = Unit::find($key);
@@ -307,11 +312,11 @@ class Menu extends Model {
             #TODO: check item is_sale and active outletwise
             $is_sale = 1;$active = 0;
             $itm_setting_arr = ItemSettings::where('outlet_id',$rest_id)->where('item_id',$m->id)->first();
-            // echo "<pre>";
+            // echo "hello <pre>";
             // print_r($itm_setting_arr);
             // echo "</pre>";
             // exit;
-            if( isset($itm_setting_arr->id) && !empty($itm_setting_arr->id) ) {
+            if( isset($itm_setting_arr->id) ) {
                 if ( $itm_setting_arr->is_sale == 0 || $itm_setting_arr->is_active == 1 ) {
                     continue;
                 }

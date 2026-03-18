@@ -307,11 +307,11 @@ class MenuController extends Controller {
             }
         }
         $outlet_id = Session::get('outlet_session');
-        if(isset($outlet_id) && sizeof($outlet_id)>0) {
+        if(isset($outlet_id) && !empty($outlet_id)) {
             $outlet = Outlet::find($outlet_id);
-            if(isset($outlet) && sizeof($outlet)>0) {
+            if(isset($outlet) && !empty($outlet)) {
                 $taxes = json_decode($outlet->taxes);
-                if(isset($taxes) && sizeof($taxes)>0){
+                if(isset($taxes) && !empty($taxes)){
                     foreach ($taxes as $tax_title=>$child_tax){
                         $tax_slot_array[$tax_title] = $tax_title;
                     }
@@ -931,13 +931,13 @@ class MenuController extends Controller {
                 $sec_unit_val = isset($input['secondary_value'])?$input['secondary_value']:NULL;
                 $secondary_units = '';
 
-                if ( isset($sec_unit_id) && isset($sec_unit_val) && sizeof($sec_unit_id) && sizeof($sec_unit_val) ) {
+                if ( isset($sec_unit_id) && isset($sec_unit_val) && !empty($sec_unit_id) && !empty($sec_unit_val) ) {
                     foreach( $sec_unit_id as $key=>$sec_id ) {
                         if ( isset($sec_id) && isset($sec_unit_val[$key]) && $sec_unit_val[$key] != '') {
                             $secondary_units[$sec_id] = $sec_unit_val[$key];
                         }
                     }
-                    if ( isset($secondary_units) && sizeof($secondary_units) > 0 && is_array($secondary_units) ) {
+                    if ( isset($secondary_units) && !empty($secondary_units) > 0 && is_array($secondary_units) ) {
                         $menu->secondary_units = json_encode($secondary_units);
                     }
                 }
