@@ -1,0 +1,28 @@
+@extends('partials.default')
+@section('pageHeader-left')
+    {{ trans('Restaurant_Index.Add Outlet') }}
+@stop
+@section('content')
+@if (count($errors) > 0)
+						<div class="alert alert-danger">
+							<strong>Whoops!</strong> There were some problems with your input.<br><br>
+							<ul>
+								@foreach ($errors->all() as $error)
+									<li>{{ $error }}</li>
+								@endforeach
+							</ul>
+						</div>
+					@endif
+<div class="row">
+@include('Outlets.form')
+</div>
+<script type="text/javascript">
+
+
+
+
+
+
+</script>
+@stop
+

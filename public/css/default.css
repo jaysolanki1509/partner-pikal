@@ -1,0 +1,82 @@
+.page-header-left{
+    width:50%; float:left; border-bottom:none;
+}
+.page-header-right{
+    width:50%; float:left; text-align: right;margin: 40px 0 20px;padding-bottom: 9px;
+}
+.form{
+    padding-bottom: 5px;
+}
+
+.fieldsset{
+    border: 1px solid silver !important;margin: 0 2px !important;padding: 0.35em 0.625em 0.75em !important;
+}
+.leggend{
+    margin-bottom: 0px !important; width: auto !important;border-width: 0 0 1px !important;border-style:none !important;font-size: 13px !important;
+}
+.mb30 { margin-bottom: 30px; }
+
+.col-md-5.input-append.bootstrap-timepicker {
+    width: 45%;
+    float: left;
+    padding-right: 0px;
+    padding-left: 0px;
+}
+.col-md-2.timepicker-label {
+    float: left;
+    padding-left: 0;
+    padding-right: 0;
+    text-align: center;
+    width: 8%;
+}
+.col-md-9.form > img {
+    float: right;
+    margin-top: 7px;
+    width: auto;
+}
+
+.imageBox
+{
+    position: relative;
+    height: 400px;
+    width: 400px;
+    border:1px solid #aaa;
+    background: #fff;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    cursor:move;
+}
+
+.imageBox .thumbBox
+{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 200px;
+    margin-top: -100px;
+    margin-left: -100px;
+    box-sizing: border-box;
+    border: 1px solid rgb(102, 102, 102);
+    box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
+    background: none repeat scroll 0% 0% transparent;
+}
+
+.imageBox .spinner
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    text-align: center;
+    line-height: 300px;
+    background: rgba(0,0,0,0.7);
+}
+
+
+.nav .dropdown-toggle:hover {
+    background: transparent none repeat scroll 0 0 !important;
+}
+
+
