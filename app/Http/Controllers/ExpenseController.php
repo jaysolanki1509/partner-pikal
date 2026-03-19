@@ -374,13 +374,13 @@ class ExpenseController extends Controller {
         }
 
         $day = Input::get('day');
-        if(isset($day) && !empty($day)) {
+        if(isset($day) && $day->count() > 0) {
             $date = date('Y-m-d', strtotime(-$day . " days"));
             return view('expense.show', array('day' => $date));
         }
 
         $month = Input::get('month');
-        if(isset($month) && !empty($month)) {
+        if(isset($month) && $month->count() > 0) {
             $date = date('Y-m-01');
             return view('expense.show', array('month' => $date));
         }

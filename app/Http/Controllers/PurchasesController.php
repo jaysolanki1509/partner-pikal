@@ -563,7 +563,7 @@ class PurchasesController extends Controller {
             foreach ($vendors as $vendor){
                 $vendor_list[$vendor->id] = $vendor->name;
             }
-            if ( isset($invoice_bill) && !empty($invoice_bill)) {
+            if ( isset($invoice_bill) && ($invoice_bill->id)) {
                 $purchase_items = Purchase::select('purchase.*', 'menus.item as item','menus.id as item_id', 'unit.id as unit_id', 'unit.name as unit_name')->join('menus', 'menus.id', '=', 'purchase.item_id')->join('unit', 'unit.id', '=', 'purchase.unit_id')->where('purchase.invoice_id', $id)->get();
 
                 return view('purchases.edit',array('selected_location' => $invoice_bill->location_id,'invoice'=>$invoice_bill,'items'=>$purchase_items,'locations'=>$locations,'units'=>$units,'action'=>'edit','item_list'=>$item_list, 'vendors'=>$vendor_list));
@@ -889,7 +889,7 @@ class PurchasesController extends Controller {
 
             $purchase = Purchase::where('invoice_id',$id)->get();
 
-            if ( isset($purchase) &&  !empty($purchase) ) {
+            if ( isset($purchase) &&  ($purchase)->count() > 0) {
 
                 foreach( $purchase as $pur ) {
 

@@ -177,7 +177,7 @@ class LocationsController extends Controller {
 			if ( isset($default_loc) && $default_loc != '' ) {
 				if( isset($outlet_id) && $outlet_id != '' ) {
 					$check_location = Location::where('outlet_id',$outlet_id)->where('default_location',1)->first();
-					if ( isset($check_location) && !empty($check_location) ) {
+					if ( isset($check_location) && $check_location->id ) {
 						Location::where('id',$check_location->id)->update(['default_location'=>0]);
 					}
 				} else {
@@ -253,7 +253,7 @@ class LocationsController extends Controller {
 										->where('item_id',$res->id)
 										->first();
 
-					if( isset($stock) && !empty($stock) ) {
+					if( isset($stock) && $stock->id ) {
 						$arr[$res->id]['order_qty'] = $stock->order_qty;
 						$arr[$res->id]['reserved_qty'] = $stock->reserved_qty;
 						$arr[$res->id]['opening_qty'] = $stock->opening_qty;
@@ -294,7 +294,7 @@ class LocationsController extends Controller {
 
 				$check_item = StockLevel::where('item_id',$val)->where('location_id',$loc_id)->first();
 
-				if ( isset($check_item) && !empty($check_item) ) {
+				if ( isset($check_item) && $check_item->id ) {
 					$check_item->opening_qty = $opening_qty[$key];
 					$check_item->order_qty = $order_qty[$key];
 					$check_item->reserved_qty = $reserved_qty[$key];

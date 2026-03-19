@@ -307,9 +307,9 @@ class MenuController extends Controller {
             }
         }
         $outlet_id = Session::get('outlet_session');
-        if(isset($outlet_id) && !empty($outlet_id)) {
+        if(isset($outlet_id) && $outlet_id->count() > 0) {
             $outlet = Outlet::find($outlet_id);
-            if(isset($outlet) && !empty($outlet)) {
+            if(isset($outlet) && $outlet->id) {
                 $taxes = json_decode($outlet->taxes);
                 if(isset($taxes) && !empty($taxes)){
                     foreach ($taxes as $tax_title=>$child_tax){
@@ -937,7 +937,7 @@ class MenuController extends Controller {
                             $secondary_units[$sec_id] = $sec_unit_val[$key];
                         }
                     }
-                    if ( isset($secondary_units) && !empty($secondary_units) > 0 && is_array($secondary_units) ) {
+                    if ( isset($secondary_units) && !empty($secondary_units) && is_array($secondary_units) ) {
                         $menu->secondary_units = json_encode($secondary_units);
                     }
                 }
