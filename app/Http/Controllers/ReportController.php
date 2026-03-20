@@ -580,7 +580,7 @@ class ReportController extends Controller {
             $data = array();
             foreach ($date_array as $index=>$date) {
                 $total_tax = 0.0;
-                $unique_items = 0;
+                $unique_items = [];
                 //get date as per outlet sessions
                 $outlet_session_from = Utils::getSessionTime(date('Y-m-d',strtotime($date)),'from');
                 $outlet_session_to = Utils::getSessionTime(date('Y-m-d',strtotime($date)),'to');
@@ -797,19 +797,19 @@ class ReportController extends Controller {
                 $date_data[$date]['total_discount'] = $data['total_discount'] or 0;
                 $total_discount += $data['total_discount'];
                 //Total Nonchargeable orders
-                $excel_data[$n]['Total NC Orders'] = $data['total_nc']==0?"NA":$data['total_nc'];
+                $excel_data[$n]['Total NC Orders'] = $data['total_nc']==0 ? "NA" : $data['total_nc'];
                 $date_data[$date]['total_nc_order'] = $data['total_nc'] or 0;
                 $total_nc_order += $data['total_nc'];
                 //Total tax collected
-                $excel_data[$n]['Total Taxes'] = $total_tax==0?"NA":$total_tax;
+                $excel_data[$n]['Total Taxes'] = $total_tax==0 ? "NA" : $total_tax;
                 $date_data[$date]['total_taxes'] = $total_tax or 0;
                 $total_taxes += $total_tax;
                 //Total online payment collected
-                $excel_data[$n]['Total Online'] = $t_prepaid==0?"NA":$t_prepaid;
+                $excel_data[$n]['Total Online'] = $t_prepaid==0 ? "NA" : $t_prepaid;
                 $date_data[$date]['total_online'] = $t_prepaid or 0;
                 $total_online += $t_prepaid;
                 //Total Cash collected
-                $excel_data[$n]['Total Cash'] = $t_cash==0?"NA":$t_cash;
+                $excel_data[$n]['Total Cash'] = $t_cash==0 ? "NA" : $t_cash;
                 $date_data[$date]['total_cash'] = $t_cash or 0;
                 $total_cash += $t_cash;
                 //Total Cheque collected
@@ -819,41 +819,41 @@ class ReportController extends Controller {
                 $excel_data[$n]['Total Unpaid'] = $t_unpaid==0?"NA":$t_unpaid;
                 $total_unpaid += $t_unpaid;
                 //GrossTotal of the day
-                $excel_data[$n]['Gross Total'] = $g_total==0?"NA":$g_total;
+                $excel_data[$n]['Gross Total'] = $g_total==0 ? "NA" : $g_total;
                 $date_data[$date]['gross_total'] = $g_total or 0;
                 $total_gross_total += $g_total;
-                $excel_data[$n]['Gross Average'] = $avg==0?"NA":$avg;
+                $excel_data[$n]['Gross Average'] = $avg==0 ? "NA" : $avg;
                 $date_data[$date]['gross_average'] = $avg or 0;
                 $total_gross_average += $avg;
-                if(isset($unique_items)){
-                    $date_data[$date]['total_unique_item_sell'] =  sizeof($unique_items) or 0;
-                    $excel_data[$n]['Total Unique Items Sell'] = sizeof($unique_items)==0?"NA":sizeof($unique_items);
+                if(count($unique_items) > 0) {
+                    $date_data[$date]['total_unique_item_sell'] =  count($unique_items) or 0;
+                    $excel_data[$n]['Total Unique Items Sell'] = count($unique_items)== 0 ? "NA" : count($unique_items);
                 }else{
                     $date_data[$date]['total_unique_item_sell'] =  0;
                     $excel_data[$n]['Total Unique Items Sell'] = 0;
                 }
-                $total_unique_item_sell += sizeof($unique_items);
+                $total_unique_item_sell += count($unique_items);
                 $excel_data[$n]['Total Items Sell'] = $total_item_sell==0?"NA":$total_item_sell;
                 $date_data[$date]['total_item_sell'] = $total_item_sell;
                 $total_item_sell += $total_item_sell;
                 //Total Person visit
-                $excel_data[$n]['Total Persons Visits'] = $t_person==0?"NA":$t_person;
+                $excel_data[$n]['Total Persons Visits'] = $t_person==0 ?"NA" : $t_person;
                 $date_data[$date]['total_person_visit'] =  $t_person;
                 $total_person_visit += $t_person;
-                $excel_data[$n]['Top Selling Item'] = $data['top_selling_item']==""?"NA":$data['top_selling_item'];
+                $excel_data[$n]['Top Selling Item'] = $data['top_selling_item']=="" ? "NA" : $data['top_selling_item'];
                 $date_data[$date]['top_selling_item'] =  $data['top_selling_item'];
                 //Lowest Order of the day
-                $excel_data[$n]['Lowest Order'] = $l_order==0?"NA":$l_order;
+                $excel_data[$n]['Lowest Order'] = $l_order==0 ? "NA" : $l_order;
                 $date_data[$date]['lowest_order'] =  $l_order;
                 //Highest order of the day
-                $excel_data[$n]['Highest Order'] = $h_order==0?"NA":$h_order;
+                $excel_data[$n]['Highest Order'] = $h_order==0 ? "NA" : $h_order;
                 $date_data[$date]['highest_order'] =  $h_order;
-                $excel_data[$n]['Cancel Order'] = $data['cancel_order']==0?"NA":$data['cancel_order'];
+                $excel_data[$n]['Cancel Order'] = $data['cancel_order']==0 ? "NA" : $data['cancel_order'];
                 $date_data[$date]['cancel_order_count'] =  $data['cancel_order'];
                 $total_cancel_order_count += $data['cancel_order'];
-                $excel_data[$n]['Cancel Order Amount'] = $data['cancel_amount']==0?"NA":$data['cancel_amount'];
+                $excel_data[$n]['Cancel Order Amount'] = $data['cancel_amount']==0 ? "NA" : $data['cancel_amount'];
                 $date_data[$date]['cancel_order_amount'] =  $data['cancel_amount'];
-                $total_cancel_order_amount += $data['cancel_amount'];
+                $total_cancel_order_amount += (float)$data['cancel_amount'];
                 if(isset($active_items)) {
                     $excel_data[$n]['Active Items'] = sizeof($active_items) == 0 ? "NA" : sizeof($active_items);
                     $date_data[$date]['active_item'] = sizeof($active_items);
@@ -2545,14 +2545,7 @@ class ReportController extends Controller {
 			Session::set('from_session',$from_date);
 			Session::set('to_session',$to_date);
 			$where = '1=1';
-			$result = order_details::join('order_payment_modes as opm','opm.order_id','=','orders.order_id')
-                                    ->where('orders.table_end_date','>=', $from)
-									->where('orders.table_end_date','<=', $to)
-                                    ->where('opm.payment_option_id',0)
-									->where('orders.outlet_id',$outlet_id)
-                                    ->where('orders.invoice_no',"!=",'')
-                                    ->where('orders.cancelorder', '!=', 1)
-                                    ->orderBy('orders.order_id', 'desc');
+			$result = order_details::join('order_payment_modes as opm','opm.order_id','=','orders.order_id')->where('orders.table_end_date','>=', $from)->where('orders.table_end_date','<=', $to)->where('opm.payment_option_id',0)->where('orders.outlet_id',$outlet_id)->where('orders.invoice_no',"!=",'')->where('orders.cancelorder', '!=', 1)->orderBy('orders.order_id', 'desc');
 			if ( isset($mobile) && $mobile != '' ) {
 				$where .= " && user_mobile_number = " . $mobile;
 			}

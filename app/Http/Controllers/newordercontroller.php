@@ -425,7 +425,7 @@ class newordercontroller extends Controller {
             //Order Item delete
             //OrderItem::where("order_id",$order_id)->forceDelete();
             $order_items = OrderItem::where("order_id",$order_id)->get();
-            if ( isset($order_items) && sizeof($order_items) > 0 ) {
+            if ( isset($order_items) && !empty($order_items) ) {
                 foreach ( $order_items as  $or_itm ) {
                     //delete order item attributes
                     order_item_attributes::where('order_item_id',$or_itm->id )->forceDelete();
@@ -434,7 +434,7 @@ class newordercontroller extends Controller {
                 }
             }
             $order = order_details::find($order_id);
-            if(isset($order) && sizeof($order)>0) {
+            if(isset($order) && !empty($order)) {
                 //Order Kot Delete
                 $kots = Kot::where("order_unique_id", $order->order_unique_id)->forceDelete();
                 //Order Delete
@@ -452,6 +452,7 @@ class newordercontroller extends Controller {
         $o_id = Input::get('order_id');
         //get order detail
         $order = order_details::where('order_id',$o_id)->join('outlets as ot','orders.outlet_id','=','ot.id')->select('orders.*','ot.invoice_prefix as invoice_prefix','ot.invoice_date as inv_date','ot.invoice_digit as inv_digit','ot.name as ot_name','ot.taxes as taxes','ot.default_taxes as default_taxes','ot.code as ot_code','ot.order_no_reset as order_reset','ot.payment_options as payment_options')->first();
+
         $outlet_id = Session::get('outlet_session');
         //get invoice detail
         //$invoice = order_details::where('order_id',$o_id)->first();
@@ -467,7 +468,7 @@ class newordercontroller extends Controller {
                 }
             }
             $new_delivery = "";
-             $html = "<div id='tax_calculation_div'>";
+            $html = "<div id='tax_calculation_div'>";
                 if ( $order->itemwise_tax ) {
                     $html .= $this::itemWiseOrderCalculation($order,'process',$order->order_type,$new_delivery);
                 } else {
@@ -528,9 +529,9 @@ class newordercontroller extends Controller {
                                 </div>
                                 <div style="clear:both"></div>';*/
         }
-         $order_info = order_details::find($o_id);
+        $order_info = order_details::find($o_id);
         $response['consumer'] = $consumer;
-        //$response['pay_options'] = $pay_option;
+        // $response['pay_options'] = $pay_option;
         //$response['source'] = $source;
         $response['inv_no'] = $invoice_number;
         $response['order_id'] = $o_id;
@@ -1109,6 +1110,7 @@ class newordercontroller extends Controller {
      */
     public function orderList(Request $request) {
         $flag = Input::get('flag');
+        // echo "laravel 5.1.11 <pre>"; print_r($flag); echo "</pre>"; exit;
         //        $all = Input::all();
         //        print_r($all);exit;
         if ($request->ajax() || ( isset($flag) && $flag == 'export') ) {
@@ -1166,16 +1168,8 @@ class newordercontroller extends Controller {
                 $from = Utils::getSessionTime($from,'from');
                 $to = Utils::getSessionTime($to,'to');
             }
-            $orders = order_details::join("order_items","order_items.order_id","=","orders.order_id")
-                            /*->join("invoice_details as inv","inv.order_id","=","orders.order_id")*/
-                            ->select('orders.*','order_items.item_quantity as Quantity','order_items.item_name as item_name'/*,"inv.total as inv_total","inv.discount as inv_discount","inv.round_off as inv_round_off"*/)
-                            ->where('orders.'.$order_date_field,'>=', $from)
-                            ->where('orders.'.$order_date_field,'<=', $to)
-                            ->where('orders.outlet_id','=',$outlet_id)
-                            ->orderBy('orders.'.$order_date_field, 'desc')
-                            ->where('orders.cancelorder', '!=', '1')
-                            ->get();
-            
+            /*->join("invoice_details as inv","inv.order_id","=","orders.order_id")*/
+            $orders = order_details::join("order_items","order_items.order_id","=","orders.order_id")->select('orders.*','order_items.item_quantity as Quantity','order_items.item_name as item_name')->where('orders.'.$order_date_field,'>=', $from)->where('orders.'.$order_date_field,'<=', $to)->where('orders.outlet_id','=',$outlet_id)->orderBy('orders.'.$order_date_field,'desc')->where('orders.cancelorder', '!=', '1')->get();
             $itemlist=array();
             $itemlist_excel=array();
             $data['orders']=array();
@@ -1197,6 +1191,7 @@ class newordercontroller extends Controller {
                         $itemlist_excel[$order->order_id] = "1 x ".strtoupper($order->item_name);
                     }
                     $mode_name = 'UnPaid';
+                    
                     /*if( $order->payment_option_id != 0 ) {
                         $mode = PaymentOption::find($order->payment_option_id);
                         if ( isset($mode) && sizeof($mode) > 0 ) {
@@ -1210,9 +1205,9 @@ class newordercontroller extends Controller {
                         }
                     }*/
                     $py_modes = OrderPaymentMode::where('order_id',$order->order_id)->get();
-            if ( isset($py_modes) && $py_modes->count() > 0 ) {
-                $cnt = 0;$mode_name = '';
-                foreach ( $py_modes as $py_mode ) {
+                    if ( isset($py_modes) && $py_modes->count() > 0 ) {
+                        $cnt = 0;$mode_name = '';
+                        foreach ( $py_modes as $py_mode ) {
                             $mode = PaymentOption::find($py_mode->payment_option_id);
                             if( $py_mode->payment_option_id != 0 ) {
                                 if ( isset($mode) && isset($mode->id) ) {
@@ -1270,9 +1265,10 @@ class newordercontroller extends Controller {
                     array_push($data['orders'],$order);
                 }
             }
+            
             $data['total_orders'] = sizeof($data['orders']);
-            // echo "laravel 5.1.11 <pre>"; print_r($data['total_orders']); echo "</pre>"; exit;
             $data['itemlist']=$itemlist;
+            
             if ( isset($flag) && $flag == 'export') {
                 $chk_invoice_no = Input::get("invoice_no");
                 $chk_datetime = Input::get("datetime");
@@ -1325,7 +1321,8 @@ class newordercontroller extends Controller {
                             }
                         }
                         $total_tax += $tax_total;
-                        $total_discount += $ord->discount_value + $ord->item_discount_value;
+                        // $total_discount += $ord->discount_value + $ord->item_discount_value;
+                        $total_discount += (float) ($ord->discount_value ?? 0.00) + (float) ($ord->item_discount_value ?? 0.00);
                         $total_final += floatval($ord->totalprice);
                         $total_subtotal += floatval($ord->totalcost_afterdiscount);
                         $total_person_visit += $ord->person_no;
@@ -1340,7 +1337,8 @@ class newordercontroller extends Controller {
                         if(isset($chk_name)) {
                             if (isset($ord->user_id) ) {
                                 $customer_detail = Customer::find($ord->user_id);
-                                if (isset($customer_detail) && sizeof($customer_detail) > 0) {
+
+                                if (isset($customer_detail) && !empty($customer_detail) ) {
                                     $customer_first_name = isset($customer_detail->first_name) ? $customer_detail->first_name : '';
                                     $customer_last_name = isset($customer_detail->last_name) ? $customer_detail->last_name : '';
                                     $excel_data[$n]['Name'] = $customer_first_name . " " . $customer_last_name;
@@ -1370,7 +1368,8 @@ class newordercontroller extends Controller {
                             $excel_data[$n]['Sub Total'] = number_format($ord->totalcost_afterdiscount, 2);
                         }
                         $tot_discount = 0.00;
-                        $tot_discount = $ord->discount_value + $ord->item_discount_value;
+                        // $tot_discount = $ord->discount_value + $ord->item_discount_value;
+                        $tot_discount = (float)($ord->discount_value ?? 0.00) + (float)($ord->item_discount_value ?? 0.00);
                         if(isset($chk_discount)) {
                             $excel_data[$n]['Discount'] = number_format($tot_discount, 2);
                         }
@@ -1606,6 +1605,7 @@ class newordercontroller extends Controller {
             }
             $data['reasons']=$reasons;
             $data['custom_fields'] = json_decode($outlet->custom_bill_print_fields);
+
             return view('report.detailed_report',array('custom_fields'=>$data['custom_fields'],'total_orders'=> $data['total_orders'],'delete_order'=>$delete_order,'flag'=>'order_report','order_date_field'=>$order_date_field,'from_time'=>$from_time,'to_time'=>$to_time,'orders'=>$data['orders'],'itemlist'=>$data['itemlist'],'reasons'=>$reasons));
         }
         $outlets = OutletMapper::getOutletsByOwnerId();
@@ -1624,6 +1624,8 @@ class newordercontroller extends Controller {
             $start_date = date('Y-m-d');
             $end_date = date('Y-m-d');
         }
+        // echo "laravel 5.1.11 py_mode MODES IF <pre>" ; print_r($outlets); echo "</pre>"; exit;
+
         return view('orderlist.orders',array('outlets'=>$outlets,'start_date'=>$start_date,'end_date'=>$end_date));
         //return view('orderlist.orders',array('outlets'=>$outlets));
     }
@@ -2288,9 +2290,7 @@ class newordercontroller extends Controller {
         $vpa = Input::get('vpa');
         $order_id = Input::get('order_id');
         $total = Input::get('total');
-        $order = order_details::join('outlets as o','orders.outlet_id','=','o.id')
-                                ->select('orders.*','o.name as ot_name')
-                                ->where('orders.order_id',$order_id)->first();
+        $order = order_details::join('outlets as o','orders.outlet_id','=','o.id')->select('orders.*','o.name as ot_name')->where('orders.order_id',$order_id)->first();
         if ( isset($order) && sizeof($order) > 0 ) {
             $param = array(
                 'amount'=>$total,

@@ -653,7 +653,7 @@ class OutletController extends Controller {
         for($i=0; $i<sizeof($master); $i++){
             $outlet_setting = OutletSetting::select('setting_value')
                 ->where('outlet_id',$id)->where('setting_id',$master[$i])->first();
-            if(isset($outlet_setting) && sizeof($outlet_setting)>0 && $outlet_setting != '') {
+            if(isset($outlet_setting) && !empty($outlet_setting) && $outlet_setting != '') {
                 $settings[$i]['id'] = $master[$i];
                 switch (SettingsMaster::find($master[$i])->setting_name){
                     case "feedbackPrint":
@@ -756,33 +756,34 @@ class OutletController extends Controller {
                 $settings[$i]['setting_value'] = SettingsMaster::where('id',$master[$i])->select('setting_default as setting_value')->first()->setting_value;
             }
         }
-
         $sources = Sources::all()->lists('name','id');
         $payment_options = PaymentOption::all()->lists('name','id');
-        $payment_options_without_source = PaymentOption::where("without_source",1)->lists('id');
-
+        $payment_options_without_source = PaymentOption::where("without_source", 1)->lists('id');
+        // print_r($payment_options_without_source->toArray());exit;
+        
         //Delivery charge slabs
         $delivery_charges = '';
         if ( isset($Outlet->delivery_charge) && $Outlet->delivery_charge != '' ) {
             $delivery_charges = json_decode($Outlet->delivery_charge);
         }
-
+        
         //Tax details slabs
         $tax_details = '';
-
+        
         if ( isset($Outlet->tax_details) && $Outlet->tax_details != '' ) {
             $tax_details = json_decode($Outlet->tax_details);
         }
-
+        
         $zoho_username = isset($Outlet->zoho_username)?$Outlet->zoho_username:"";
         $zoho_password = isset($Outlet->zoho_password)?$Outlet->zoho_password:"";
         $zoho_org_id = isset($Outlet->zoho_organization_id)?$Outlet->zoho_organization_id:"";
         $zoho_ids = isset($Outlet->payment_option_identifier)?json_decode($Outlet->payment_option_identifier,"false"):"";
-
+        
         $dup_kot_count = isset($Outlet->duplicate_kot_count)?$Outlet->duplicate_kot_count:0;
-
+        
+        // echo "laravel 5.1.11 <pre>"; print_r($payment_options_without_source); echo "</pre>"; exit;
         return view('Outlets.show',array('sources'=>$sources,'payment_options'=>$payment_options,
-                                        'payment_options_without_source'=>$payment_options_without_source,
+                                        'payment_options_without_source'=>$payment_options_without_source->toArray(),
                                         'outlet'=>$Outlet,'tinno'=>$tinno,'settings'=>$settings,
                                         'servicetax_no'=>$servicetax_no,'service_type'=>$service_type,
                                         'Outlettype'=>$Outlet_type,'cuisinetypes'=>$cuisinetype,
@@ -798,9 +799,6 @@ class OutletController extends Controller {
                                         'zoho_password'=>$zoho_password, 'zoho_ids'=>$zoho_ids, 'zoho_org_id'=>$zoho_org_id));
 
     }
-
-
-
 
     /**
      * Show the form for editing the specified resource.

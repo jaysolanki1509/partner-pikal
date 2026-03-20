@@ -27,13 +27,11 @@ if ( isset($order_date)) {
 @stop
 
 @section('content')
-
     <div class="row" id="order_filter">
         <div class="col-md-12">
             <div class="widget-wrap">
                 <div class="widget-header block-header clearfix">
-                    <form class='j-forms'>
-
+                    <form class='j-forms'> 
                         @if( !isset($sess_outlet_id) || $sess_outlet_id == '')
                             <div class="col-md-3 form-group">
                                 {!! Form::select('outlet_id', isset($outlets)?$outlets:array(),isset($outlet_id)?$outlet_id:null,array('class' => 'form-control','id'=>'outlet_id')) !!}
@@ -73,6 +71,7 @@ if ( isset($order_date)) {
                         </div>
                     </form>
                 </div>
+                
                 <div class="widget-container">
                     <div class="widget-content">
                         <div id="table_div">

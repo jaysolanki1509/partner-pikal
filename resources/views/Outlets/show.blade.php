@@ -118,7 +118,7 @@
                 <div class="widget-container">
                     <div class="widget-content">
                         <div class="col-md-3">
-                            @if(sizeof($image)>0)
+                            @if(!empty($image))
 
                                 <img class="img-offline img-responsive img-profile" src= "/{{$image}}"  alt="" >
 
@@ -267,7 +267,7 @@
                                                         <label class="col-md-12 control-label">{{ trans('Restaurant_Show.Country') }}</label>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        @if(sizeof($countries)>0 && isset($countries))
+                                                        @if(!empty($countries) && isset($countries))
                                                             @foreach($countries as $country)
                                                                 @if(isset($country->id)){{$country->name}}@endif
                                                             @endforeach
@@ -282,7 +282,7 @@
                                                         <label class="col-md-12 control-label">{{ trans('Restaurant_Show.State') }}</label>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        @if(sizeof($states)>0)
+                                                        @if(!empty($states))
                                                             @foreach($states as $state)
                                                                 @if(isset($state->id))
                                                                     {{$state->name}}
@@ -299,7 +299,7 @@
                                                         <label class="col-md-12 control-label">{{ trans('Restaurant_Show.City') }}</label>
                                                     </div>
                                                     <div class="col-md-6">
-                                                        @if(sizeof($cities)>0)
+                                                        @if(!empty($cities))
                                                             @foreach($cities as $city)
                                                                 @if(isset($city->id))
                                                                     {{$city->name}}
@@ -351,7 +351,7 @@
                                                         <label class="col-md-12 control-label">{{ trans('Restaurant_Show.Outlet Type') }}</label>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        @if(sizeof($Outlettype)>0)
+                                                        @if(!empty($Outlettype))
                                                             @foreach($Outlettype as $rest_type)
                                                                 <?php $rest=\App\OutletType::where('id',$rest_type->outlet_type_id)->first(); echo $rest->type; ?>
                                                             @endforeach
@@ -366,7 +366,7 @@
                                                         <label class="col-md-12 control-label">{{ trans('Restaurant_Show.Cuisine Type') }}</label>
                                                     </div>
                                                     <div class="col-sm-6">
-                                                        @if(sizeof($cuisinetypes)>0)
+                                                        @if(!empty($cuisinetypes))
                                                             @foreach($cuisinetypes as $cuisinetype)
                                                                 <?php $test=\App\CuisineType::where('id',$cuisinetype->cuisine_type_id)->first(); echo $test->type; ?>
                                                             @endforeach
@@ -550,7 +550,7 @@
                                                                 $res_printer = '';
                                                                 if (isset($outlet['printer'])){
                                                                     $res_prnt = json_decode($outlet['printer']);
-                                                                    if ( isset($res_prnt) && sizeof($res_prnt) > 0) {
+                                                                    if ( isset($res_prnt) && !empty($res_prnt) ) {
                                                                         if ( isset($res_prnt->response_printer)) {
                                                                             $res_printer = $res_prnt->response_printer;
                                                                         } else {
@@ -717,7 +717,7 @@
 
                                                     <?php $options =  json_decode($outlet['payment_options'],TRUE); ?>
 
-                                                    @if(isset($options) && sizeof($options)>0)
+                                                    @if(isset($options) && !empty($options))
 
                                                         @foreach($payment_options as $po_id=>$option)
 
@@ -756,7 +756,7 @@
                                                                             @if(strtolower($source) != 'paytm' && strtolower($source) != 'upi' &&
                                                                             strtolower($source) != 'card' && strtolower($source) != 'bhim' )
 
-                                                                                @if(isset($options[$po_id]) && sizeof($options[$po_id])>0)
+                                                                                @if(isset($options[$po_id]) && !empty($options[$po_id]))
                                                                                     @if( is_array($options[$po_id]) )
                                                                                         @if(in_array($s_id,$options[$po_id]))
                                                                                             <?php if(($i%4)!=0) { ?> <td><?php }else{ ?> <tr><td> <?php } ?>
@@ -800,7 +800,7 @@
                                                                                 @endif
                                                                             @endif
                                                                         @else
-                                                                            @if(isset($options[$po_id]) && sizeof($options[$po_id])>0)
+                                                                            @if(isset($options[$po_id]) && !empty($options[$po_id]))
                                                                                 @if( is_array($options[$po_id]) )
                                                                                     @if(in_array($s_id,$options[$po_id]))
                                                                                         <?php if(($i%4)!=0) { ?> <td><?php }else{ ?> <tr><td> <?php } ?>
@@ -956,10 +956,10 @@
 
                                                     <hr>
 
-                                                    @if(isset($outlet['payment_options']) && sizeof($outlet['payment_options'])>0)
+                                                    @if(isset($outlet['payment_options']) && !empty($outlet['payment_options']))
                                                         <table width="100%" style="margin-bottom: 20px;">
                                                             <?php $options =  json_decode($outlet['payment_options'],TRUE); ?>
-                                                            @if(isset($options) && sizeof($options)>0)
+                                                            @if(isset($options) && !empty($options))
                                                                 @foreach($payment_options as $po_id=>$option)
                                                                     @if(array_key_exists($po_id,$options))
 
@@ -969,7 +969,7 @@
                                                                                 <input required class="form-control tx-value" value="{{isset($zoho_ids['zoho_payment_ids'][$po_id][0])?$zoho_ids['zoho_payment_ids'][$po_id][0]:''}}" placeholder="" type="text" name="zoho_payment_ids[{{$po_id}}][0]">
                                                                             </td>
                                                                         </tr>
-                                                                        @if(isset($sources) && sizeof($sources)>0)
+                                                                        @if(isset($sources) && !empty($sources))
                                                                             @foreach($sources as $s_id=>$source)
                                                                                 @if(isset($options[$po_id]))
 
@@ -1180,7 +1180,7 @@
                                         <div style="clear:both"></div>
                                         <div id="tax_details_field" class="form-group">
                                             <!-- Delivery charge field -->
-                                            @if( isset($tax_details) && $tax_details != '' && sizeof($tax_details) > 0 )
+                                            @if( isset($tax_details) && $tax_details != '' && !empty($tax_details) )
                                                 @foreach( $tax_details[0] as $tx_field=>$tx_val )
                                                     <div class="tx-field-div">
                                                         <div class="col-md-4 form-group">
@@ -1237,7 +1237,7 @@
                                         <div id="charge_field" class="form-group">
                                             <!-- Delivery charge field -->
                                             <?php $order_val = "temp"; ?>
-                                            @if( isset($delivery_charge) && $delivery_charge != '' && sizeof($delivery_charge) > 0 )
+                                            @if( isset($delivery_charge) && $delivery_charge != '' && !empty($delivery_charge) )
                                                 @foreach( $delivery_charge[0] as $ord_val=>$chrg )
                                                     <div class="field-div">
                                                         <div class="col-md-4 form-group">

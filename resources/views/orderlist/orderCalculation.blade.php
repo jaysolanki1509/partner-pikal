@@ -216,8 +216,6 @@ if( isset($order->default_taxes) && $order->default_taxes != '' ) {
         <div class="form-group payment_div" style="width: 100%">
             <div class="col-md-4">
                 <select class="form-control paid-type" id="paid_type" onchange="checkPaymentOption(this)">';
-                    <?php echo "laravel 5.1.11 <pre>"; print_r($pay_option); echo "</pre>"; exit; ?>
-            
                     @if ( isset($pay_option) && isset($pay_option->mode_id) )
                         @foreach( $pay_option as $opt )
                             @if ( $opt['source_name'] )
