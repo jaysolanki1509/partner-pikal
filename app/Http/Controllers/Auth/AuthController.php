@@ -123,10 +123,10 @@ class AuthController extends Controller  {
         $field = filter_var($usernameinput, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
         //check useris active? account table
         $owner = Owner::where($field, $usernameinput)->select('account_id','web_login')->first();
-        if (isset($owner) && sizeof($owner) > 0){
+        if (isset($owner) && isset($owner->account_id)){
             $account_id = $owner->account_id;
             $account_status = Account::find($account_id);
-            if (isset($account_status) && sizeof($account_status) > 0) {
+            if (isset($account_status) && isset($account_status->id)) {
                $is_active = $account_status->active;
                 if ($is_active == 0) {
                     return redirect($this->loginPath())

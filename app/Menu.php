@@ -307,8 +307,7 @@ class Menu extends Model {
             #TODO: check item is_sale and active outletwise
             $is_sale = 1;$active = 0;
             $itm_setting_arr = ItemSettings::where('outlet_id',$rest_id)->where('item_id',$m->id)->first();
-
-            if( isset($itm_setting_arr) && sizeof($itm_setting_arr) > 0 ) {
+            if( isset($itm_setting_arr) && ($itm_setting_arr->id) ) {
                 if ( $itm_setting_arr->is_sale == 0 || $itm_setting_arr->is_active == 1 ) {
                     continue;
                 }

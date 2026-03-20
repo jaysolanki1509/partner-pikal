@@ -211,7 +211,7 @@ if ( isset($order_date)) {
 
                                 <div class="dine_in_field">
                                     <div class="col-md-6" style="padding: 0px;font-weight: bold">
-                                        <lable>@if( isset($outlet) && sizeof($outlet) > 0  ) {{ ucwords($outlet->order_lable) }} @else {{ 'Table' }} @endif No.</lable><input type="number" onchange="remove_error('table_no')" id="table_no" required value="" class="form-control">
+                                        <lable>@if( isset($outlet) && sizeof(json_decode($outlet,true)) > 0  ) {{ ucwords($outlet->order_lable) }} @else {{ 'Table' }} @endif No.</lable><input type="number" onchange="remove_error('table_no')" id="table_no" required value="" class="form-control">
                                     </div>
                                     <div class="col-md-6" style="padding: 0px;font-weight: bold">
                                         <lable>No. of Person</lable><input type="number" onchange="remove_error('person_no')" id="person_no" required value="" class="form-control">

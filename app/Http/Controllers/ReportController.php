@@ -137,8 +137,7 @@ class ReportController extends Controller {
             $selected_items = Menu::where('created_by','=',$menu_owner)->lists('id');
         }
         if ( $blank == true ) {
-            // array_push($selected_items,0);
-            $selected_items->push(0);
+            array_push($selected_items,0);
         }
 		//set session
 		Session::set('from_session',$from_date);
@@ -625,11 +624,7 @@ class ReportController extends Controller {
                 if (sizeof($order_arr = $orders->get()) > 0) {
                     foreach ($order_arr as $or) {
                         //get discount amount and non chargeable amount
-                        $discount_valueTotal = isset($or->discount_value) && !empty($or->discount_value) ? $or->discount_value : 0.00;
-                        $item_discount_valueTotal = isset($or->item_discount_value) && !empty($or->item_discount_value) ? $or->item_discount_value : 0.00;
-                        // $disc_amt = floatval($or->discount_value + $or->item_discount_value);
-                        $TotalDiscount = number_format((float)($discount_valueTotal + $item_discount_valueTotal), 2);
-                        $disc_amt = $TotalDiscount;
+                        $disc_amt = floatval($or->discount_value + $or->item_discount_value);
                         $st_amt = floatval($or->totalcost_afterdiscount);
                         if ($disc_amt == '') {
                             $disc_amt = 0;
@@ -646,11 +641,11 @@ class ReportController extends Controller {
                                 $check_payment_type = PaymentOption::find($py_mode->payment_option_id);
                                 $source = Sources::find($py_mode->source_id);
                                 $upi_status = false;
-                                if ( isset($check_payment_type) && sizeof($check_payment_type) != '' ) {
+                                if ( isset($check_payment_type) && $check_payment_type !== null) {
                                     if ( strtolower($check_payment_type->name) == 'cash' ) {
                                         $t_cash += $py_mode->amount;
                                     } else if ( strtolower($check_payment_type->name) == 'online' ) {
-                                        if ( isset($source) && sizeof($source) > 0 ) {
+                                        if ( isset($source) && !empty($source) ) {
 //                                            if ( strtolower($source->name) == 'upi' ) {
 //
 //                                                //check payment status
@@ -673,7 +668,7 @@ class ReportController extends Controller {
                                     } else if ( strtolower($check_payment_type->name) == 'cheque' ) {
                                         $t_cheque += $py_mode->amount;
                                     }
-                                    if ( isset($source) && sizeof($source) > 0 ) {
+                                    if ( isset($source) && !empty($source) ) {
 //                                        if ( strtolower($source->name) == 'upi' ) {
                                             //check upi payment status
 //                                            if( $upi_status == true ) {
@@ -720,7 +715,7 @@ class ReportController extends Controller {
                         }
                         $tax_total = 0;
                         $json_tax = json_decode($or->tax_type);
-                        if (sizeof($json_tax) > 0 && isset($json_tax)) {
+                        if (!empty($json_tax) && isset($json_tax)) {
                             foreach ($json_tax as $tx) {
                                 if (gettype($tx) == 'string')
                                     $tx1 = json_decode($tx);
@@ -1976,27 +1971,22 @@ class ReportController extends Controller {
 				$total_simple_disc = 0;
 				$total_noncharg_disc = 0;
 				for($i=0;$i<sizeof($data['orders']);$i++){
-					$total_price += $data['orders'][$i]->totalcost_afterdiscount;
+					$total_price += floatval($data['orders'][$i]->totalcost_afterdiscount);
 					//get order cancelled by
 					$created_by = Owner::where('id',$data['orders'][$i]->created_by)->first();
-					if($data['orders'][$i]->totalcost_afterdiscount == $data['orders'][$i]->discount_value)
-						$total_noncharg_disc += $data['orders'][$i]->discount_value;
+					if(floatval($data['orders'][$i]->totalcost_afterdiscount) == floatval($data['orders'][$i]->discount_value))
+						$total_noncharg_disc += floatval($data['orders'][$i]->discount_value);
 					else
-						// $total_simple_disc += $data['orders'][$i]->discount_value;
-
-                     $discount_valueTotal = isset($data['orders'][$i]->discount_value) && !empty($data['orders'][$i]->discount_value) ? $data['orders'][$i]->discount_value : 0.00;
-
-                    $Total = isset($data['orders'][$i]->item_discount_value) && !empty($data['orders'][$i]->item_discount_value) ? $data['orders'][$i]->item_discount_value : 0.00;
-                    $total_simple_disc += $discount_valueTotal;
+						$total_simple_disc += floatval($data['orders'][$i]->discount_value);
 					$html .= '<tr id="'.$data['orders'][$i]->order_id.'">
                                 <td>'.$data['orders'][$i]->invoice_no.'</td>
                                 <td>'.$data['orders'][$i]->table_no.'</td>
                                 <td>'.ReportController::get_order_type($data['orders'][$i]->order_type).'</td>
                                 <td>'.$data['itemlist'][ $data['orders'][$i]->order_id].'</td>
                                 <td>'.$data['orders'][$i]->reason.'</td>
-                                <td>'.$data['orders'][$i]->totalprice.'</td>
-                                <td>'.number_format((float)($discount_valueTotal + $item_discount_valueTotal), 2).'</td>
-                                <td>'.$created_by->user_name.'</td>
+                                <td>'.number_format(floatval($data['orders'][$i]->totalprice),2).'</td>
+                                <td>'.number_format(floatval($data['orders'][$i]->discount_value) + floatval($data['orders'][$i]->item_discount_value),2).'</td>
+                                <td>'.(isset($created_by->user_name) ? $created_by->user_name : '').'</td>
                                 <td>'.Carbon::parse($data['orders'][$i]->table_end_date)->format('d-m-Y  h:i A').'</td>
                             </tr>';
 				}
@@ -2771,7 +2761,7 @@ class ReportController extends Controller {
             } else {
                 order_details::syncZohoOrders($outlet_id, $from, $to);
                 echo 'success';exit;
-            }
+            }   
         }
         return view('report.zohoUnsyncOrders');
     }

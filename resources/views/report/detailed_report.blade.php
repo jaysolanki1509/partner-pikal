@@ -23,7 +23,7 @@ $admin = \Illuminate\Support\Facades\Auth::user()->created_by;
     </tr>
     </thead>
     <tbody id="table_body">
-    @if( isset($orders) && sizeof($orders) > 0 )
+    @if( isset($orders) && isset($orders->id) )
         <?php $grand_total = 0;?>
         @foreach ($orders as $order)
             <?php
