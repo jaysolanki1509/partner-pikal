@@ -216,14 +216,14 @@ if( isset($order->default_taxes) && $order->default_taxes != '' ) {
         <div class="form-group payment_div" style="width: 100%">
             <div class="col-md-4">
                 <select class="form-control paid-type" id="paid_type" onchange="checkPaymentOption(this)">';
-                    @if ( isset($pay_option) && isset($pay_option->mode_id) )
-                        @foreach( $pay_option as $opt )
-                            @if ( $opt['source_name'] )
-                                <?php $s_name = $opt['mode_name'].' - '.$opt['source_name'];?>
-                            @else
-                                <?php $s_name = $opt['mode_name'];?>
-                            @endif
-                            @if( isset($check_upi_status) && isset($check_upi_status) > 0 && strtolower($opt['source_name']) == 'Online - UPI')
+                    @if ( isset($pay_option) )
+                    @foreach( $pay_option as $opt )
+                    @if ( $opt['source_name'] )
+                    <?php $s_name = $opt['mode_name'].' - '.$opt['source_name'];?>
+                    @else
+                    <?php $s_name = $opt['mode_name'];?>
+                    @endif
+                            @if( isset($check_upi_status) && strtolower($opt['source_name']) == 'Online - UPI')
                                 <option data-source="{{ $opt['source_id'] }}" value="{{ $opt['mode_id'] }}" selected>{{ $s_name }}</option>
                             @else
                                 <option data-source="{{ $opt['source_id'] }}" value="{{ $opt['mode_id'] }}" >{{ $s_name }}</option>

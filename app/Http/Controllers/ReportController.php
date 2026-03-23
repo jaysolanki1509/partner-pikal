@@ -137,7 +137,8 @@ class ReportController extends Controller {
             $selected_items = Menu::where('created_by','=',$menu_owner)->lists('id');
         }
         if ( $blank == true ) {
-            array_push($selected_items,0);
+            // array_push($selected_items,0);
+            $selected_items->push(0);
         }
 		//set session
 		Session::set('from_session',$from_date);
@@ -624,7 +625,11 @@ class ReportController extends Controller {
                 if (sizeof($order_arr = $orders->get()) > 0) {
                     foreach ($order_arr as $or) {
                         //get discount amount and non chargeable amount
-                        $disc_amt = floatval($or->discount_value + $or->item_discount_value);
+                        $discount_valueTotal = isset($or->discount_value) && !empty($or->discount_value) ? $or->discount_value : 0.00;
+                        $item_discount_valueTotal = isset($or->item_discount_value) && !empty($or->item_discount_value) ? $or->item_discount_value : 0.00;
+                        // $disc_amt = floatval($or->discount_value + $or->item_discount_value);
+                        $TotalDiscount = number_format((float)($discount_valueTotal + $item_discount_valueTotal), 2);
+                        $disc_amt = $TotalDiscount;
                         $st_amt = floatval($or->totalcost_afterdiscount);
                         if ($disc_amt == '') {
                             $disc_amt = 0;
@@ -1977,7 +1982,9 @@ class ReportController extends Controller {
 					if(floatval($data['orders'][$i]->totalcost_afterdiscount) == floatval($data['orders'][$i]->discount_value))
 						$total_noncharg_disc += floatval($data['orders'][$i]->discount_value);
 					else
-						$total_simple_disc += floatval($data['orders'][$i]->discount_value);
+						// $total_simple_disc += floatval($data['orders'][$i]->discount_value);
+                    $discount_valueTotal = isset($data['orders'][$i]->discount_value) && !empty($data['orders'][$i]->discount_value) ? $data['orders'][$i]->discount_value : 0.00;
+                    $total_simple_disc += $discount_valueTotal;
 					$html .= '<tr id="'.$data['orders'][$i]->order_id.'">
                                 <td>'.$data['orders'][$i]->invoice_no.'</td>
                                 <td>'.$data['orders'][$i]->table_no.'</td>

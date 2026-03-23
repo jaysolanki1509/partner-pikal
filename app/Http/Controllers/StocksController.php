@@ -882,13 +882,13 @@ class StocksController extends Controller {
         DB::beginTransaction();
         $check_consume = Consumption::where('order_id',$order_id)->where('item_id',$item_id)->first();
 
-        if ( !isset($check_consume) && sizeof($check_consume) == 0 ) {
+        // if ( !isset($check_consume) && sizeof($check_consume) == 0 ) {
+        if ( !isset($check_consume) && !$check_consume ) {
             //check stock available or not
 
             $check_stock = Stock::where('location_id',$default_location)->where('item_id',$item_id)->first();
 
-
-            if ( isset($check_stock) && sizeof($check_stock) > 0 ) {
+            if ( isset($check_stock) ) {
 
                 $final_qty = floatval($check_stock->quantity) - $total_qty;
 

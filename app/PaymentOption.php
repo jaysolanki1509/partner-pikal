@@ -73,7 +73,7 @@ class PaymentOption extends Model {
     }
     public static function getPaymentOptionById($p_id){
         $payment_option = PaymentOption::find($p_id);
-        if(isset($payment_option) && sizeof($payment_option)>0){
+        if(isset($payment_option) && !empty($payment_option)){
             return $payment_option->name;
         }else{
             return "UnPaid";

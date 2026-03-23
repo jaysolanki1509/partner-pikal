@@ -1,5 +1,5 @@
 
-@if( isset($order) && sizeof($order) > 0 )
+@if( isset($order) && !empty($order) )
 
     <input type="hidden" id="edit_order_id" value="{!! $order->order_id !!}" />
     <div class="col-md-4">
@@ -61,7 +61,6 @@
             <button type="button" class="btn btn-danger" onclick="calculateDiscount(this,'edit_inv','remove')">Remove</button>
         </div>
     </div>
-
     @if($delivery_settings)
         <div class="form-group hide" id="edit_delivery_value">
             <div class="col-md-8 form-group">
@@ -85,9 +84,8 @@
             </div>
         </div>
     @endif
-
     <form id="custom_form">
-        @if(isset($custom_fields) && sizeof($custom_fields)>0)
+        @if(isset($custom_fields) && !empty($custom_fields))
             @foreach($custom_fields as $field_key => $fields)
                 <div class="form-group">
                     <div class="col-md-6 form-group">
@@ -102,30 +100,21 @@
     <div class="col-md-12">
         <table style="display: block;">
             <tr>
-                <td style="padding:5px;vertical-align:top;background:#eee;border-bottom:1px solid #ddd;
-                                font-weight:bold; width:400px;">
+                <td style="padding:5px;vertical-align:topbackground:#eee;border-bottom:1px solid #ddd;font-weight:bold;width:400px;">
                     Items
                 </td>
+                <td style="padding:5px;vertical-align:top;background:#eee;border-bottom:1px solid #ddd;font-weight:bold; width:100px;">Qty</td>
 
-                <td style="padding:5px;vertical-align:top;background:#eee;border-bottom:1px solid #ddd;
-                            font-weight:bold; width:100px;">Qty</td>
-
-                <td style="padding:5px;
-                                vertical-align:top;   background:#eee;
-                                border-bottom:1px solid #ddd;
-                                font-weight:bold; width:100px;"> Price
+                <td style="padding:5px;vertical-align:top;   background:#eee;border-bottom:1px solid #ddd;font-weight:bold; width:100px;"> Price
                 </td>
 
-                <td style="  padding:5px;
-                            vertical-align:top;   background:#eee;
-                            border-bottom:1px solid #ddd;
-                            font-weight:bold;">Amount
+                <td style="padding:5px;vertical-align:top;   background:#eee;border-bottom:1px solid #ddd;font-weight:bold;">Amount
                 </td>
             </tr>
-            @if( isset($items['item']) && sizeof($items['item']) > 0 )
-                @for( $i=0; $i<sizeof($items['item']); $i++)
+            @if( isset($items['item']) && !empty($items['item']) )
+                @for( $i=0; $i < sizeof($items['item']); $i++)
                     <tr>
-                        <td style="  padding:5px 5px 0px 5px;vertical-align:top;font-size:12px;">{!! $items['item'][$i]['name'] !!}</td>
+                        <td style="padding:5px 5px 0px 5px;vertical-align:top;font-size:12px;">{!! $items['item'][$i]['name'] !!}</td>
                         <td style="  padding:5px 5px 0px 5px;vertical-align:top;font-size:12px;">{!! $items['item'][$i]['qty'] !!}</td>
                         <td style=" padding:5px 5px 0px 5px;vertical-align:top;font-size:12px;">{!! $items['item'][$i]['price'] !!}</td>
                         <td style="  padding:5px 5px 0px 5px;vertical-align:top;text-align:right;font-size:12px;">{!! number_format($items['item'][$i]['amount'],2) !!}</td>
@@ -139,8 +128,7 @@
     </div>
     <div style="clear:both"></div>
     <div class="form-group" id="edit_calculation" style="margin-top:40px;">
-
-        @if ( isset($order) && sizeof($order) > 0 && $order->itemwise_tax == 0 )
+        @if ( isset($order) && !empty($order) && $order->itemwise_tax == 0 )
             <?php
                 echo $calculation = \App\Http\Controllers\newordercontroller::orderCalculation($order,$order->order_type,'edit_inv',$order->tax_percent,$order->delivery_charge,$order->discount_type,$order->discount_value);
             ?>
