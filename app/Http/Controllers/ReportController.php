@@ -38,6 +38,7 @@ use DatePeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
 use DateTime;
@@ -452,7 +453,7 @@ class ReportController extends Controller {
         $outlet_id = Input::get('outlet_id');
 		$sess_outlet_id = Session::get('outlet_session');
 		if (isset($sess_outlet_id) && $sess_outlet_id != '') {
-			$outlet_id = $sess_outlet_id;
+            $outlet_id = $sess_outlet_id;
 		}
 		$from_date = Input::get('from_date');
         $to_date = Input::get('to_date');
@@ -461,16 +462,7 @@ class ReportController extends Controller {
         //convert to session time
         $from = Utils::getSessionTime($from_date,'from');
         $to = Utils::getSessionTime($to_date,'to');
-        $orders=DB::table("orders")
-            ->join("order_items","order_items.order_id","=","orders.order_id")
-            ->select('orders.*','order_items.item_name as item_name','order_items.item_quantity as Quantity','orders.discount_value')
-            ->where('orders.invoice_no',"!=",'')
-            ->where('orders.table_end_date','>=', $from)
-            ->where('orders.table_end_date','<=', $to)
-            ->where('orders.outlet_id','=',$outlet_id)
-            ->orderBy('orders.order_id', 'desc')
-            ->where('orders.cancelorder', '!=', 1)
-            ->get();
+        $orders=DB::table("orders")->join("order_items","order_items.order_id","=","orders.order_id")->select('orders.*','order_items.item_name as item_name','order_items.item_quantity as Quantity','orders.discount_value')->where('orders.invoice_no',"!=",'')->where('orders.table_end_date','>=', $from)->where('orders.table_end_date','<=', $to)->where('orders.outlet_id','=',$outlet_id)->orderBy('orders.order_id', 'desc')->where('orders.cancelorder', '!=', 1)->get();
         $itemlist=array();
         $data['orders']=array();
 		foreach($orders as $order) {
@@ -491,57 +483,78 @@ class ReportController extends Controller {
 		}
         $data['itemlist']=$itemlist;
         $html = '';
-            $html .= '<table border="1" id="disc_table" class="table table-striped table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <th>Invoice</th>
-                                <th>Order Type</th>
-                                <th>Item Name</th>
-                                <th>Amount</th>
-                                <th>Discount Amount</th>
-                                <th>Order Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>';
-                $total_price = 0;
-                $total_simple_disc = 0;
-                $total_noncharg_disc = 0;
-                $count = 0;
-                for($i=0;$i<sizeof($data['orders']);$i++){
-                    $total_price += $data['orders'][$i]->totalcost_afterdiscount;
-                    if($data['orders'][$i]->totalprice == 0)
-                        $total_noncharg_disc += $data['orders'][$i]->discount_value + $data['orders'][$i]->item_discount_value;
-                    else
-                        $total_simple_disc += $data['orders'][$i]->discount_value + $data['orders'][$i]->item_discount_value;
-                    if(($data['orders'][$i]->discount_value + $data['orders'][$i]->item_discount_value) > 0) {
-                        $count++;
-                        $html .= '<tr>
-                                <td>' . $data['orders'][$i]->invoice_no . '</td>
-                                <td>' . ReportController::get_order_type($data['orders'][$i]->order_type) . '</td>
-                                <td>' . $data['itemlist'][$data['orders'][$i]->order_id] . '</td>
-                                <td>' . number_format($data['orders'][$i]->totalprice, 2) . '</td>
-                                <td>' . number_format($data['orders'][$i]->discount_value + $data['orders'][$i]->item_discount_value, 2) . '</td>
-                                <td>' . Carbon::parse($data['orders'][$i]->table_end_date)->format('d-m-Y  h:i A') . '</td>
-                            </tr>';
+        $html .= 
+            '<table border="1" id="disc_table" class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Invoice</th>
+                            <th>Order Type</th>
+                            <th>Item Name</th>
+                            <th>Amount</th>
+                            <th>Discount Amount</th>
+                            <th>Order Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+                    $total_price = 0;
+                    $total_simple_disc = 0;
+                    $total_noncharg_disc = 0;
+                    $count = 0;
+                    for($i=0;$i<sizeof($data['orders']);$i++){
+                        $total_price += $data['orders'][$i]->totalcost_afterdiscount;
+                        if($data['orders'][$i]->totalprice == 0){
+                            // Get safe numeric values
+                            $discountValue = isset($data['orders'][$i]->discount_value) && is_numeric($data['orders'][$i]->discount_value)
+                                ? (float) $data['orders'][$i]->discount_value
+                                : 0.00;
+                            $itemDiscountValue = isset($data['orders'][$i]->item_discount_value) && is_numeric($data['orders'][$i]->item_discount_value)
+                                ? (float) $data['orders'][$i]->item_discount_value
+                                : 0.00;
+                            // Add to total
+                            $total_noncharg_disc += $discountValue + $itemDiscountValue;
+                            // $total_noncharg_disc += $data['orders'][$i]->discount_value + $data['orders'][$i]->item_discount_value;
+                        }
+                        else{
+                            // $total_simple_disc += $data['orders'][$i]->discount_value + $data['orders'][$i]->item_discount_value;
+                            // Ensure values are numeric before adding
+                            $discountValue = isset($data['orders'][$i]->discount_value) && is_numeric($data['orders'][$i]->discount_value) ? (float) $data['orders'][$i]->discount_value : 0.00;
+                            $itemDiscountValue = isset($data['orders'][$i]->item_discount_value) && is_numeric($data['orders'][$i]->item_discount_value) 
+                                ? (float) $data['orders'][$i]->item_discount_value 
+                                : 0.00;
+                            // Add to total
+                            $total_simple_disc += $discountValue + $itemDiscountValue;
+                        }
+                        if(($discountValue + $itemDiscountValue) > 0) {
+                            $count++;
+                            $html .= '<tr>
+                                    <td>' . $data['orders'][$i]->invoice_no . '</td>
+                                    <td>' . ReportController::get_order_type($data['orders'][$i]->order_type) . '</td>
+                                    <td>' . $data['itemlist'][$data['orders'][$i]->order_id] . '</td>
+                                    <td>' . number_format($data['orders'][$i]->totalprice, 2) . '</td>
+                                    <td>' . number_format($data['orders'][$i]->discount_value + $data['orders'][$i]->item_discount_value, 2) . '</td>
+                                    <td>' . Carbon::parse($data['orders'][$i]->table_end_date)->format('d-m-Y  h:i A') . '</td>
+                                </tr>';
+                        }
                     }
-                }
-                if($count==0){
-                    $html .= '<tr>
-                                <td colspan="6">No Orders Found</td>
-                            </tr>';
-                }
-        $html .= '</tbody>
+                    if($count==0){
+                        $html .= '<tr>
+                                    <td colspan="6">No Orders Found</td>
+                                </tr>';
+                    }
+        $html .= '
+                </tbody>
             </table><br/><br/>';
-        $html .= '<table class="table table-striped table-bordered table-hover" border="1" style="text-align:center">
-                        <tr>
-                            <td>Total Discount</td>
-                            <td>Total Non Chargeable Order Amount</td>
-                        </tr>
-                        <tr>
-                            <td>'.number_format($total_simple_disc,2).'</td>
-                            <td>'.number_format($total_noncharg_disc,2).'</td>
-                        </tr>
-                    </table>';
+        $html .= 
+            '<table class="table table-striped table-bordered table-hover" border="1" style="text-align:center">
+                <tr>
+                    <td>Total Discount</td>
+                    <td>Total Non Chargeable Order Amount</td>
+                </tr>
+                <tr>
+                    <td>'.number_format($total_simple_disc,2).'</td>
+                    <td>'.number_format($total_noncharg_disc,2).'</td>
+                </tr>
+            </table>';
         return $html;
     }
     public function ajax_summary_report(){
@@ -1026,11 +1039,11 @@ class ReportController extends Controller {
 			}
 			$data = array();
 			$date_arr = Utils::createDateRangeArray($from_date,$to_date);
-			if ( isset($date_arr) && sizeof($date_arr) > 0 ) {
+			if ( isset($date_arr) && !empty($date_arr) ) {
 				//get outlet locations
 				$locations  = Location::where('outlet_id',$outlet_id)->get();
 				$loc_ids = array();
-				if ( isset($locations) && sizeof($locations) > 0 ) {
+				if ( isset($locations) && !empty($locations) ) {
 					foreach( $locations as $loc ) {
 							$loc_ids[] = $loc->id;
 					}
@@ -1044,25 +1057,14 @@ class ReportController extends Controller {
 					} else {
 						$purchase = 0;
 					}
-					$expense = Expense::where('expense_for',$outlet_id)
-										->where('expense_date',$dt)
-										->where('type','expense')
-										->whereRaw('( status = "verified" || status = "paid" )')->sum('amount');
-					$sales = order_details::where('outlet_id',$outlet_id)
-                                            ->where('orders.table_end_date','>=', $from)
-                                            ->where('orders.table_end_date','<=', $to)
-											->where('cancelorder', '!=', 1)
-											->where('invoice_no', '!=', '')->sum('totalprice');
+					$expense = Expense::where('expense_for',$outlet_id)->where('expense_date',$dt)->where('type','expense')->whereRaw('( status = "verified" || status = "paid" )')->sum('amount');
+					$sales = order_details::where('outlet_id',$outlet_id)->where('orders.table_end_date','>=', $from)->where('orders.table_end_date','<=', $to)->where('cancelorder', '!=', 1)->where('invoice_no', '!=', '')->sum('totalprice');
 					//stock transferred
 					$stock_transferred = 0;
 					if ( isset($loc_ids) && sizeof($loc_ids) > 0 ) {
 						//get request for location
-						$item_requests = ItemRequest::select('item_request.*')
-							->whereBetween('satisfied_when', array($from, $to))
-							->where('item_request.satisfied', '=', 'Yes')
-							->whereIn('item_request.location_for',$loc_ids)
-							->get();
-						if (isset($item_requests) && sizeof($item_requests) > 0) {
+						$item_requests = ItemRequest::select('item_request.*')->whereBetween('satisfied_when', array($from, $to))->where('item_request.satisfied', '=', 'Yes')->whereIn('item_request.location_for',$loc_ids)->get();
+						if (isset($item_requests) && !empty($item_requests)) {
 							foreach ($item_requests as $req) {
 								$satisfy_qty = $req->statisfied_qty;
 								$menu_item = Menu::find($req->what_item_id);
@@ -1088,7 +1090,7 @@ class ReportController extends Controller {
 						foreach( $staffs as $stf ) {
 							$time = "00:00:00";
 							$attendance = Attendance::where('staff_id',$stf->id)->whereDate('created_at','=',$dt)->get();
-							if ( isset($attendance) && sizeof($attendance) > 0 ) {
+							if ( isset($attendance) && !empty($attendance) ) {
 								foreach( $attendance as $att ) {
 									$from = $att->in_time; $to = $att->out_time;
 									if ( isset($to) && $to != '' ) {
@@ -1106,7 +1108,7 @@ class ReportController extends Controller {
 							if ( isset($stf->per_day) && isset($stf->per_day_hours) && $time != '00:00:00' && $stf->per_day_hours != '00:00:00' && $stf->per_day > 0 ) {
 								$full_time = $half_time = $spent_time = 0;
 								$time_arr = explode(':',$stf->per_day_hours);
-								if ( isset($time_arr) && sizeof($time_arr) > 0 ) {
+								if ( isset($time_arr) && !empty($time_arr) ) {
 									$full_time = $time_arr[0] * 60;
 									$full_time = $full_time + $time_arr[1];
 									$half_time = $full_time / 2;
@@ -1166,11 +1168,11 @@ class ReportController extends Controller {
 			Session::set('to_session',$to_date);
             $outlet_id = Session::get('outlet_session');
 			if ( $outlet_id == '' ) {
-				return view('report.revenueReportList');
+                return view('report.revenueReportList');
 			}
             $outlet_payment_options = Outlet::find($outlet_id);
             $payment_option_json = $outlet_payment_options['payment_options'];
-            if ( sizeof($payment_option_json)>0 && $payment_option_json != null) {
+            if ( $payment_option_json != null) {
                 $payment_option_array = json_decode($payment_option_json, true );
                 $outlet_options = array_keys($payment_option_array);
                 $outlet_options_arr = array();
@@ -1183,8 +1185,9 @@ class ReportController extends Controller {
                     $check_option = $payment_option_array[$option_id][0];
                     if ( isset($check_option) && $check_option == "" ) {
                         continue;
-                    }                                              //only payment option
-                    if (sizeof($outlet_src_arr[$option_id]) > 0 && $outlet_src_arr[$option_id] != $option_id ) {
+                    }              
+                    // if (sizeof($outlet_src_arr[$option_id]) > 0 && $outlet_src_arr[$option_id] != $option_id ) {                               //only payment option
+                    if (!empty($outlet_src_arr) && is_array($outlet_src_arr) && count(  $outlet_src_arr) > 0) {
                         //if only payment option is selected
                         foreach ($outlet_src_arr[$option_id] as $id => $source_id) {
                             $outlet_source_arr[$option_id][$source_id] = Sources::find($source_id)['name'];
@@ -1212,50 +1215,24 @@ class ReportController extends Controller {
                 $data['table_head'] = $table_header;
                 //Table Raws
                 $date_arr = Utils::createDateRangeArray($from_date, $to_date);
-                $payment_opt = PaymentOption::all();
-                if (isset($date_arr) && sizeof($date_arr) > 0) {
+                $payment_opt = PaymentOption::all();                    
+                // if (isset($date_arr) && sizeof($date_arr) > 0) {
+                if (!empty($date_arr) && is_array($date_arr)) {
                     foreach ($date_arr as $dt) {
                         //convert to session time
                         $from = Utils::getSessionTime($dt,'from');
                         $to = Utils::getSessionTime($dt,'to');
                         foreach ($outlet_options_arr as $po_id => $option) {
                             if ($po_id == 0) {                                    //unpaid orders
-                                $result = order_details::join('order_payment_modes as opm','orders.order_id','=','opm.order_id')
-                                                        ->where('orders.outlet_id', $outlet_id)
-                                                        ->where('orders.table_end_date','>=', $from)
-                                                        ->where('orders.table_end_date','<=', $to)
-                                                        ->where('orders.cancelorder', '!=', 1)
-                                                        ->where('orders.invoice_no', '!=', '')
-                                                        ->where('opm.source_id', 0)
-                                                        ->where('opm.payment_option_id', 0)
-                                                        ->selectRaw('sum(opm.amount) as sum')
-                                                        ->get();
+                                $result = order_details::join('order_payment_modes as opm','orders.order_id','=','opm.order_id')->where('orders.outlet_id', $outlet_id)->where('orders.table_end_date','>=', $from)->where('orders.table_end_date','<=', $to)->where('orders.cancelorder', '!=', 1)->where('orders.invoice_no', '!=', '')->where('opm.source_id', 0)->where('opm.payment_option_id', 0)->selectRaw('sum(opm.amount) as sum')->get();
                                 $data[$dt][0][0] = $result[0]['sum'];
                             } else {                                             //source and payment method both are selected
                                 foreach ($outlet_source_arr[$po_id] as $s_id => $source) {
                                     if ($s_id != 0) {
-                                        $result = order_details::join('order_payment_modes as opm','orders.order_id','=','opm.order_id')
-                                                                ->where('orders.outlet_id', $outlet_id)
-                                                                ->where('orders.table_end_date','>=', $from)
-                                                                ->where('orders.table_end_date','<=', $to)
-                                                                ->where('orders.cancelorder', '!=', 1)
-                                                                ->where('orders.invoice_no', '!=', '')
-                                                                ->where('opm.source_id', $s_id)
-                                                                ->where('opm.payment_option_id', $po_id)
-                                                                ->selectRaw('sum(opm.amount) as sum')
-                                                                ->get();
+                                        $result = order_details::join('order_payment_modes as opm','orders.order_id','=','opm.order_id')->where('orders.outlet_id', $outlet_id)->where('orders.table_end_date','>=', $from)->where('orders.table_end_date','<=', $to)->where('orders.cancelorder', '!=', 1)->where('orders.invoice_no', '!=', '')->where('opm.source_id', $s_id)->where('opm.payment_option_id', $po_id)->selectRaw('sum(opm.amount) as sum')->get();
                                         $data[$dt][$po_id][$s_id] = $result[0]['sum'];
                                     } else {                                      //only source is selected
-                                        $result = order_details::join('order_payment_modes as opm','orders.order_id','=','opm.order_id')
-                                                                ->where('orders.outlet_id', $outlet_id)
-                                                                ->where('orders.table_end_date','>=', $from)
-                                                                ->where('orders.table_end_date','<=', $to)
-                                                                ->where('orders.cancelorder', '!=', 1)
-                                                                ->where('orders.invoice_no', '!=', '')
-                                                                ->where('opm.source_id', 0)
-                                                                ->where('opm.payment_option_id', $po_id)
-                                                                ->selectRaw('sum(opm.amount) as sum')
-                                                                ->get();
+                                        $result = order_details::join('order_payment_modes as opm','orders.order_id','=','opm.order_id')->where('orders.outlet_id', $outlet_id)->where('orders.table_end_date','>=', $from)->where('orders.table_end_date','<=', $to)->where('orders.cancelorder', '!=', 1)->where('orders.invoice_no', '!=', '')->where('opm.source_id', 0)->where('opm.payment_option_id', $po_id)->selectRaw('sum(opm.amount) as sum')->get();
                                         $data[$dt][$po_id][0] = $result[0]['sum'];
                                     }
                                 }
@@ -1263,7 +1240,7 @@ class ReportController extends Controller {
                         }
                     }
                 }
-                //print_r($data);exit;
+                // print_r($data);exit;
                 return view('report.revenueReportList', array('data' => $data, 'dates' => $date_arr));
             }else{
                 return view('report.revenueReportList', array('error' => 'Payment Methods not selected.'));
@@ -2667,7 +2644,8 @@ class ReportController extends Controller {
 					}
 				})->download('xls');
 			}
-			$size = sizeof($data);
+			// $size = sizeof($data);
+            $size = is_array($data) ? count($data) : 0;
 			return view('report.salesReportList',array('data'=>$data,'size'=>$size,'grandTotal'=>$total));
 		}
 		return view('report.saleReport');

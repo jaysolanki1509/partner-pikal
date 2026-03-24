@@ -4,7 +4,7 @@
             <div class="panel-body">
                 <div class="dataTable_wrapper" style="overflow-x: auto;">
                     <table class="table table-striped table-bordered table-hover" id="revenue_report_list">
-                        @if( isset($data) && sizeof($data) > 0 )
+                        @if(isset($data) && is_array($data) && count($data) > 0)
                             <thead>
                             <tr>
                                 <th class="bold-center"> Date </th>
@@ -26,7 +26,7 @@
                                                     <?php $tot_po[$po_id][$s_id] = 0; ?>
                                                 @endif
 
-                                                @if(isset($data[$date][$po_id][$s_id]) && sizeof($data[$date][$po_id][$s_id])>0)
+                                                @if(isset($data[$date][$po_id][$s_id]) && !empty($data[$date][$po_id][$s_id]))
                                                     <td style="text-align: right">
                                                         {{$data[$date][$po_id][$s_id]}}
                                                         <?php $tot_date[$date] += intval($data[$date][$po_id][$s_id]);
