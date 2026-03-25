@@ -1,14 +1,14 @@
 <form method="post" id="stock_level" class="form-horizontal material-form j-forms" action="/location/store-stock-level">
     <input type="hidden" name="loc_id" value="{!! $loc_id !!}">
     <div class="form-group">
-    @if( isset($arr) && sizeof($arr) > 0 )
+      
+    @if( isset($arr) && !empty($arr) && is_array($arr) )
         <?php $cat = '';$i=0;?>
         @foreach( $arr as $key=>$val )
             @if( $i==0 || $cat != $val['cat_id'] )
                 @if( $i != 0 )
                     </tbody>
                     </table>
-
                 @endif
                 <?php $cat = $val['cat_id'];?>
                 <table class="table foo-data-table">
@@ -91,7 +91,5 @@
             <button type="submit" class="btn btn-primary pull-right">Submit</button>
         </div>
     </div>
-
     @endif
-
 </form>

@@ -2320,19 +2320,12 @@ class ReportController extends Controller {
 			Session::set('to_session',$to_date);
 			$from = $from_date." 00:00:00";
 			$to = $to_date." 23:59:59";
-			$response_items = ResponseDeviation::join('unit as req_unit','req_unit.id','=','response_deviation.request_unit_id')
-												->join('unit as res_unit','res_unit.id','=','response_deviation.satisfied_unit_id')
-												->join('locations as l','l.id','=','response_deviation.from_location_id')
-												->join('owners as o','o.id','=','response_deviation.satisfied_by')
-												->select('response_deviation.*','o.user_name as owner','l.name as from_location','req_unit.name as req_unit','res_unit.name as res_unit')
-												->where('for_location_id',$loc_id)
-												->where('response_deviation.satisfied_when', '<=', $to)
-												->where('response_deviation.satisfied_when', '>=', $from)
-												->orderby('response_deviation.satisfied_when')
-												->get();
+			$response_items = ResponseDeviation::join('unit as req_unit','req_unit.id','=','response_deviation.request_unit_id')->join('unit as res_unit','res_unit.id','=','response_deviation.satisfied_unit_id')->join('locations as l','l.id','=','response_deviation.from_location_id')->join('owners as o','o.id','=','response_deviation.satisfied_by')->select('response_deviation.*','o.user_name as owner','l.name as from_location','req_unit.name as req_unit','res_unit.name as res_unit')->where('for_location_id',$loc_id)->where('response_deviation.satisfied_when', '<=', $to)->where('response_deviation.satisfied_when', '>=', $from)->orderby('response_deviation.satisfied_when')->get();
 			$zero_qty = $less_qty = $more_qty = array();
 			$i = $j = $k = 0;
-			if ( isset($response_items) && sizeof($response_items) > 0 ) {
+            // echo "Response Deviation Report <pre>";print_r($response_items);echo "</pre>";exit;
+			// if ( isset($response_items) && sizeof($response_items) > 0 ) {
+			if ( isset($response_items) && !empty($response_items) ) {
 				foreach ( $response_items as $itm ) {
 					if ( $itm->satisfied_qty == 0 ) {
 						$zero_qty[$i]['item_name'] = $itm->item_name;

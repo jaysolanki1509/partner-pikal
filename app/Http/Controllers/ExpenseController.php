@@ -102,8 +102,7 @@ class ExpenseController extends Controller {
         else{
 
             $outlet = Outlet::find($outlet_id);
-
-            if ( isset($outlet) && sizeof($outlet) > 0 ) {
+            if ( isset($outlet) && !empty($outlet) ) {
                 if ( !isset($outlet->authorised_users) || $outlet->authorised_users == '' || $outlet->authorised_users == 0 ) {
                     $error = "authorised user not selected for outlet";
                     return Redirect('/expenseApp')->withInput(Input::all())->with('error', $error);
@@ -125,7 +124,7 @@ class ExpenseController extends Controller {
             $exp->expense_date = Input::get('expense_date');
             $exp->category_id = $exp_cat;
             $note = Input::get('note');
-            if(isset($note) && sizeof($note)>0) {
+            if(isset($note)) {
                 $exp->notes = $note;
             }
             $status = Input::get('status');
@@ -447,7 +446,7 @@ class ExpenseController extends Controller {
         $exp = Expense::find($id);
 
         $outlet = Outlet::find($outlet_id);
-        if ( isset($outlet) && sizeof($outlet) > 0 ) {
+        if ( isset($outlet) && !empty($outlet) ) {
             if ( !isset($outlet->authorised_users) || $outlet->authorised_users == '' || $outlet->authorised_users == 0 ) {
                 $error = "authorised user not selected for outlet";
                 return Redirect('/expense/'.$id.'/edit')->withInput(Input::all())->with('error', $error);
@@ -464,7 +463,7 @@ class ExpenseController extends Controller {
         $exp->category_id = Input::get('exp_category');
         $exp->serversync = 0;
         $note = Input::get('note');
-        if(isset($note) && sizeof($note)>0) {
+        if(isset($note)) {
             $exp->notes = $note;
         }
         $status = Input::get('status');
@@ -585,10 +584,8 @@ class ExpenseController extends Controller {
     }
 
     public function destroyExpenseCategory($id){
-
         ExpenseCategory::where('id',$id)->delete();
         return Redirect('/expense-category-index')->with('success', 'Expense category Deleted successfully');
-
     }
 
     public function editExpenseCategory($id){

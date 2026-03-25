@@ -38,10 +38,7 @@ class LocationsController extends Controller {
 	public function index()
 	{
 		$owner_id = Auth::id();
-		$locations = Location::leftjoin('owners','locations.created_by', '=','owners.id')
-							->where('locations.created_by',$owner_id)
-							->select('locations.name as name','owners.user_name as created_by','locations.id as id','locations.outlet_id','locations.default_location')
-							->get();
+		$locations = Location::leftjoin('owners','locations.created_by', '=','owners.id')->where('locations.created_by',$owner_id)->select('locations.name as name','owners.user_name as created_by','locations.id as id','locations.outlet_id','locations.default_location')->get();
 
 		return view('locations.index', array('locations' => $locations));
 	}
@@ -87,11 +84,11 @@ class LocationsController extends Controller {
 				$outlet_id = $sess_outlet_id;
 			}
 			$default_loc = Input::get('default_location');
-
 			if ( isset($default_loc) && $default_loc != '' ) {
 				if( isset($outlet_id) && $outlet_id != '' ) {
 					$check_location = Location::where('outlet_id',$outlet_id)->where('default_location',1)->first();
-					if ( isset($check_location) && sizeof($check_location) > 0 ) {
+					// echo "Stock Level <pre>"; print_r($check_location); echo "</pre>";exit;
+					if ( isset($check_location) && !empty($check_location) ) {
 						Location::where('id',$check_location->id)->update(['default_location'=>0]);
 					}
 				} else {
@@ -219,36 +216,33 @@ class LocationsController extends Controller {
 	public function destroy($id)
 	{
 		Location::where('id',$id)->delete();
+		// echo "Demo <pre>"; print_r($demo); echo "</pre>"; exit;
 		Session::flash('success', 'Location has been deleted successfully!');
 		return Redirect::to('location');
 	}
 
 	public function setStockLevel(Request $request) {
-
 		$admin_id = Owner::menuOwner();
 		$owner_id = Auth::id();
-
 		if ($request->ajax()) {
-
 			$loc_id = Input::get('loc_id');
 			$cat_id = Input::get('cat_id');
-
 			$arr = array();
-
+			
 			$menus = Menu::leftjoin('menu_titles as mt','mt.id', '=','menus.menu_title_id')
-				->join('unit','unit.id','=','menus.unit_id')
-				->select('menus.id as id','menus.item as item','mt.title as title','menus.menu_title_id as cat_id','unit.id as unit_id','unit.name as unit')
-				->where('menus.created_by',$admin_id)
-				->orderBy('menus.menu_title_id','asc')
-				->orderBy('menus.id','asc');
-
+			->join('unit','unit.id','=','menus.unit_id')
+			->select('menus.id as id','menus.item as item','mt.title as title','menus.menu_title_id as cat_id','unit.id as unit_id','unit.name as unit')
+			->where('menus.created_by',$admin_id)
+			->orderBy('menus.menu_title_id','asc')
+			->orderBy('menus.id','asc');
+			
 			if ( isset($cat_id) && $cat_id != '' ) {
 				$result = $menus->where('mt.id',$cat_id)->get();
 			} else {
 				$result = $menus->get();
 			}
 
-			if ( isset($result) && sizeof($result) > 0 ) {
+			if ( isset($result) && !empty($result) ) {
 				foreach( $result as $res ) {
 
 					$arr[$res->id]['id'] = $res->id;
@@ -258,11 +252,8 @@ class LocationsController extends Controller {
 					$arr[$res->id]['unit_id'] = $res->unit_id;
 					$arr[$res->id]['unit'] = $res->unit;
 					//get stock level
-					$stock = StockLevel::where('location_id',$loc_id)
-										->where('item_id',$res->id)
-										->first();
-
-					if( isset($stock) && sizeof($stock) > 0 ) {
+					$stock = StockLevel::where('location_id',$loc_id)->where('item_id',$res->id)->first();
+					if( isset($stock) && !empty($stock) > 0 ) {
 						$arr[$res->id]['order_qty'] = $stock->order_qty;
 						$arr[$res->id]['reserved_qty'] = $stock->reserved_qty;
 						$arr[$res->id]['opening_qty'] = $stock->opening_qty;

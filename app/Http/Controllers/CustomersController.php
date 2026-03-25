@@ -253,10 +253,7 @@ class CustomersController extends Controller {
 	{
 		$outlet_id = Session::get('outlet_session');
 
-		$orders = order_details::where('outlet_id',$outlet_id)
-								->where('user_id',$id)
-								->orderBy('table_end_date','DESC')
-								->get();
+		$orders = order_details::where('outlet_id',$outlet_id)->where('user_id',$id)->orderBy('table_end_date','DESC')->get();
 
 		$customer = Customer::find($id);
 		//print_r($orders);exit;

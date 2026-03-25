@@ -17,7 +17,6 @@ class Location extends Model {
         'name',
         'created_by',
         'updated_by',
-
     );
 
     public function user()
@@ -26,7 +25,6 @@ class Location extends Model {
     }
 
     public static function getLocations( $owner_id) {
-
         /*location array*/
         $locations = array('' => 'Select Location');
         //$locations_list = Location::where('created_by',$owner_id)->lists('name','id');
@@ -44,28 +42,22 @@ class Location extends Model {
             $locations_list = Location::where('created_by',$user->id)->get();
         }
 
-        if( isset($locations_list) && sizeof($locations_list) > 0 ) {
+        if( isset($locations_list) && !$locations_list->isEmpty()) {
             foreach ( $locations_list as $loc) {
                 $locations[$loc->id] = $loc->name;
             }
         }
-
         return $locations;
-
     }
 
     public static function getLocationById($id){
-
         $locaton = Location::find($id);
         return $locaton;
-
     }
 
     public static function getLocationByOutletId($outlet_id){
-
         $location = Location::where('outlet_id',$outlet_id)->get();
         return $location;
-
     }
 
 }
