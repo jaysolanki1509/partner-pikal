@@ -54,7 +54,6 @@ class VendorsController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-
         $v = Validator::make($request->all(), [
             'name' => 'required',
             //'contact_number' => 'required|numeric|digits_between:10,12',
@@ -64,6 +63,7 @@ class VendorsController extends Controller {
 
         if (isset($v) && $v->passes())
         {
+            
             $owner_id = Auth::user()->id;
             $save_continue = Input::get('saveContinue');
             $city = Input::get('cities');
@@ -79,13 +79,13 @@ class VendorsController extends Controller {
             $vendor->contact_person = Input::get('contact_person');
             $vendor->contact_number = Input::get('contact_number');
             $vendor->vendor_gst = strlen($vendor_gst)>0?$vendor_gst:NULL;
-            if(isset($city) && sizeof($city)>0) {
+            if(isset($city) && !empty($city)) {
                 $vendor->city_id = Input::get('cities');
             }
-            if(isset($country) && sizeof($country)>0) {
+            if(isset($country) && !empty($country)) {
                 $vendor->country_id = Input::get('countries');
             }
-            if(isset($states) && sizeof($states)>0) {
+            if(isset($states) && !empty($states)) {
                 $vendor->state_id = Input::get('states');
             }
             $vendor->pincode = Input::get('pincode');
@@ -136,8 +136,8 @@ class VendorsController extends Controller {
             $countries=Country::all();
             $states=State::all();
             $cities=City::all();
-
-            if ( isset($vendor) && sizeof($vendor) > 0 ) {
+            // echo "Vendors <pre>"; print_r($vendor); echo "</pre>"; exit;
+            if ( isset($vendor) && !is_null($vendor) ) {
 
                 return view('vendors.edit',array('countries' => $countries,'states' => $states,'cities' => $cities,'vendor'=>$vendor,'action'=>'edit'));
 
@@ -196,7 +196,9 @@ class VendorsController extends Controller {
 	 */
 	public function destroy($id)
 	{
-        Vendor::where('id',$id)->delete();
+        // Vendor::where('id', $id)->delete();
+        $deleteVendor = Vendor::find($id);
+        $deleteVendor->delete();
         Session::flash('success', 'Vendor has been deleted successfully!');
         return Redirect::to('vendor');
 	}

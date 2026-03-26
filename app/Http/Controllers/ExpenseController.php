@@ -584,7 +584,9 @@ class ExpenseController extends Controller {
     }
 
     public function destroyExpenseCategory($id){
-        ExpenseCategory::where('id',$id)->delete();
+        // ExpenseCategory::where('id',$id)->delete();
+        $deleteExpenseCategory = ExpenseCategory::find($id);
+        $deleteExpenseCategory->delete();
         return Redirect('/expense-category-index')->with('success', 'Expense category Deleted successfully');
     }
 

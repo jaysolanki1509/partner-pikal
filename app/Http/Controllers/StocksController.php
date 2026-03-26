@@ -1549,29 +1549,21 @@ class StocksController extends Controller {
 
         $admin_id = Owner::menuOwner();
         $sess_outlet_id = Session::get('outlet_session');
-        $menus = Menu::leftjoin('menu_titles as mt','mt.id', '=','menus.menu_title_id')
-            ->join('unit','unit.id','=','menus.unit_id')
-            ->select('menus.id as id','menus.item as item','mt.title as title','menus.menu_title_id as cat_id','unit.id as unit_id','unit.name as unit')
-            ->where('menus.created_by',$admin_id)
-            ->orderBy('menus.menu_title_id','asc')
-            ->orderBy('menus.id','asc')->get();
+        $menus = Menu::leftjoin('menu_titles as mt','mt.id', '=','menus.menu_title_id')->join('unit','unit.id','=','menus.unit_id')->select('menus.id as id','menus.item as item','mt.title as title','menus.menu_title_id as cat_id','unit.id as unit_id','unit.name as unit')->where('menus.created_by',$admin_id)->orderBy('menus.menu_title_id','asc')->orderBy('menus.id','asc')->get();
         $arr = array();
         $i = 0;
         foreach( $menus as $res ) {
             //get stock level
 
-            $stock = Stock::join("locations","locations.id","=","stocks.location_id")
-                            ->where("locations.outlet_id","=",$sess_outlet_id)
-                            ->where("item_id",$res->id)->get();
-
-            if(isset($stock) && sizeof($stock)>0) {
+            $stock = Stock::join("locations","locations.id","=","stocks.location_id")->where("locations.outlet_id","=",$sess_outlet_id)->where("item_id",$res->id)->get();
+            
+            if(isset($stock) && !empty($stock)) {
 
                 foreach ($stock as $stk) {
 
-                    $stockLevel = StockLevel::where("location_id",$stk->location_id)
-                                    ->where('item_id',$res->id)->first();
-                    if(isset($stockLevel) && sizeof($stockLevel)>0) {
-
+                    $stockLevel = StockLevel::where("location_id",$stk->location_id)->where('item_id',$res->id)->first();
+                    if(isset($stockLevel) && !empty($stockLevel)) {
+                        
                         $reserve_qty = $stockLevel->reserved_qty;
                         $stock_qty = $stk->quantity;
 

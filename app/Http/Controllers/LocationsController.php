@@ -215,8 +215,9 @@ class LocationsController extends Controller {
 	 */
 	public function destroy($id)
 	{
-		Location::where('id',$id)->delete();
-		// echo "Demo <pre>"; print_r($demo); echo "</pre>"; exit;
+		$deleteLocation = Location::find($id);
+        $deleteLocation->delete();
+		// Location::where('id',$id)->delete();
 		Session::flash('success', 'Location has been deleted successfully!');
 		return Redirect::to('location');
 	}

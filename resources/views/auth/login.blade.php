@@ -7,7 +7,8 @@
     <title>Pikal-Login</title>
     <link type="text/css" rel="stylesheet" href="/assets/css/new/font-awesome.css">
     <link type="text/css" rel="stylesheet" href="/assets/css/new/material-design-iconic-font.css">
-    <link type="text/css" rel="stylesheet" href="/assets/css/new/bootstrap.css">
+    <!-- <link type="text/css" rel="stylesheet" href="/assets/css/new/bootstrap.css"> -->
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link type="text/css" rel="stylesheet" href="/assets/css/new/animate.css">
     <link type="text/css" rel="stylesheet" href="/assets/css/new/layout.css">
     <link type="text/css" rel="stylesheet" href="/assets/css/new/components.css">
@@ -112,7 +113,8 @@
 <!--Page Container End Here-->
 <script src="/assets/js/new/lib/jquery-min.js"></script>
 <script src="/assets/js/new/lib/jquery-migrate-min.js"></script>
-<script src="/assets/js/new/lib/bootstrap-min.js"></script>
+<!-- <script src="/assets/js/new/lib/bootstrap-min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <script src="/assets/js/new/lib/jRespond-min.js"></script>
 <script src="/assets/js/new/lib/hammerjs.js"></script>
 <script src="/assets/js/new/lib/jquery.hammer-min.js"></script>

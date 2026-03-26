@@ -5,8 +5,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Vendor extends Model {
 
-    protected $table ='vendors';
     use SoftDeletes;
+
+    protected $table ='vendors';
 
     protected $softDelete = true;
 

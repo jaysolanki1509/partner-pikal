@@ -555,8 +555,7 @@ class PurchasesController extends Controller {
                 ->where('invoice_bills.id',$id)
                 ->first();
 
-            $items = Menu::where('created_by',$admin_id)
-                                ->where('is_inventory_item',1)->get();
+            $items = Menu::where('created_by',$admin_id)->where('is_inventory_item',1)->get();
             $item_list = array();
             $item_list[''] = "Select Item";
             foreach ($items as $item){
