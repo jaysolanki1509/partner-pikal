@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
+use PhpParser\Node\Expr\PreInc;
 
 class StocksController extends Controller {
 
@@ -167,24 +168,9 @@ class StocksController extends Controller {
 
             $where = 'stocks.location_id in ('. $loc_ids .') AND ';
 
-            $total_records = Stock::leftjoin('menus','menus.id', '=','stocks.item_id')
-                ->leftjoin('unit','unit.id','=','menus.unit_id')
-                ->leftjoin('menu_titles','menus.menu_title_id','=','menu_titles.id')
-                ->leftjoin('locations','locations.id','=','stocks.location_id')
-                ->select('stocks.id as id','menu_titles.title as category','stocks.updated_at as updated_at','menus.item as item','menus.id as item_id','unit.name as unit','stocks.quantity as quantity','locations.name as location','locations.id as loc_id')
-                ->whereRaw(" $where ($search_col)")
-                ->count();
+            $total_records = Stock::leftjoin('menus','menus.id', '=','stocks.item_id')->leftjoin('unit','unit.id','=','menus.unit_id')->leftjoin('menu_titles','menus.menu_title_id','=','menu_titles.id')->leftjoin('locations','locations.id','=','stocks.location_id')->select('stocks.id as id','menu_titles.title as category','stocks.updated_at as updated_at','menus.item as item','menus.id as item_id','unit.name as unit','stocks.quantity as quantity','locations.name as location','locations.id as loc_id')->whereRaw(" $where ($search_col)")->count();
 
-            $stock_result = Stock::leftjoin('menus','menus.id', '=','stocks.item_id')
-                ->leftjoin('unit','unit.id','=','menus.unit_id')
-                ->leftjoin('menu_titles','menus.menu_title_id','=','menu_titles.id')
-                ->leftjoin('locations','locations.id','=','stocks.location_id')
-                ->select('stocks.id as id','menu_titles.title as category','stocks.updated_at as updated_at','menus.item as item','menus.id as item_id','unit.name as unit','stocks.quantity as quantity','locations.name as location','locations.id as loc_id')
-                ->whereRaw(" $where ($search_col)")
-                ->take($input['iDisplayLength'])
-                ->skip($input['iDisplayStart'])
-                ->orderBy($sort_field, $sort)->get();
-
+            $stock_result = Stock::leftjoin('menus','menus.id', '=','stocks.item_id')->leftjoin('unit','unit.id','=','menus.unit_id')->leftjoin('menu_titles','menus.menu_title_id','=','menu_titles.id')->leftjoin('locations','locations.id','=','stocks.location_id')->select('stocks.id as id','menu_titles.title as category','stocks.updated_at as updated_at','menus.item as item','menus.id as item_id','unit.name as unit','stocks.quantity as quantity','locations.name as location','locations.id as loc_id')->whereRaw(" $where ($search_col)")->take($input['iDisplayLength'])->skip($input['iDisplayStart'])->orderBy($sort_field, $sort)->get();
 
             if ( $total_records > 0 ) {
 
@@ -228,7 +214,7 @@ class StocksController extends Controller {
 
         /*location array*/
         $locations = array('' => 'Select Location');
-            $locations_list = Location::where('outlet_id',$outlet_id)->get();
+        $locations_list = Location::where('outlet_id',$outlet_id)->get();
 
         if( isset($locations_list) && sizeof($locations_list) > 0 ) {
             foreach ( $locations_list as $loc ) {
@@ -238,10 +224,8 @@ class StocksController extends Controller {
                 $locations[$loc->id] = $loc->name;
             }
         }
-
         $admin_id = Owner::menuOwner();
-        $items = Menu::where('created_by',$admin_id)
-                ->where('is_inventory_item',1)->get();
+        $items = Menu::where('created_by',$admin_id)->where('is_inventory_item',1)->get();
         $item_list = array();
         $cnt = 0;
         foreach ($items as $item){
@@ -250,16 +234,13 @@ class StocksController extends Controller {
             $item_list[$cnt]['order_unit'] = $item->order_unit;
             $cnt++;
         }
-
         $units = ['' => 'Select Unit'];
         $units_arr = Unit::lists('name','id');
-
         if ( isset($units_arr) && sizeof($units_arr) > 0 ) {
             foreach( $units_arr as $id=>$uni ) {
                 $units[$id] = $uni;
             }
         }
-
 		return view('stocks.index',array('selected_location'=>$selected_location,'locations'=>$locations,'units'=>$units, 'items'=>$item_list));
 	}
 
@@ -279,7 +260,7 @@ class StocksController extends Controller {
 
         if ( isset($menu->secondary_units) && $menu->secondary_units != '') {
             $sec_unit = json_decode($menu->secondary_units);
-            if ( isset($sec_unit) && sizeof($sec_unit) > 0 ) {
+            if ( isset($sec_unit) && !empty($sec_unit)) {
                 foreach( $sec_unit as $key=>$qty ) {
                     if ( $key == $unit_id[0]) {
                         $quantity *= $qty;
@@ -289,9 +270,7 @@ class StocksController extends Controller {
         }
 
         DB::beginTransaction();
-
-        if ( isset($check_stock) && sizeof($check_stock) > 0 ) {
-
+        if ( isset($check_stock) && !empty($check_stock) ) {
             $check_stock->quantity = $check_stock->quantity + floatval($quantity);
             $result = $check_stock->save();
 
@@ -1327,7 +1306,7 @@ class StocksController extends Controller {
         $loc_id = Input::get('location_id');
         $item_id = Input::get('item_id');
         $page = Input::get("page");
-
+        echo "page <pre>"; print_r($page); echo "</pre>"; 
         if(isset($page) && sizeof($page)){
 
             $stock_detail = StockHistory::join('menus','menus.id','=','stock_history.item_id')
@@ -1403,13 +1382,13 @@ class StocksController extends Controller {
             }
 
             $check_stock = Stock::where('location_id',$location_id)->where('item_id',$item_id)->first();
-
             $result = '';
-            if ( isset($check_stock) && sizeof($check_stock) > 0) {
+            if ( isset($check_stock) && !empty($check_stock) ) {
                 $menu = Menu::join('unit','unit.id','=','menus.unit_id')->where('menus.id',$item_id)->first();
 
                 if ( isset($menu->secondary_units) && $menu->secondary_units != '') {
                     $sec_unit = json_decode($menu->secondary_units);
+                    
                     if ( isset($sec_unit) && sizeof($sec_unit) > 0 ) {
                         foreach( $sec_unit as $key=>$qty ) {
                             if ( $key == $unit_id[0]) {
@@ -1418,7 +1397,7 @@ class StocksController extends Controller {
                         }
                     }
                 }
-
+                // echo "Value <pre>"; print_r($check_stock); echo "</pre>"; 
 
                 $check_stock->quantity = $check_stock->quantity - floatval($remove_qty);
                 $result = $check_stock->save();
@@ -1467,7 +1446,6 @@ class StocksController extends Controller {
             $response['msg'] = 'Some error ocurred, Please try again later';
             DB::rollBack();
         }
-
         return json_encode($response);
     }
 
@@ -1486,7 +1464,7 @@ class StocksController extends Controller {
             $item_id = Input::get('item_id');
             $unit_id = Input::get('unit_id');
             $price = Input::get('price');
-//print_r($unit_id);exit;
+
             $param = array(
                 'from_loc'=>$from_loc,
                 'to_loc'=>$to_loc,

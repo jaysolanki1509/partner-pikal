@@ -70,7 +70,8 @@ $admin = \Illuminate\Support\Facades\Auth::user()->created_by;
                     <td>{!! $order->payment_mode !!}</td>
                     {{--<td style="text-align: right;">{!! (new DateTime($order->table_start_date))->diff(new DateTime($order->table_end_date))->format("%H:%I") !!}</td>--}}
                     <td data-sort-value="{{ strtotime($order->$order_date_field) }}">{!! Carbon::parse($order->$order_date_field)->format('d-m-Y  h:i A') !!}</td>
-                    <td class="@if(isset($flag) && $flag == 'order_report')@else hide @endif td-center">
+                    <!-- <td class="@if(isset($flag) && $flag == 'order_report')@else hide @endif td-center"> -->
+                        <td class="{{ ($flag ?? '') == 'order_report' ? 'td-center' : 'hide td-center' }}">
                         @if( isset($order->invoice_no) && $order->invoice_no != '')
                             <a class="row-edit" title="Print Order" href="javascript:void(0)" onclick="openOrderView({!! $order->order_id !!},'close')"><span class="zmdi zmdi-local-printshop"></span></a>
                             <br><hr style="margin-top: 5px;margin-bottom: 5px">

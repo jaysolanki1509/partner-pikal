@@ -90,12 +90,10 @@ class Menu extends Model {
                     $stock = Stock::where('item_id',$menu->id)->where('location_id',$location_id)->first();
                     //get open stock detail
                     $open_stock = StockLevel::where('location_id',$location_id)->where('item_id',$menu->id)->first();
-
-                    if ( isset($stock) && sizeof($stock) > 0 ) {
-
+                    if ( isset($stock) && !empty($open_stock)) {
                         $menu_arr[$i]['stock'] = $stock->quantity;
-
-                        if ( isset($open_stock) && sizeof($open_stock) > 0 ) {
+                        
+                        if ( isset($open_stock) && !empty($open_stock) ) {
                             $req_stock = $open_stock->opening_qty - $stock->quantity;
                             $menu_arr[$i]['open_stock'] = $req_stock;
                         } else {
@@ -105,7 +103,7 @@ class Menu extends Model {
                     } else {
                         $menu_arr[$i]['stock'] = 0;
 
-                        if ( isset($open_stock) && sizeof($open_stock) > 0 ) {
+                        if ( isset($open_stock) && !empty($open_stock)) {
                             $menu_arr[$i]['open_stock'] = $open_stock->opening_qty;
                         } else {
                             $menu_arr[$i]['open_stock'] = '';
@@ -129,27 +127,19 @@ class Menu extends Model {
                     $i++;
                 }
             }
-
             return $menu_arr;
-
         } else {
-
             /*$menu_items_list = Menu::getMenuByUserId($menu_owner)->lists('id');
 
             $request_false = StockLevel::where('request_item','=','false')
                 ->where('location_id',$location_id)
                 ->wherein('item_id',$menu_items_list)->lists('item_id');*/
 
-            $menus = Menu::leftjoin('unit as u','u.id','=','menus.unit_id')
-                ->leftjoin('stock_level as sl','sl.item_id','=','menus.id')
-                ->where('sl.request_item','true')
-                ->where('sl.location_id',$location_id)
-                ->where('menus.created_by',$menu_owner)
-                ->select('menus.id as id','menus.item as item','menus.order_unit as order_unit','menus.secondary_units as other_units','u.name as unit','u.id as unit_id','sl.opening_qty as opening_stock')
+            $menus = Menu::leftjoin('unit as u','u.id','=','menus.unit_id')->leftjoin('stock_level as sl','sl.item_id','=','menus.id')->where('sl.request_item','true')->where('sl.location_id',$location_id)->where('menus.created_by',$menu_owner)->select('menus.id as id','menus.item as item','menus.order_unit as order_unit','menus.secondary_units as other_units','u.name as unit','u.id as unit_id','sl.opening_qty as opening_stock')->where('menus.menu_title_id', $cat_id)->get();
                 //->wherenotin('menus.id',$request_false)
-                ->where('menus.menu_title_id', $cat_id)->get();
-
+                
             $menu_arr = array();
+
             if ( isset($menus) && sizeof($menus) > 0 ) {
                 $i = 0;
                 foreach( $menus as $menu ) {

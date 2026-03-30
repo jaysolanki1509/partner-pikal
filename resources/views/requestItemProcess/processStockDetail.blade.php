@@ -1,19 +1,13 @@
 <?php  use App\Unit;$count=0; ?>
-@if ( isset($requests) && sizeof($requests) > 0 )
+@if ( isset($requests) && !empty($requests) )
     @foreach( $requests as $item_request )
 
         <?php
-        $categories = \App\ItemRequest::Join('menus','menus.id','=','item_request.what_item_id')
-                                ->Join('menu_titles','menu_titles.id','=','menus.menu_title_id')
-                                ->select('item_request.id', 'item_request.what_item_id', 'item_request.what_item', 'item_request.owner_to','item_request.owner_by','item_request.when', 'item_request.qty', 'item_request.existing_qty', 'menus.id', 'menus.menu_title_id', 'menus.item', 'menu_titles.title')
-                                ->groupBy('menu_titles.title')
-                                ->where('item_request.owner_to','=',$owner_id)
-                                ->where('item_request.owner_by','=',$item_request->owner_by)
-                                ->where('item_request.satisfied','=',"No")->get();
+        $categories = \App\ItemRequest::Join('menus','menus.id','=','item_request.what_item_id')->Join('menu_titles','menu_titles.id','=','menus.menu_title_id')->select('item_request.id', 'item_request.what_item_id', 'item_request.what_item', 'item_request.owner_to','item_request.owner_by','item_request.when', 'item_request.qty', 'item_request.existing_qty', 'menus.id', 'menus.menu_title_id', 'menus.item', 'menu_titles.title')->groupBy('menu_titles.title')->where('item_request.owner_to','=',$owner_id)->where('item_request.owner_by','=',$item_request->owner_by)->where('item_request.satisfied','=',"No")->get();
         ?>
 
         <div id="data_div">
-            @if( isset($categories) && sizeof($categories) > 0)
+            @if( isset($categories) && !empty($categories))
 
                 @foreach($categories as $category)
                     <div class="col-md-12">
@@ -40,13 +34,12 @@
                             <th>Location</th>
                             <th>Available Qty</th>
                             <th>Satisfied Qty</th>
-
                             <th></th>
                         </thead>
 
                         <tbody>
 
-                        @if(sizeof($requests) > 0)
+                        @if($requests && !empty($requests))
 
                             @foreach($requests as $request)
                                 <tr id="{!! $request->item_id !!}" data-item-id="{!! $request->what_item_id !!}">
@@ -55,12 +48,8 @@
                                     <td class="text-center">{!! $request->qty !!} {!! $request->unit !!}</td>
                                     <td>{!! $loc_text !!}</td>
                                     <?php
-                                        $st_detail = \App\Stock::join('menus','menus.id','=','stocks.item_id')
-                                                        ->join('unit','unit.id','=','menus.unit_id')
-                                                        ->where('item_id',$request->what_item_id)
-                                                        ->where('location_id',$loc_id)
-                                                        ->first();
-                                        if ( isset($st_detail) && sizeof($st_detail) > 0 ) {
+                                        $st_detail = \App\Stock::join('menus','menus.id','=','stocks.item_id')->join('unit','unit.id','=','menus.unit_id')->where('item_id',$request->what_item_id)->where('location_id',$loc_id)->first();
+                                        if ( isset($st_detail) && !empty($st_detail) ) {
                                             $st_qty = $st_detail->quantity." ".$st_detail->name;
                                         } else {
                                             $st_qty = 0;

@@ -1616,7 +1616,6 @@ class RequestItemProcessController extends Controller {
 	}
 
 	public function getProcessStockDetail(){
-
 		$loc_id = Input::get('loc_id');
 		$satisfied_date = Input::get('satisfied_date');
 		$user_id = Input::get('user_id');
@@ -1624,14 +1623,8 @@ class RequestItemProcessController extends Controller {
 		$owner_id = Auth::id();
         $view = Input::get('view');
 
-
-		$item_requests = ItemRequest::groupBy('item_request.owner_by')
-								->where('item_request.owner_by','=',$user_id)
-								->where('item_request.owner_to','=',$owner_id)
-								->where('item_request.satisfied','=',"No")->get();
+		$item_requests = ItemRequest::groupBy('item_request.owner_by')->where('item_request.owner_by','=',$user_id)->where('item_request.owner_to','=',$owner_id)->where('item_request.satisfied','=',"No")->get();
 
 		return view('requestItemProcess.processStockDetail',array('view'=>$view,'requests'=>$item_requests,'owner_id'=>$owner_id,'loc_text'=>$loc_text,'loc_id'=>$loc_id));
-
 	}
-
 }

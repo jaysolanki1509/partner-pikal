@@ -165,6 +165,10 @@ use Devfactory\Minify\Minify as Minify;
                                 <div class="form-group col-md-6">
                                     <select id="remove_location_id" name="remove_location_id" class="form-control" >{{--onchange="removeItemDetail(this.value)">--}}
                                         @foreach($locations as $key=>$val)
+                                                <!-- $res = @if($key == $selected_location) selected @endif;
+                                              <option $res value="{!! $key !!}" >
+                                                {!! $val !!}
+                                            </option> -->
                                             @if($key == $selected_location)
                                                 <option selected value="{!! $key !!}">{!! $val !!}</option>
                                             @else

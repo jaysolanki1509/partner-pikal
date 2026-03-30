@@ -43,12 +43,7 @@ class RequestItemController extends Controller {
 
 		//$item_requests = ItemRequest::getPendingRequestedItemsByOwner_ById($user_id);
 
-		$items = ItemRequest::leftJoin('menus','menus.id','=','item_request.what_item_id')
-			->leftJoin('menu_titles','menu_titles.id','=','menus.menu_title_id')
-			->select('item_request.id','item_request.location_for', 'item_request.what_item_id', 'item_request.what_item', 'item_request.owner_to','item_request.owner_by','item_request.when', 'item_request.qty', 'item_request.existing_qty', 'menus.id', 'menus.menu_title_id', 'menus.item', 'menu_titles.title')
-			->groupBy('item_request.owner_to')
-			->where('item_request.owner_by','=',$user_id)
-			->where('item_request.satisfied','=',"No")->get();
+		$items = ItemRequest::leftJoin('menus','menus.id','=','item_request.what_item_id')->leftJoin('menu_titles','menu_titles.id','=','menus.menu_title_id')->select('item_request.id','item_request.location_for', 'item_request.what_item_id', 'item_request.what_item', 'item_request.owner_to','item_request.owner_by','item_request.when', 'item_request.qty', 'item_request.existing_qty', 'menus.id', 'menus.menu_title_id', 'menus.item', 'menu_titles.title')->groupBy('item_request.owner_to')->where('item_request.owner_by','=',$user_id)->where('item_request.satisfied','=',"No")->get();
 
 		/*$item_details=$pending_requested_items = ItemRequest::where('item_request.owner_by',$user_id)
                         ->where('satisfied',"No")
@@ -204,7 +199,7 @@ class RequestItemController extends Controller {
 			$today = date('Y-m-d');
 
 			for ($i = $min_id; $i <= $count; $i++) {
-				//$item = ItemMaster::getItemsByItemId($i);
+				//$item = ItemMaster::ByItemId($i);
 				$item = Menu::where('id','=',$i)->first();
 				$itemRequest = new ItemRequest();
 				if (isset($input['req_qty' . $i])) {
@@ -305,16 +300,11 @@ class RequestItemController extends Controller {
 			}
 		}
 
-		$request = ItemRequest::join('menus as m','m.id','=','item_request.what_item_id')
-								->join('unit as u','u.id','=','m.unit_id')
-								->select('item_request.*','m.item as item','u.id as unit_id','u.name as unit_name','m.secondary_units as other_units')
-								->where('item_request.id',$id)->first();
+		$request = ItemRequest::join('menus as m','m.id','=','item_request.what_item_id')->join('unit as u','u.id','=','m.unit_id')->select('item_request.*','m.item as item','u.id as unit_id','u.name as unit_name','m.secondary_units as other_units')->where('item_request.id',$id)->first();
 
 		//order_units
 		$unit_arr = Unit::all()->lists('name','id');
-
-		if ( isset($request) && sizeof($request) > 0 ) {
-
+		if ( isset($request) && !empty($request) ) {
 			$ot_unit[$request->unit_id] = $request->unit_name;
 			if( isset($request->other_units) && $request->other_units != '' ) {
 				$ounits = json_decode($request->other_units);
@@ -334,14 +324,10 @@ class RequestItemController extends Controller {
 
         }
 
-        $item_list = Menu::leftjoin('menu_titles','menu_titles.id', '=','menus.menu_title_id')
-            ->leftjoin('unit','unit.id','=','menus.unit_id')
-            ->whereIn('menus.created_by',$user_arr)
-            ->select('menus.id as id','menus.item as item','menus.secondary_units as other_units','menus.order_unit as order_unit','menu_titles.title as category','menus.unit_id as unit_id','unit.name as unit_name')
-			->get();
+        $item_list = Menu::leftjoin('menu_titles','menu_titles.id', '=','menus.menu_title_id')->leftjoin('unit','unit.id','=','menus.unit_id')->whereIn('menus.created_by',$user_arr)->select('menus.id as id','menus.item as item','menus.secondary_units as other_units','menus.order_unit as order_unit','menu_titles.title as category','menus.unit_id as unit_id','unit.name as unit_name')->get();
 
         $item_arr = array();
-        if(isset($item_list) && sizeof($item_list)>0){
+        if(isset($item_list) && !empty($item_list)){
 			$cnt = 0;
             foreach ($item_list as $item) {
 
@@ -351,12 +337,9 @@ class RequestItemController extends Controller {
 				$item_arr[$cnt]['unit_name'] = $item->unit_name;
 				$item_arr[$cnt]['order_unit'] = $item->order_unit;
 
-
 				$cnt++;
             }
         }
-
-
 		return view('requestItem.edit',array('item_list'=>$item_arr,'request'=>$request,'locations'=>$locations,'owners'=>$owners,'unit'=>$unit_arr,'ot_unit'=>$ot_unit));
 	}
 
@@ -412,7 +395,9 @@ class RequestItemController extends Controller {
 	 */
 	public function destroy($id)
 	{
-		ItemRequest::where('id',$id)->delete();
+		$deleteItemRequest = ItemRequest::find($id);
+        $deleteItemRequest->delete();
+		// ItemRequest::where('id',$id)->delete();
 		Session::flash('success', 'Request has been deleted successfully!');
 		return Redirect::to('requestItem');
 	}
@@ -501,15 +486,12 @@ class RequestItemController extends Controller {
 		//$items = Menu::getmenubymenutitleid($cate_id);
 		$items = Menu::getItemsQuanityonLocation($cate_id,$location_id);
 
-
 		if( preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"])){
 			return view('requestItem.mobileItems',array('user_id'=>$user_id,'cate_id'=>$cate_id, 'location_name'=>$location_name, 'items' => $items,'req_date'=>$req_date));
 		} else {
             return view('requestItem.items',array('user_id'=>$user_id,'cate_id'=>$cate_id, 'location_name'=>$location_name, 'items' => $items,'req_date'=>$req_date));
 		}
-
 	}
-
     public function addCategory(){
         $cat_name=Input::get("name_category");
         $display_number=DB::table('categories')->max('display_order');
