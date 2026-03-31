@@ -102,13 +102,10 @@ class AttendanceController extends Controller {
 				->where('out_time',NULL)
 				->orderBy('id','DESC')
 				->first();
-
-			if ( isset($check) && sizeof($check) > 0 ) {
-
+			if ( isset($check) && !empty($check) ) {
 				$check->out_time = $time;
 				$check->updated_by = $owner_id;
 				$result = $check->save();
-
 			} else {
 				return 'not found';
 			}
@@ -121,9 +118,7 @@ class AttendanceController extends Controller {
 			$att->created_by = $owner_id;
 			$att->updated_by = $owner_id;
 			$att->in_time = $time;
-
 			$result = $att->save();
-
 		}
 
 		if ( $result ) {
@@ -131,7 +126,6 @@ class AttendanceController extends Controller {
 		} else {
 			return 'error';
 		}
-
 	}
 
 	/**
@@ -563,16 +557,13 @@ class AttendanceController extends Controller {
 	public function createStaff() {
 
 		$owner = Owner::menuOwner();
-
 		$shifts = StaffShift::where('created_by',$owner)->get();
-
 		$roles = StaffRole::where('created_by',$owner)->lists('name','id');
 		$sft = array();
-
-		if ( isset($shifts) && sizeof($shifts) > 0 ) {
+		if ( isset($shifts) && !empty($shifts) ) {
 			foreach( $shifts as $sf ) {
                 $timing = '';
-				if ( isset($sf->slots) && sizeof($sf->slots) > 0 ) {
+				if ( isset($sf->slots) && !empty($shifts) ) {
 					$slots = json_decode($sf->slots,true);
 					foreach( $slots as $sl ) {
 						if ( isset($timing) && $timing != '' ) {
@@ -580,15 +571,12 @@ class AttendanceController extends Controller {
 						} else {
 							$timing .= $sl['from']." to ".$sl['to'];
 						}
-
 					}
 				}
 				$sft[$sf->id] = $sf->name." ( ".$timing." )";
 			}
 		}
-
 		return view("attendance.createstaff",array('shifts'=>$sft,'roles'=>$roles,'action'=>'add'));
-
 	}
 
 	public function storeStaff (Request $request) {
@@ -661,10 +649,10 @@ class AttendanceController extends Controller {
 		$roles = StaffRole::where('created_by',$owner)->lists('name','id');
         $sft = array();
 
-        if ( isset($shifts) && sizeof($shifts) > 0 ) {
+        if ( isset($shifts) && !empty($shifts) ) {
             foreach( $shifts as $sf ) {
                 $timing = '';
-                if ( isset($sf->slots) && sizeof($sf->slots) > 0 ) {
+                if ( isset($sf->slots) && !empty($sf->slots) ) {
                     $slots = json_decode($sf->slots,true);
 
                     foreach( $slots as $sl ) {
@@ -676,13 +664,10 @@ class AttendanceController extends Controller {
 
                     }
                 }
-
                 $sft[$sf->id] = $sf->name." ( ".$timing." )";
             }
         }
-
 		return view("attendance.createstaff",array('staff'=>$staff,'shifts'=>$sft,'roles'=>$roles,'action'=>'edit'));
-
 	}
 
 	public function updateStaff($id) {

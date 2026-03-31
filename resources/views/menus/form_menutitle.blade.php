@@ -46,7 +46,7 @@
                                 <div class="col-md-8">
                                     <label for="title" class="col-md-12 control-label">Active</label>
                                     <div class="col-md-12">
-                                        @if(isset($active) && sizeof($active))
+                                        @if(isset($active) && !empty($active))
                                             @if($active==0)
                                                 <div class="col-md-6">
                                                     <label class="radio">
@@ -98,7 +98,7 @@
                                 <div class="col-md-8">
                                     <label for="title" class="col-md-12 control-label">For Sale</label>
                                     <div class="col-md-12">
-                                        @if(isset($is_sale) && sizeof($is_sale))
+                                        @if(isset($is_sale) && !empty($is_sale))
                                             @if($is_sale==0)
                                                 <div class="col-md-6">
                                                     <label class="radio">

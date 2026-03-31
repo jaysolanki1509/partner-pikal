@@ -1536,7 +1536,7 @@ class ReportController extends Controller {
 			$locations = Location::where('created_by', $menu_owner)->get();
 			$from_date = Input::get('from_date');
 			$to_date = Input::get('to_date');
-//echo $flag;exit;
+            //echo $flag;exit;
 			Session::set('from_session',$from_date);
 			Session::set('to_session',$to_date);
 			$from_date = $from_date." 00:00:00";
@@ -1577,6 +1577,7 @@ class ReportController extends Controller {
 				->lists('what_item_id');*/
 			$result = array();$loc_arr = array();
 			$date_arr = $this->createDateRangeArray($from_date, $to_date);
+           
 			foreach ($locations as $loc) {
 				/*foreach ($total_item_ids as $index => $req_item_id) {*/
 					foreach ($date_arr as $key => $val) {
@@ -1622,7 +1623,7 @@ class ReportController extends Controller {
             $data['dates'] = $date_arr;
 			$excel_name = 'Stock_Response_Report_from_'.$from_date.'_to_'.$to_date;
 			if ( isset($flag) && $flag == 'export' ) {
-				if ( isset($result) && sizeof($result) > 0 ) {
+				if ( isset($result) && !empty($result) ) {
 						Excel::create($excel_name, function($excel) use($data) {
 							$excel->sheet('Sheet1', function($sheet) use($data) {
 								$row = 1;
@@ -1787,6 +1788,7 @@ class ReportController extends Controller {
 						})->download('xls');
 				}
 			}
+             
             return view('report.stockResponseReportList',array('data'=>$data));
         }
         $hasOwner = Owner::hasCreatedBy();
@@ -1864,6 +1866,7 @@ class ReportController extends Controller {
 		}
 		$locations = Location::where('created_by',$admin)->lists('name','id');
 		$locations[''] = 'All Location';
+        echo "hello <pre>"; print_r($locations); echo "</pre>"; exit;
 		return view('report.closingStockReport',array('locations' => $locations));
 	}
 	public function stockAgeingReport(Request $request) {

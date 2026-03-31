@@ -162,7 +162,6 @@ class Menu extends Model {
                         } else {
                             $menu_arr[$i]['open_stock'] = '';
                         }
-
                     } else {
                         $menu_arr[$i]['stock'] = 0;
 
@@ -172,7 +171,6 @@ class Menu extends Model {
                             $menu_arr[$i]['open_stock'] = '';
                         }
                     }
-
                     $j = 0;
                     $menu_arr[$i]['other_unit'][$j]['id'] = $menu->unit_id;
                     $menu_arr[$i]['other_unit'][$j]['name'] = $menu->unit;
@@ -189,7 +187,6 @@ class Menu extends Model {
             }
             return $menu_arr;
         }
-
     }
 
     public static function deletemenuofoutlet($id){
@@ -207,13 +204,13 @@ class Menu extends Model {
     }
 
     // additional
-//    get menu item by outletid and item name
+//  get menu item by outletid and item name
     public static function getmenuitembyoutletid($outlet_id,$item){
         $outlet_item = Menu::where('outlet_id',$outlet_id)->where('item',$item)->first();
         return $outlet_item;
     }
 
-    //    get menu item by titleid and outletid
+    //  get menu item by titleid and outletid
     public static function getmenuitembytitleid($title_id,$outlet_id)
     {
         $title_items = Menu::where('menu_title_id', $title_id)->where('outlet_id', $outlet_id)->first();
@@ -251,7 +248,6 @@ class Menu extends Model {
             if (isset($menu))
                 $total_price += isset($menu->buy_price) ? $menu->buy_price : 0;
         }
-
         return $total_price;
     }
 
@@ -274,11 +270,9 @@ class Menu extends Model {
             }
         }
         return $other_unit;
-
     }
 
     public static function geOutletMenu($rest_id) {
-
         $menu=MenuTitle::select('menus.*','menu_titles.title')
             ->join("outlet_menu_bind","outlet_menu_bind.menu_id","=","menu_titles.id")
             ->join("menus","menus.id","=","outlet_menu_bind.item_id")
@@ -291,7 +285,6 @@ class Menu extends Model {
 
         $a=array();
         foreach($menu as $m) {
-
             $cuisine=CuisineType::find($m->cuisine_type_id);
 
             #TODO: check item is_sale and active outletwise
@@ -329,14 +322,10 @@ class Menu extends Model {
                 array_push($a[$m->title],$inner_array);
             }
         }
-
         return $a;
-
     }
-
     #TODO: provide only menu items
     public static function getOutletMenuItems($outlet_id) {
-
         $menu = Menu::select("menus.id as id","menus.item as item","menus.price as price")
             ->join("outlet_menu_bind","outlet_menu_bind.item_id","=","menus.id")
             ->where('outlet_menu_bind.outlet_id',$outlet_id)
@@ -347,28 +336,23 @@ class Menu extends Model {
 
         $item_arr = array();$i=0;
 
-        if ( isset($menu) && sizeof($menu) > 0 ) {
+        if ( isset($menu) && !empty($menu) ) {
             foreach ( $menu as $itm ) {
-
                 #TODO: check item is_sale and active outletwise
                 $is_sale = 1;$active = 0;
                 $itm_setting_arr = ItemSettings::where('outlet_id',$outlet_id)->where('item_id',$itm->id)->first();
 
-                if( isset($itm_setting_arr) && sizeof($itm_setting_arr) > 0 ) {
+                if( isset($itm_setting_arr) && !empty($itm_setting_arr) > 0 ) {
                     if ( $itm_setting_arr->is_sale == 0 || $itm_setting_arr->is_active == 1 ) {
                         continue;
                     }
                 }
-
                 $item_arr[$i]['id'] = $itm->id;
                 $item_arr[$i]['name'] = $itm->item;
                 $item_arr[$i]['price'] = $itm->price;
                 $i++;
             }
         }
-
         return $item_arr;
-
     }
-
 }

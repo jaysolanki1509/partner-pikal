@@ -1712,8 +1712,7 @@ class MenuController extends Controller {
         $menu_owner=Owner::menuOwner();
 
         $menu_title = MenuTitle::find($id);
-//        print_r($menu_title);exit;
-        if(isset($menu_title) && sizeof($menu_title)>0){
+        if(isset($menu_title) && !empty($menu_title)){
             $title = $menu_title->title;
             $is_sale = $menu_title->is_sale;
             $active = $menu_title->active;
@@ -1723,7 +1722,6 @@ class MenuController extends Controller {
         }else{
             return Redirect::back()->with('error','Category not found.');
         }
-
     }
 
     public function check_menu_title(){

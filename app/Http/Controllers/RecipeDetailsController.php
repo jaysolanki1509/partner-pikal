@@ -560,8 +560,7 @@ class RecipeDetailsController extends Controller {
 
         $rec_detail = RecipeDetails::getRecipeDetailsById($rec_id);
         $ingredients = Ingredients::getIngredientsByRecipeId($rec_detail->id);
-
-        if ( isset($ingredients) && sizeof($ingredients) > 0 ) {
+        if ( isset($ingredients) && !empty($ingredients) ) {
             $i = 0;
             foreach($ingredients as $ingredient)
             {
@@ -573,9 +572,7 @@ class RecipeDetailsController extends Controller {
 
                 $i++;
             }
-
         }
-
         //locations
         $locations = Location::where('created_by',$owner_id)->lists('name','id');
 
