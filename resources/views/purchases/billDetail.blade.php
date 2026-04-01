@@ -1,7 +1,5 @@
 <div id="invoice_print">
-
-    @if( isset($bill) && sizeof($bill) )
-
+    @if( isset($bill) && !empty($bill) )
         <table cellpadding="0" cellspacing="0" style=" max-width:100%;
                                                         margin:auto;
                                                         padding:30px;

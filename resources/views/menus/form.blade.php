@@ -506,9 +506,16 @@ $account = \App\Account::find($acc_id);
                             <div class="form-group option-select-div">
                                 <div class="col-md-12">
                                     <select name="option_groups[]" placeholder="Select option group" class="form-control" id="option_groups" multiple >
-                                        @if( isset($option_groups) && sizeof($option_groups) > 0 )
+                                        @if( isset($option_groups) && !empty($option_groups) )
                                             @for( $i=0; $i < sizeof($option_groups); $i++ )
-                                                <option @if(isset($selected_option_groups))@if(in_array($option_groups[$i]->id,$selected_option_groups)) selected @endif @endif value="{{ $option_groups[$i]->id }}">{{ $option_groups[$i]->name }}</option>
+                                                {{-- <option @if(isset($selected_option_groups))@if(in_array($option_groups[$i]->id,$selected_option_groups)) selected @endif @endif value="{{ $option_groups[$i]->id }}">{{ $option_groups[$i]->name }}</option> --}}
+                                                <option 
+                                                @if(isset($selected_option_groups) && in_array($option_groups[$i]->id, $selected_option_groups->pluck('id')->toArray()))
+                                                    selected
+                                                @endif
+                                                value="{{ $option_groups[$i]->id }}">
+                                                {{ $option_groups[$i]->name }}
+                                            </option>
                                             @endfor
                                         @endif
                                     </select>

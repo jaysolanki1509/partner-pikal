@@ -1866,7 +1866,7 @@ class ReportController extends Controller {
 		}
 		$locations = Location::where('created_by',$admin)->lists('name','id');
 		$locations[''] = 'All Location';
-        echo "hello <pre>"; print_r($locations); echo "</pre>"; exit;
+        // <!-- echo "hello <pre>"; print_r($locations); echo "</pre>"; exit; -->
 		return view('report.closingStockReport',array('locations' => $locations));
 	}
 	public function stockAgeingReport(Request $request) {

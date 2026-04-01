@@ -202,7 +202,7 @@ class MenuController extends Controller {
 
                     $visibility = '';
                     $itm_setting = ItemSettings::where('item_id',$menu->id)->where('outlet_id',$outlet_id)->first();
-                    if ( isset($itm_setting) && sizeof($itm_setting) > 0 ) {
+                    if ( isset($itm_setting) && !empty($itm_settings) ) {
 
                         if ( $itm_setting->is_sale == 1 ) {
                             $visibility .='<span class="label label-success" style="cursor: pointer;" onclick=changeSetting(this,"is_sale")>Is Sale</span><br>';
@@ -231,9 +231,9 @@ class MenuController extends Controller {
 
                     //check item has been bind or not
                     $itm_bind = Outlet_Menu_Bind ::where('item_id',$menu->id)->where('outlet_id',$outlet_id)->first();
+                    // echo "<pre>"; print_r($itm_bind); echo "</pre>"; exit;
 
-                    if ( isset($itm_bind) && sizeof($itm_bind) > 0 ) {
-
+                    if ( isset($itm_bind) && !empty($itm_bind) ) {
                         $visibility .='<span class="label label-success" style="cursor: pointer;" onclick=changeSetting(this,"is_bind")>Is Bind</span>';
 
                     } else {
@@ -298,20 +298,20 @@ class MenuController extends Controller {
         $myOutlets=Outlet::whereIn('id',$myOutlets_id)->lists('name','id');
         $units=Unit::all()->lists('name','id');
         $tax_slot_array[''] = 'Select Tax Slot';
-
         $menu_title_list = array('' => 'Select Category');
         $menu_title = MenuTitle::where('created_by',$menu_owner)->lists('title','id');
-        if( isset($menu_title) && sizeof($menu_title) > 0 ) {
+        
+        if( isset($menu_title) && !empty($menu_title) ) {
             foreach ( $menu_title as $id => $title ) {
                 $menu_title_list[$id] = $title;
             }
         }
         $outlet_id = Session::get('outlet_session');
-        if(isset($outlet_id) && sizeof($outlet_id)>0) {
+        if(isset($outlet_id) && !is_array($outlet_id) && !empty($outlet_id)) {
             $outlet = Outlet::find($outlet_id);
-            if(isset($outlet) && sizeof($outlet)>0) {
+            if(isset($outlet) && !empty($outlet)>0) {
                 $taxes = json_decode($outlet->taxes);
-                if(isset($taxes) && sizeof($taxes)>0){
+                if(isset($taxes) && !empty($taxes)){
                     foreach ($taxes as $tax_title=>$child_tax){
                         $tax_slot_array[$tax_title] = $tax_title;
                     }
@@ -937,7 +937,7 @@ class MenuController extends Controller {
                             $secondary_units[$sec_id] = $sec_unit_val[$key];
                         }
                     }
-                    if ( isset($secondary_units) && sizeof($secondary_units) > 0 && is_array($secondary_units) ) {
+                    if ( isset($secondary_units) && !empty($secondary_units) && is_array($secondary_units) ) {
                         $menu->secondary_units = json_encode($secondary_units);
                     }
                 }
@@ -1226,11 +1226,11 @@ class MenuController extends Controller {
         }
 
         $outlet_id = Session::get('outlet_session');
-        if(isset($outlet_id) && sizeof($outlet_id)>0) {
+        if(isset($outlet_id) && !empty($outlet_id)) {
             $outlet = Outlet::find($outlet_id);
-            if(isset($outlet) && sizeof($outlet)>0) {
+            if(isset($outlet) && !empty($outlet)) {
                 $taxes = json_decode($outlet->taxes);
-                if(isset($taxes) && sizeof($taxes)>0){
+                if(isset($taxes) && !empty($taxes)>0){
                     foreach ($taxes as $tax_title=>$child_tax){
                         $tax_slot_array[$tax_title] = $tax_title;
                     }
@@ -1497,7 +1497,7 @@ class MenuController extends Controller {
                 }
                 else{
                     if( isset($act) ) {
-                        $active = in_array( $value , Input::get('act'))?0:1;
+                        $active = in_array( $value , Input::get('act')) ? 0 : 1;
                     }else{
                         $active = 1;
                     }
@@ -1525,10 +1525,11 @@ class MenuController extends Controller {
     public function destroy()
     {
         $id = Input::get('id');
-
-        $check = Menu::where('id',$id)->delete();
-        //Outlet_Menu_Bind::where('item_id',$id)->delete();
-        if ( $check ) {
+        // print_r($id);exit;
+        $check = Menu::where('id', $id)->first();
+        if(isset($check->id)) {
+            //Outlet_Menu_Bind::where('item_id',$id)->delete();
+            $check->delete();
             return 'success';
         } else {
             return 'error';
@@ -1922,7 +1923,7 @@ class MenuController extends Controller {
 
                     if ($flag == 'is_active') { //In active 0 means true..
 
-                        if (isset($setting) && sizeof($setting) > 0) {
+                        if (isset($setting) && !empty($setting)) {
 
                             $setting->is_active = 0;
                             $result = $setting->save();
@@ -1941,7 +1942,7 @@ class MenuController extends Controller {
 
                     } else if ($flag == 'is_sale') {
 
-                        if (isset($setting) && sizeof($setting) > 0) {
+                        if (isset($setting) && !empty($setting)) {
 
                             $setting->is_sale = $value;
                             $result = $setting->save();
@@ -1981,7 +1982,7 @@ class MenuController extends Controller {
 
                 if ($flag == 'is_active') {
 
-                    if (isset($setting) && sizeof($setting) > 0) {
+                    if (isset($setting) && !empty($setting)) {
 
                         $setting->is_active = $value;
                         $result = $setting->save();
@@ -2001,7 +2002,7 @@ class MenuController extends Controller {
 
                 } else if ($flag == 'is_sale') {
 
-                    if (isset($setting) && sizeof($setting) > 0) {
+                    if (isset($setting) && !empty($setting)) {
 
                         $setting->is_sale = $value;
                         $result = $setting->save();
