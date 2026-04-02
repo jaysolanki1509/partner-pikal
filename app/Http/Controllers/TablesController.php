@@ -32,29 +32,45 @@ class TablesController extends Controller {
 	{
 		$httpclient = new HttpClientWrapper();
 		$token = $_COOKIE['laravel_session'];
-
-		$tables_list = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables-list',$token);
-		$result = json_decode($tables_list);
-
 		$outlet_id = Session::get('outlet_session');
+		// $url = 'http://' . $_SERVER['SERVER_NAME'] . '/api/v3/tables-list';
+		// $url = 'http://localhost:8000/api/v3/tables-list';
+		// // echo "hello"; print_r($url); exit;
+		// $tables_list = $httpclient->send_request('get', '', $url, $token);
+		// // $tables_list = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables-list',$token);
+		// $result = json_decode($tables_list);
+		// $url = 'http://localhost:8000/api/v3/tables-list';
+		// $tables_list = $httpclient->send_request('get', '', $url, $token);
+        // Decode JSON response
+		$tables = Tables::join('outlets as o', 'o.id', '=', 'tables.outlet_id')->select('tables.*','o.name as name','o.order_lable as order_lable')->where('tables.outlet_id', $outlet_id)->get();
+		// Convert to array (if you really need array)
+		// $result = $tables->toArray();
+		$result = json_decode($tables, true);
+		// echo "Hello <pre>"; print_r($result); echo "</pre>"; exit;
+        // $result = json_decode($tables_list, true);
+
 		$order_lable = 'Table';
 
 		if ( isset($outlet_id) && $outlet_id != '' ) {
 			$outlet = Outlet::find($outlet_id);
-			if ( isset($outlet) && sizeof($outlet) > 0 ) {
+			if ( isset($outlet) ) {
 				if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
 					$order_lable = ucwords($outlet->order_lable);
 				}
 			}
 		}
 
-
-		if ( isset($result) && $result->status == 'success' ) {
+		if ( isset($result) && isset($result->status) && $result->status == 'success' ) {
 			if ( isset($result->data['message'])) {
 				$result->data['message'] = str_replace('Table',$order_lable,$result->data['message']);
 			}
+			else{
+				echo "hellolklkll <pre>";print_r($result);echo "</pre>";exit;
+			}
 			return view('tables.index',array('tables'=>$result->data,'order_lable'=>$order_lable));
 		} else {
+				echo "Else <pre>";print_r($result);echo "</pre>";exit;
+
 			return view('tables.index',array('tables'=>array(),'order_lable'=>$order_lable));
 		}
 

@@ -154,7 +154,9 @@ class FeedbackQuestionController extends Controller {
 	 */
 	public function destroy($id)
 	{
-        FeedbackQuestion::where('id',$id)->delete();
+		$deleteFeedbackQuestion = FeedbackQuestion::find($id);
+		$deleteFeedbackQuestion->delete();
+        // FeedbackQuestion::where('id',$id)->delete();
         Session::flash('success', 'Question has been deleted successfully!');
         return Redirect::route('feedback-question.index');
 	}

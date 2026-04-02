@@ -31,15 +31,13 @@ class TableLevelController extends Controller {
 
         if ( isset($outlet_id) && $outlet_id != '' ) {
             $outlet = Outlet::find($outlet_id);
-            if ( isset($outlet) && sizeof($outlet) > 0 ) {
+            if ( isset($outlet) && !empty($outlet) ) {
                 if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
                     $order_lable = ucwords($outlet->order_lable);
                 }
             }
         }
-
         return view('tablelevels.index', array('tablelevels' => $table_levels,'order_lable'=>$order_lable));
-
 	}
 
 	/**
@@ -54,13 +52,12 @@ class TableLevelController extends Controller {
 
         if ( isset($outlet_id) && $outlet_id != '' ) {
             $outlet = Outlet::find($outlet_id);
-            if ( isset($outlet) && sizeof($outlet) > 0 ) {
+            if ( isset($outlet) && !empty($outlet) ) {
                 if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
                     $order_lable = ucwords($outlet->order_lable);
                 }
             }
         }
-
         return view('tablelevels.create',array('order_lable'=>$order_lable,'action'=>'add',));
 	}
 
@@ -90,7 +87,7 @@ class TableLevelController extends Controller {
 
             if ( isset($outlet_id) && $outlet_id != '' ) {
                 $outlet = Outlet::find($outlet_id);
-                if ( isset($outlet) && sizeof($outlet) > 0 ) {
+                if ( isset($outlet) && !empty($outlet) > 0 ) {
                     if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
                         $order_lable = ucwords($outlet->order_lable);
                     }
@@ -102,7 +99,7 @@ class TableLevelController extends Controller {
 
             $check_duplicate = TableLevel::where('name',$name)->where('outlet_id',$outlet_id)->first();
 
-            if ( isset($check_duplicate) && sizeof($check_duplicate) > 0 ) {
+            if ( isset($check_duplicate) && !empty($check_duplicate) ) {
                 return redirect()->back()->withInput(Input::all())->with('error',"This $order_lable level has been already added");
             }
 
@@ -152,7 +149,7 @@ class TableLevelController extends Controller {
 
         if ( isset($outlet_id) && $outlet_id != '' ) {
             $outlet = Outlet::find($outlet_id);
-            if ( isset($outlet) && sizeof($outlet) > 0 ) {
+            if ( isset($outlet) && !empty($outlet) ) {
                 if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
                     $order_lable = ucwords($outlet->order_lable);
                 }
@@ -188,7 +185,7 @@ class TableLevelController extends Controller {
 
             if ( isset($outlet_id) && $outlet_id != '' ) {
                 $outlet = Outlet::find($outlet_id);
-                if ( isset($outlet) && sizeof($outlet) > 0 ) {
+                if ( isset($outlet) && !empty($outlet) ) {
                     if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
                         $order_lable = ucwords($outlet->order_lable);
                     }
@@ -197,7 +194,7 @@ class TableLevelController extends Controller {
 
             $check_duplicate = TableLevel::where('id','!=',$id)->where('name',$name)->where('outlet_id',$outlet_id)->first();
 
-            if ( isset($check_duplicate) && sizeof($check_duplicate) > 0 ) {
+            if ( isset($check_duplicate) && !empty($check_duplicate) ) {
                 return redirect()->back()->withInput(Input::all())->with('error',"This $order_lable level has been already added");
             }
 
@@ -225,13 +222,11 @@ class TableLevelController extends Controller {
 	 */
 	public function destroy($id)
 	{
-
         $outlet_id = Session::get('outlet_session');
         $order_lable = 'Table';
-
         if ( isset($outlet_id) && $outlet_id != '' ) {
             $outlet = Outlet::find($outlet_id);
-            if ( isset($outlet) && sizeof($outlet) > 0 ) {
+            if ( isset($outlet) && !empty($outlet) > 0 ) {
                 if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
                     $order_lable = ucwords($outlet->order_lable);
                 }
@@ -240,8 +235,9 @@ class TableLevelController extends Controller {
 
         //update table_level id on delete table level
         Tables::where('table_level_id',$id)->update( array('table_level_id'=>'0'));
-
-        TableLevel::where('id',$id)->delete();
+        $deleteTableLevel = TableLevel::find($id);
+        $deleteTableLevel->delete();
+        // TableLevel::where('id',$id)->delete();
 
         Session::flash('success', "$order_lable level has been deleted successfully!");
         return Redirect::to('table-levels');

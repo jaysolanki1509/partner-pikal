@@ -150,7 +150,9 @@ class OrderPlaceTypeController extends Controller {
 	 */
 	public function destroy($id)
 	{
-		OrderPlaceType::where('id',$id)->delete();
+		$deleteOrderPlaceType = OrderPlaceType::find($id);
+		$deleteOrderPlaceType->delete();
+		// OrderPlaceType::where('id',$id)->delete();
 		Session::flash('success', 'Order place has been deleted successfully!');
 		return Redirect::to('order-place-types');
 	}

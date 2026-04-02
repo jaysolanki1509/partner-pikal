@@ -7,7 +7,6 @@
 @section('pageHeader-right')
     <a href="/tables/create" class="btn btn-primary"><i class="fa fa-plus"></i> {{ $order_lable }}</a>
 @stop
-
 @section('content')
 
     <div class="row">
@@ -25,7 +24,7 @@
                                 <th data-sort-ignore="true">Action</th>
                             </thead>
                             <tbody>
-                            @if(isset($tables) && sizeof($tables) > 0 )
+                            @if(isset($tables) && !empty($tables))
                                 @foreach($tables as $tab)
                                     <?php
                                             $tbl_level_name = 'Level 0';

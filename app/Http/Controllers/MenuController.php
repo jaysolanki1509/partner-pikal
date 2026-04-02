@@ -1976,19 +1976,14 @@ class MenuController extends Controller {
 
         if($qty == 'single') {
             if ($flag != 'is_bind') {
-
-                //get item setting
+               //get item setting
                 $setting = ItemSettings::where('outlet_id', $outlet_id)->where('item_id', $item_id)->first();
 
                 if ($flag == 'is_active') {
-
                     if (isset($setting) && !empty($setting)) {
-
                         $setting->is_active = $value;
                         $result = $setting->save();
-
                     } else {
-
                         $item_setting = new ItemSettings();
                         $item_setting->outlet_id = $outlet_id;
                         $item_setting->item_id = $item_id;
@@ -1997,18 +1992,12 @@ class MenuController extends Controller {
                         $item_setting->created_by = $user_id;
                         $item_setting->updated_by = $user_id;
                         $result = $item_setting->save();
-
                     }
-
                 } else if ($flag == 'is_sale') {
-
                     if (isset($setting) && !empty($setting)) {
-
                         $setting->is_sale = $value;
                         $result = $setting->save();
-
                     } else {
-
                         $item_setting = new ItemSettings();
                         $item_setting->outlet_id = $outlet_id;
                         $item_setting->item_id = $item_id;
@@ -2017,13 +2006,9 @@ class MenuController extends Controller {
                         $item_setting->created_by = $user_id;
                         $item_setting->updated_by = $user_id;
                         $result = $item_setting->save();
-
                     }
-
                 }
-
             } else {
-
                 if ($value == 0) {
                     $result = Outlet_Menu_Bind::where('item_id', $item_id)->where('outlet_id', $outlet_id)->delete();
                 } else {
@@ -2032,30 +2017,23 @@ class MenuController extends Controller {
                 }
             }
         }
-
-
         if ( $result ) {
             return 'true';
         } else {
             return 'false';
         }
     }
-
     function imageDestroy($id){
-
         $menuItem = Menu::find($id);
         $menuItem->image = null;
         $menuItem->save();
         return Redirect::to('/menu/'.$id.'/edit');
     }
-
     function updateItemCode($id){
-
         $owner = Owner::where('account_id',$id)->whereNull('created_by')->first();
         if(isset($owner) && sizeof($owner)>0) {
             $all_items = Menu::where('created_by', $owner->id)->get();
             if(isset($all_items) && sizeof($all_items)>0) {
-
                 $start = 1; $count = 0;
                 foreach ($all_items as $item) {
 
@@ -2066,18 +2044,13 @@ class MenuController extends Controller {
                     }else{
                         print_r( $item->item . " Item not found");
                     }
-
                 }
             }else{
                 print_r("Menu not found");exit;
             }
-
             print_r($count." Records Updated");
-
         }else{
             print_r("Owner Not Found");exit;
         }
-
     }
-
 }

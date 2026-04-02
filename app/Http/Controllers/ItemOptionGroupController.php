@@ -201,38 +201,32 @@ class ItemOptionGroupController extends Controller {
         $result = $item_option_group->save();
 
         if ( $result ) {
-
-            if ( isset($item_option_id) && sizeof($item_option_id) > 0 ) {
-
-                $item_option_size = sizeof($item_option_id);
-
-                if ( $item_option_size > 0 ) {
-
-                    for ( $cnt=0; $cnt < $item_option_size; $cnt++ ) {
-
+            if ( isset($item_option_id) && !empty($item_option_id) && is_array($item_option_id) ) {
+                
+                // $item_option_size = sizeof($item_option_id);
+                // if ( $item_option_size > 0 ) {
+                $item_option_size = is_array($item_option_id) ? count($item_option_id) : 0;
+                if ($item_option_size > 0) {
+        
+                    // for ( $cnt=0; $cnt < $item_option_size; $cnt++ ) {
+                    for ($cnt = 0; $cnt < $item_option_size; $cnt++) {
                         $default = 0;
                         if ( $item_option_price[$cnt] == '') {
                             $item_option_price[$cnt] = 0;
                         }
-
                         if ( isset($item_option_default)) {
                             if ( in_array($item_option_id[$cnt],$item_option_default) ) {
                                 $default = 1;
                             }
                         }
-
-
                         $check_option = ItemGroupOption::where('item_option_group_id',$id)->where('option_item_id',$item_option_id[$cnt])->first();
 
-                        if ( isset($check_option) && sizeof($check_option) > 0 ) {
-
+                        if ( isset($check_option) && !empty($check_option) ) {
                             $check_option->option_item_price = $item_option_price[$cnt];
                             $check_option->default_option = $default;
                             $check_option->updated_by = $owner_id;
                             $check_option->save();
-
                         } else {
-
                             $add_option = new ItemGroupOption();
                             $add_option->item_option_group_id = $id;
                             $add_option->option_item_id = $item_option_id[$cnt];
@@ -241,18 +235,12 @@ class ItemOptionGroupController extends Controller {
                             $add_option->created_by = $owner_id;
                             $add_option->updated_by = $owner_id;
                             $add_option->save();
-
                         }
-
                     }
                 }
-
             }
-
         }
-
         return Redirect('/item-option-groups')->with('success', 'Item option group updated successfully.');
-
 	}
 
 	/**
@@ -263,15 +251,13 @@ class ItemOptionGroupController extends Controller {
 	 */
 	public function destroy($id)
 	{
-
 	    //unbind item option group from item
         ItemOptionGroupMapper::where('item_option_group_id',$id)->delete();
-        ItemOptionGroup::where('id',$id)->delete();
-
+        $ItemOptionGroupResult = ItemOptionGroup::where('id',$id)->first();
+        $ItemOptionGroupResult->delete();
         Session::flash('success', 'Item option group has been deleted successfully!');
         return Redirect::to('item-option-groups');
 	}
-
 
     public function removeItemGroupOption() {
 

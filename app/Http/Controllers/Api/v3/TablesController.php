@@ -34,9 +34,7 @@ class TablesController extends Controller
         //$admin_id = Owner::menuOwner();
         $sess_outlet_id = Session::get('outlet_session');
 
-        $tables = Tables::join('outlets as o', 'o.id', '=', 'tables.outlet_id')->select('tables.*', 'o.name as name','o.order_lable as order_lable')
-                            ->where('outlet_id', $sess_outlet_id)
-                            ->get();
+        $tables = Tables::join('outlets as o', 'o.id', '=', 'tables.outlet_id')->select('tables.*', 'o.name as name','o.order_lable as order_lable')->where('outlet_id', $sess_outlet_id)->get();
 
         return Response::json(array(
             'status' => 'success',

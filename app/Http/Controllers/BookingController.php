@@ -970,7 +970,7 @@ class BookingController extends Controller
 
                 $i++;
             }
-            print_r($record); exit;
+            // print_r($record); exit;
             return view('booking.noShowList', array('data' => $record));
         }
 

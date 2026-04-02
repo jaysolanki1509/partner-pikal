@@ -227,7 +227,7 @@ class HomeController extends Controller {
     }
 
     public function populateInvoiceTable() {
-        exit;
+        // exit;
         $orders = order_details::all();
 
         if ( isset($orders) && sizeof($orders) >  0 ) {
@@ -245,13 +245,13 @@ class HomeController extends Controller {
                 }*/
 
             }
-            echo 'DONE';exit;
+            // echo 'DONE';exit;
         }
     }
 
     public function changeTaxFormat()
     {
-        exit;
+        // exit;
         ini_set('max_execution_time', 0);
         $orders = order_details::all();
         print "<pre>";
@@ -289,7 +289,7 @@ class HomeController extends Controller {
     }
 
     public function updateMapper(){
-        exit;
+        // exit;
         $outlets=Outlet::lists('name','id');
         //print_r($outlet);exit;
 
@@ -306,7 +306,7 @@ class HomeController extends Controller {
     }
 
     public function populateInvoiceField() {
-        exit;
+        // exit;
 
         ini_set('max_execution_time', 0);
 
@@ -321,11 +321,11 @@ class HomeController extends Controller {
                 }
             }
         }
-        echo 'done';exit;
+        // echo 'done';exit;
     }
 
     public function populateSubTotalField() {
-exit;
+// exit;
         //ini_set('max_execution_time', 0);
 
         $date = Input::get('date');
@@ -353,7 +353,7 @@ exit;
 
             }
         }
-        echo $n.' orders has been updated';exit;
+        echo $n.' orders has been updated';
     }
 
     public function populateItemTotal() {
@@ -376,7 +376,7 @@ exit;
     }
 
     public function updateInvoiceNumber() {
-        exit;
+        // exit;
         $orders = order_details::where('outlet_id',23)->orderby('table_end_date')->get();
         if ( isset($orders) && sizeof($orders) > 0 ) {
             $compare_date = '';$cnt = 1;$records = 0;
@@ -403,7 +403,7 @@ exit;
     }
 
     public function populateStockAgeTable() {
-        exit;
+        // exit;
         $stocks = Stock::all();
 
         if ( isset($stocks) && sizeof($stocks) > 0 ) {
@@ -426,7 +426,7 @@ exit;
     }
 
     public function populateTaxesPP() {
-        exit;
+        // exit;
         $from_date_time = '2016-06-01 00:00:00';
         $to_date_time = '2016-06-08 23:59:59';
 
