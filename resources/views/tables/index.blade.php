@@ -32,7 +32,7 @@
 
                                                 $table_level = \App\TableLevel::find($tab->table_level_id);
 
-                                                if( isset($table_level) && sizeof($table_level) > 0 ) {
+                                                if( isset($table_level) && !empty($table_level) ) {
                                                     $tbl_level_name = $table_level->name;
                                                 }
                                             }

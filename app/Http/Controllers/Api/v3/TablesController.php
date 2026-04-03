@@ -27,7 +27,6 @@ class TablesController extends Controller
         $this->beforeFilter('csrf', ['on' => '']);
 
     }
-
     public function tablesList() {
 
         $owner_id = Auth::id();
@@ -41,7 +40,6 @@ class TablesController extends Controller
             'data'=>$tables,
             'statuscode' => 200,
             200));
-
     }
 
     public function tableForm(){
