@@ -138,13 +138,11 @@ class TablesController extends Controller
         $table_details = Tables::find($id);
 
         if(isset($table_details) && sizeof($table_details)>0){
-
             return Response::json(array(
                 'status' => 'success',
                 'data' => $table_details,
                 'statuscode' => 200,
                 200));
-
         }else{
 
             return Response::json(array(

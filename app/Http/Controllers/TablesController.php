@@ -73,16 +73,14 @@ class TablesController extends Controller {
 	 */
 	public function create()
 	{
-
 		$httpclient = new HttpClientWrapper();
 		$token = $_COOKIE['laravel_session'];
 
 		$data = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables/create',$token);
 		$result = json_decode($data);
 
-
         $shape[''] = 'Select Shape';
-        if(isset($result) && sizeof($result)>0) {
+        if(isset($result) && !empty($result)) {
             $shape = array_merge($shape, (array)$result->data->shape);
         }else{
             $shape = array();
@@ -93,7 +91,7 @@ class TablesController extends Controller {
 
 		if ( isset($outlet_id) && $outlet_id != '' ) {
 			$outlet = Outlet::find($outlet_id);
-			if ( isset($outlet) && sizeof($outlet) > 0 ) {
+			if ( isset($outlet) && !empty($outlet) ) {
 				if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
 					$order_lable = ucwords($outlet->order_lable);
 				}
@@ -102,17 +100,13 @@ class TablesController extends Controller {
 
         $table_level[0] = "Select $order_lable Level";
 		$levels = TableLevel::where('outlet_id',$outlet_id)->get();
-        if ( isset($levels) && sizeof($levels) > 0 ) {
+        if ( isset($levels) && !empty($levels) > 0 ) {
             foreach ( $levels as $lev ) {
                 $table_level[$lev->id] = $lev->name;
             }
         }
 
-		return view('tables.create',array(
-		                                'shape' => $shape,
-                                        'order_lable'=>$order_lable,
-                                        'table_level'=>$table_level,
-                                        'action'=>'add'));
+		return view('tables.create',array('shape' => $shape,'order_lable'=>$order_lable,'table_level'=>$table_level,'action'=>'add'));
 	}
 
 	/**
@@ -179,18 +173,33 @@ class TablesController extends Controller {
         $httpclient = new HttpClientWrapper();
         $token = $_COOKIE['laravel_session'];
 
-        $data1 = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables/'.$id.'/edit',$token);
-        $result1 = json_decode($data1);
+        // $data1 = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables/'.$id.'/edit',$token);
+        // $result1 = json_decode($data1);
+		$table_details = Tables::find($id);
+		if($table_details) {
+			$result1 = Response::json(['status' => 'success','data' => $table_details,'statuscode' => 200,200]);
+		} else {
+			$result1 = Response::json(['status' => 'error','message' => 'Table not found','data' => 'notable','statuscode' => 402,402]);
+		}
+		$result1 = json_decode($table_details);
 
-        $data = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables/create',$token);
-        $result = json_decode($data);
+        // $data = $httpclient->send_request('get','',$_SERVER['SERVER_NAME'].'/api/v3/tables/create',$token);
+        // $result = json_decode($data);
+		// $url = 'http://localhost:8000/api/v3/tables/create';
+		// $data = $httpclient->send_request('get', '', $url, $token);
+		// echo "Hello <pre>"; print_r($data); echo "</pre>"; exit;
+		// $result = json_decode($data);
+		$url = 'http://127.0.0.1:8000/api/v3/tables/create';
+		$data = $httpclient->send_request('get', '', $url, $token);
+		echo "Hello <pre>"; print_r($data); echo "</pre>"; exit;
+		$result = json_decode($data);
 
 		$outlet_id = Session::get('outlet_session');
 		$order_lable = 'Table';
 
 		if ( isset($outlet_id) && $outlet_id != '' ) {
 			$outlet = Outlet::find($outlet_id);
-			if ( isset($outlet) && sizeof($outlet) > 0 ) {
+			if ( isset($outlet) && !empty($outlet) ) {
 				if ( isset($outlet->order_lable) && $outlet->order_lable != '' ) {
 					$order_lable = ucwords($outlet->order_lable);
 				}
@@ -199,7 +208,7 @@ class TablesController extends Controller {
 
         $table_level[0] = "Select $order_lable Level";
         $levels = TableLevel::where('outlet_id',$outlet_id)->get();
-        if ( isset($levels) && sizeof($levels) > 0 ) {
+        if ( isset($levels) && !empty($levels) ) {
             foreach ( $levels as $lev ) {
                 $table_level[$lev->id] = $lev->name;
             }
