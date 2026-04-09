@@ -824,7 +824,7 @@ class StocksController extends Controller
             ->orderBy('mt.id','DESC')
             ->get();
 
-        if (isset($items) && sizeof($items) > 0) {
+        if (isset($items) && !empty($items)) {
             $cnt = 0;
             foreach ($items as $itm) {
                 $sales[$cnt]['itm_name'] = $itm->item;
@@ -835,18 +835,13 @@ class StocksController extends Controller
                 if ( $report_type == 'sales with consumption' || $report_type == 'consumption' || $report_type == 'consumption wih sales' ) {
                     //get consumption of item
                     $recipe = RecipeDetails::where('menu_item_id', $itm->item_id)->first();
-                    if (isset($recipe) && sizeof($recipe) > 0) {
+                    if (isset($recipe) && !empty($recipe)) {
 
-                        $ingreds = Ingredients::join('menus as m', 'm.id', '=', 'ingredients.ing_item_id')
-                            ->join('unit as u', 'm.unit_id', '=', 'u.id')
-                            ->select('ingredients.ing_item_id as item_id', 'u.id as unit_id','u.name as unit', 'm.item as item_name', 'ingredients.qty as qty', 'm.buy_price as price')
-                            ->where('recipeDetails_id', $recipe->id)
-                            ->get();
+                        $ingreds = Ingredients::join('menus as m', 'm.id', '=', 'ingredients.ing_item_id')->join('unit as u', 'm.unit_id', '=', 'u.id')->select('ingredients.ing_item_id as item_id', 'u.id as unit_id','u.name as unit', 'm.item as item_name', 'ingredients.qty as qty', 'm.buy_price as price')->where('recipeDetails_id', $recipe->id)->get();
 
-                        if (isset($ingreds) && sizeof($ingreds) > 0) {
+                        if (isset($ingreds) && !empty($ingreds)) {
                             $no = 0;
                             foreach ($ingreds as $ing) {
-
                                 //for sales with consumption
                                 $sales[$cnt]['ingrd'][$no]['itm_name'] = $ing->item_name;
                                 $ing_qty = $ing->qty * $itm->count / $recipe->referance;
@@ -869,32 +864,25 @@ class StocksController extends Controller
                                     $consumption[$ing->item_id]['sale']['cnt'.$cnt]['item_name'] = $itm->item;
                                     $consumption[$ing->item_id]['sale']['cnt'.$cnt]['item_qty'] = $itm->count;
                                 }
-
                                 $no++;
                             }
-
                         }
-
                     }
-
                 }
                 $cnt++;
             }
         }
-
         if ( $report_type == 'sales with consumption' || $report_type == 'sales' ) {
             $result = $sales;
         } else {
             $result = $consumption;
         }
-
         return Response::json(array(
             'status' => 'success',
             'statuscode' => 200,
             'result' => $result,
             'report_type'=>$report_type,
             200));
-
     }
 
     public function stockStatusReport() {

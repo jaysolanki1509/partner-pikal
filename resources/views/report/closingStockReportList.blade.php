@@ -1,6 +1,6 @@
 
 
-    @if(sizeof($data['locations']) > 0)
+    @if(!empty($data['locations']))
         @foreach( $data['locations'] as $loc )
             <table class="table table-striped table-bordered table-hover">
                 <tr style="text-align: center;font-weight: bold"><td colspan="{!! (sizeof($data['dates']) * 2 + 1) !!}">{!! ucwords($loc['name']) !!}</td></tr>
@@ -11,7 +11,7 @@
                     @endforeach
                 </tr>
 
-                @if(sizeof($data['result']) > 0)
+                @if(!empty($data['result']))
                     @foreach($data['result'] as $res_key=>$res_arr)
                         <?php $i = 0; ?>
                         <tr>

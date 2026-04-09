@@ -53,33 +53,33 @@ Route::group(['prefix' => 'api/v1'], function () {
     Route::get('/payuview','Api\v1\ApiController@payuview');
 
     Route::post('/orderdetails','Api\v1\ApiController@orderdetails');
-        Route::post('/orderdetails','Api\v1\ApiController@orderdetails');
-        Route::post('/addcustomer','Api\v1\ApiController@addcustomer');
-        Route::post('/verifyotp','Api\v1\ApiController@verifyotp');
-        Route::post('/login','Api\v1\ApiController@login');
-        Route::get('/updatedetail','Api\v1\ApiController@updatedetail');
-        Route::post('/updatedetail','Api\v1\ApiController@updatedetail');
-        Route::post('/resendotp','Api\v1\ApiController@resendotp');
-        Route::post('/sendmail','Api\v1\ApiController@sendmail');
-        Route::post('/forgotpassword','Api\v1\ApiController@forgotpassword');
-        Route::post('/addresschange','Api\v1\ApiController@addresschange');
-        Route::post('/updatepassword','Api\v1\ApiController@updatepassword');
-        Route::get('/matchcouponcode','Api\v1\ApiController@matchcouponcode');
-        Route::post('/matchcouponcode','Api\v1\ApiController@matchcouponcode');
+    Route::post('/orderdetails','Api\v1\ApiController@orderdetails');
+    Route::post('/addcustomer','Api\v1\ApiController@addcustomer');
+    Route::post('/verifyotp','Api\v1\ApiController@verifyotp');
+    Route::post('/login','Api\v1\ApiController@login');
+    Route::get('/updatedetail','Api\v1\ApiController@updatedetail');
+    Route::post('/updatedetail','Api\v1\ApiController@updatedetail');
+    Route::post('/resendotp','Api\v1\ApiController@resendotp');
+    Route::post('/sendmail','Api\v1\ApiController@sendmail');
+    Route::post('/forgotpassword','Api\v1\ApiController@forgotpassword');
+    Route::post('/addresschange','Api\v1\ApiController@addresschange');
+    Route::post('/updatepassword','Api\v1\ApiController@updatepassword');
+    Route::get('/matchcouponcode','Api\v1\ApiController@matchcouponcode');
+    Route::post('/matchcouponcode','Api\v1\ApiController@matchcouponcode');
 
-        Route::post('/ownerfetchdata','Api\v1\ApiController@ownerfetchdata');
-        Route::get('/ownerfetchdata','Api\v1\ApiController@ownerfetchdata');
-        Route::post('/ownerlogin','Api\v1\ApiController@ownerlogin');
-        Route::get('/ownerlogin','Api\v1\ApiController@ownerlogin');
-        Route::post('/ownerlogout','Api\v1\ApiController@ownerlogout');
-        Route::get('/ownerlogout','Api\v1\ApiController@ownerlogout');
-        Route::post('/nextstatus','Api\v1\ApiController@nextstatus');
-        Route::get('/nextstatus','Api\v1\ApiController@nextstatus');
-        Route::get('/autoorders','Api\v1\ApiController@autoorders');
-        Route::post('/autoorders','Api\v1\ApiController@autoorders');
-        Route::post('/firstorder','Api\v1\ApiController@firstorder');
-        Route::get('/firstorder','Api\v1\ApiController@firstorder');
-        Route::get('/termsandcondition','Api\v1\ApiController@termsandcondition');
+    Route::post('/ownerfetchdata','Api\v1\ApiController@ownerfetchdata');
+    Route::get('/ownerfetchdata','Api\v1\ApiController@ownerfetchdata');
+    Route::post('/ownerlogin','Api\v1\ApiController@ownerlogin');
+    Route::get('/ownerlogin','Api\v1\ApiController@ownerlogin');
+    Route::post('/ownerlogout','Api\v1\ApiController@ownerlogout');
+    Route::get('/ownerlogout','Api\v1\ApiController@ownerlogout');
+    Route::post('/nextstatus','Api\v1\ApiController@nextstatus');
+    Route::get('/nextstatus','Api\v1\ApiController@nextstatus');
+    Route::get('/autoorders','Api\v1\ApiController@autoorders');
+    Route::post('/autoorders','Api\v1\ApiController@autoorders');
+    Route::post('/firstorder','Api\v1\ApiController@firstorder');
+    Route::get('/firstorder','Api\v1\ApiController@firstorder');
+    Route::get('/termsandcondition','Api\v1\ApiController@termsandcondition');
     Route::post('/ownernotification','Api\v1\ApiController@ownernotification');
     Route::get('/ownernotification','Api\v1\ApiController@ownernotification');
     Route::post('/resetorderid','Api\v1\ApiController@resetorderid');
@@ -93,7 +93,7 @@ Route::group(['prefix' => 'api/v1'], function () {
     Route::get('/ordercancellation','Api\v1\ApiController@ordercancellation');
     Route::post('/ordercancellation','Api\v1\ApiController@ordercancellation');
     Route::post('/owneroutlet','Api\v1\ApiController@owneroutlet');
-     Route::post('/printsummary','Api\v1\ApiController@printsummary');
+    Route::post('/printsummary','Api\v1\ApiController@printsummary');
     Route::post('/addrecipe','Api\v1\ApiController@addrecipes');
     Route::post('/getrecipe','Api\v1\ApiController@getrecipes');
 
@@ -122,9 +122,7 @@ Route::post('/store-delivery-charge','OutletController@storeDeliveryCharge');
 Route::post("/storelayout","OutletController@updateAppLayout");
 Route::post('/store-tax-details','OutletController@storeTaxDetail');
 
-
 Route::resource('termsandcondition', 'TermsandconditionController');
-
 
 Route::controllers([
     'password' => 'Auth\PasswordController',
@@ -133,9 +131,7 @@ Route::controllers([
 Route::get('/avtar/{id}/{size}', 'Api\v1\ApiController@getImage');
 Route::get('/gallery/{id}/{size}','Api\v1\ApiController@getGallery');
 
-
 // API V2 //
-
 Route::group(['prefix' => 'api/v2'], function () {
     Route::post('/addlike', array('as' => 'addlike', 'uses' => 'Api\v2\ApiControllerV2@addlike'));
     Route::post('/addreviews', array('as' => 'addreviews', 'uses' => 'Api\v2\ApiControllerV2@addreviews'));
@@ -216,7 +212,6 @@ Route::group(['prefix' => 'api/v2'], function () {
 
 #TODO: consumer API
 Route::group(['prefix' => 'api/v3'], function () {
-
     Route::get('/restaurantmenu','Api\v3\ApiController@outletmenu');
     Route::post('/orderdetails','Api\v3\ApiController@orderdetails');
     #TODO: upate device id Api
@@ -257,8 +252,6 @@ Route::group(['prefix' => 'api/v3'], function () {
     Route::post('/table-availability','Api\v3\ApiController@tableAvailability');
     Route::resource('/restaurant', 'Api\v3\ApiController');
 });
-
-
 #TODO: login to partner application
 Route::post('api/v3/owneroutlet','Api\v3\ApiController@owneroutlet');
 #TODO: Pinger for check application status
@@ -405,7 +398,6 @@ Route::get('/status/{id}/destroy', 'statuscontroller@destroy');
 Route::get('coupongenerator/{coupongenerator}/destroy', 'CoupongeneratorController@destroy');
 Route::get('/owner-app-version', 'OutletController@ownerAppVersion');
 
-
 Route::get('/ajax/currentorderdetails','OrderdetailsController@currentorderdetails');
 
 Route::post('/ajax/dailyreport','OutletController@dailyreport');
@@ -443,7 +435,6 @@ Route::get('/invalidItem/{id}/edit', 'PurchasesController@invalidItemImportEdit'
 Route::patch('/invalidItem/{id}/edit',array('as' => 'purchase.updateInvalid', 'uses' => 'PurchasesController@invalidImportSubmit'));
 Route::get('/invalid-purchase/{id}/destroy',array('as' => 'purchase.destroyInvalid', 'uses' => 'PurchasesController@destroyInvalid'));
 
-
 //Locations
 Route::post('/location/store-stock-level', 'LocationsController@storeStockLevel');
 Route::get('/location/stock-level', 'LocationsController@setStockLevel');
@@ -471,9 +462,7 @@ Route::get('/stocks-invert-reverse','StocksController@stockInvertReverse');
 Route::post('/request_barcode','StocksController@requestBarcode');
 Route::post('/response_barcode','StocksController@responseBarcode');
 
-
 // Expense
-
 Route::resource('expenseApp', 'ExpenseController');
 Route::post('/ajax/outletby','ExpenseController@getUsersByOutlet');
 Route::post('/ajax/expenseTo','ExpenseController@getAuthorisedUsersByOutlet');
@@ -493,7 +482,6 @@ Route::get('/expense-category/{id}/edit', 'ExpenseController@editExpenseCategory
 Route::get('/add-expense-category','ExpenseController@categoryForm');
 Route::post('expensecategory/store','ExpenseController@expenseCategoryStore');
 Route::post('expensecategory/update','ExpenseController@expenseCategoryUpdate');
-
 
 Route::resource('menu', 'MenuController');
 Route::resource('coupongenerator', 'CoupongeneratorController');
@@ -566,7 +554,6 @@ Route::get('recipe/{id}/destroy', 'RecipeController@destroy');
 Route::get('tax/{tax}/destroy', 'TaxController@destroy');
 
 // Tablet API
-
 Route::POST('/outlet/importoutletotherdetails','OutletController@importoutletotherdetails');
 
 Route::any('/ajax/getsummaryreport','ReportController@getsummaryreport');
@@ -578,7 +565,6 @@ Route::post('/getBarChartDateData','ReportController@getBarChartDateData');//use
 Route::post('/getBarChartMonthData','ReportController@getBarChartMonthData');//use for top10 item list month wise
 Route::post('/dashboardOrderData','HomeController@dashboardOrderData');
 Route::post('/ajax/selectslots','ReportController@selectslots');
-
 
 // Recipe
 Route::resource('recipeDetails','RecipeDetailsController');
@@ -598,7 +584,6 @@ Route::get('/prepareRecipe','RecipeDetailsController@PrepareRecipe');
 Route::get('/getRecipe','RecipeDetailsController@getRecipe');
 Route::post('/processPrepareItem','RecipeDetailsController@processPrepareItem');
 
-
 // Outlet Bind
 Route::get('outletBind/{id}','OutletController@bindOutlet');
 Route::get('outletBind','OutletController@bindOutlet');
@@ -607,13 +592,11 @@ Route::get('/outletBind/{id}/destroy', 'OutletController@destroyOutletBind');
 Route::post('/store-outlet-status', 'OutletController@storeOutletStatus');
 
 // Menu Bind
-
 Route::get('menuBind','MenuBindController@index');
 Route::post('menuBind','MenuBindController@store');
 Route::get('/ajax/MenuItemList','MenuBindController@ajaxMenuItemsList');
 
 // Request Item
-
 Route::resource('requestItem','RequestItemController');
 Route::get('/ajax/ajaxOwnerRequest','RequestItemController@ajaxOwnerList');
 Route::get('/ajax/ajaxItems','RequestItemController@ajaxItems');
@@ -641,8 +624,6 @@ Route::get('/responseItems/setisfiedResponse', array('as' => 'requestItemProcess
 Route::post('/responseItems/setisfiedResponse','RequestItemProcessController@setisfiedResponse');
 Route::post('/satisfied-response-list','RequestItemProcessController@satisfiedResponseList');
 Route::get('/satisfiedRequestExport/{id}','RequestItemProcessController@satisfiedRequestExport');
-
-
 
 Route::get('/ajax/menuitemslist', 'MenuController@ajaxMenuItemsList');
 Route::resource('createorder','AddOrderController');
@@ -730,7 +711,6 @@ Route::get('/duplicate-invoiceno-report','ReportController@duplicateInvoicenoRep
 Route::post('/duplicate-invoiceno-report','ReportController@duplicateInvoicenoReport');
 Route::post('/reset_invoice_no','newordercontroller@resetInvoiceNo');
 
-
 //report
 Route::get('/reports','ReportController@index');
 Route::get('/sales-report','ReportController@saleReport');
@@ -779,7 +759,6 @@ Route::post('/unpaid-orders','ReportController@unpaidOrdersReport');
 Route::get('/zoho-unsync-orders','ReportController@zohoUnsyncOrdersReport');
 Route::post('/zoho-unsync-orders','ReportController@zohoUnsyncOrdersReport');
 
-
 Route::get('/MenuItemList','MenuController@getMenuItem');
 Route::get('/cash-sales','ReportController@cashSales');
 Route::post('/cash-sales','ReportController@cashSales');
@@ -789,7 +768,6 @@ Route::post('/kot-vs-orders-diff','ReportController@kotvsordersdiff');
 //response deviation
 Route::get('/response-deviation','ReportController@responseDeviation');
 Route::post('/response-deviation','ReportController@responseDeviation');
-
 
 //Sources
 Route::get('/source','SourceController@index');
@@ -804,7 +782,6 @@ Route::post('/show-outlet-setting','HomeController@getOutletSettings');
 Route::get('/auto-process-outlet','HomeController@autoProcessIndex');
 Route::post('/store-outlet-setting','HomeController@storeOutletSettings');
 Route::get('/auto-process-orders','HomeController@autoProcessOrders');
-
 
 //inventory item
 Route::resource('inventoryitems','InventoryItemsController');
@@ -851,8 +828,6 @@ Route::post('/fill-attendance',array('as' => 'attendance.store', 'uses' => 'Atte
 Route::get('/attendance-sheet',array('as' => 'attendance.sheet', 'uses' => 'AttendanceController@show'));
 Route::post('/attendance-list',array('as' => 'attendance.attendancelist', 'uses' => 'AttendanceController@show'));
 Route::post('/attendance-detail',array('as' => 'attendance.attendancedetail', 'uses' => 'AttendanceController@attendanceDetail'));
-
-
 
 //staff role
 Route::get('/staff-roles',array('as' => 'attendance.staffrole', 'uses' => 'AttendanceController@staffRoles'));

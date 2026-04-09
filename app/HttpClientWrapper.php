@@ -1,167 +1,114 @@
 <?php
 
-// namespace App;
-
-// use DateTimeZone;
-// use Illuminate\Http\Request;
-// use Session;
-// use DateTime;
-// use App\ConvertTimeZones;
-// use Illuminate\Support\Facades\Input;
-// use Illuminate\Support\Facades\Config;
-// use App\Http\Requests;
-
-// class HttpClientWrapper
-// {
-
-//     public function send_request($req_type,$param,$url,$token = NULL) {
-//         ini_set("memory_limit",-1 );
-//         ob_start();
-//         $result = '';
-//         // is cURL installed yet?
-//         if (!function_exists('curl_init')){
-//             die('Sorry cURL is not installed!');
-//         }
-
-//         $ch = curl_init();
-
-//         if ( isset($token)) {
-
-//             $headers = array(
-//                 'laravel_session:'.$token,
-//                 'Content-Type: application/x-www-form-urlencoded',
-//             );
-
-
-//             curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
-//         }
-
-//         curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-
-//         //curl_setopt($ch, CURLOPT_SAFE_UPLOAD, false);
-
-//         if ( isset($param) && $param != '' ) {
-//             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($param));
-//         }
-
-//         curl_setopt($ch, CURLOPT_URL, $url);
-
-//         if ( $req_type == 'DELETE' ) {
-//             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-//         }
-
-//         if ( $req_type == 'PUT' ) {
-//             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-
-//         }
-
-//         if ( $req_type == 'POST' ){
-//             curl_setopt($ch, CURLOPT_POST, true);
-//         }
-
-//         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Cookie: laravel_session=".$token));
-
-//         $result = curl_exec($ch);
-//         //print_r($result);exit;
-//         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-//         curl_close($ch);
-//         ob_end_clean();
-//         ob_flush();
-
-//         if ( !$result) {
-//             return $httpcode;
-//         }
-
-//         return $result;
-//     }
-
-
- 
-// }
 namespace App;
-
-use Exception;
 
 class HttpClientWrapper
 {
-    /**
-     * Send an HTTP request
-     *
-     * @param string $req_type HTTP method: GET, POST, PUT, DELETE
-     * @param array $params Optional parameters to send
-     * @param string $url URL to request
-     * @param string|null $token Optional token for authorization/session
-     * @return mixed Response body or HTTP code if failed
-     */
-    public function send_request($req_type, $params = [], $url, $token = null)
+    private $max_retries = 3;
+    private $retry_delay = 1000; // milliseconds
+
+    public function send_request($method, $params, $url, $token = null)
     {
-        // Ensure cURL is available
-        if (!function_exists('curl_init')) {
-            throw new Exception('cURL is not installed!');
+        $method = strtoupper($method);
+
+        if (!preg_match('#^https?://#i', $url)) {
+            $url = 'http://' . ltrim($url, '/');
         }
 
+        if ($method === 'GET' && !empty($params)) {
+            $url .= strpos($url, '?') === false ? '?' . http_build_query($params) : '&' . http_build_query($params);
+        }
+
+        // Retry logic for timeout resilience
+        $attempt = 0;
+        while ($attempt < $this->max_retries) {
+            $response = $this->executeRequest($method, $params, $url, $token);
+
+            $result = json_decode($response, true);
+
+            // If no timeout error, return immediately
+            if (!isset($result['status']) || $result['status'] !== 'error' || strpos($result['message'], 'timeout') === false) {
+                return $response;
+            }
+
+            $attempt++;
+            if ($attempt < $this->max_retries) {
+                usleep($this->retry_delay * 1000); // Convert ms to microseconds
+            }
+        }
+
+        return $response;
+    }
+
+    private function executeRequest($method, $params, $url, $token = null)
+    {
         $ch = curl_init();
 
-        // Common cURL options
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        // Set headers if token is provided
-        $headers = [
-            'Content-Type: application/x-www-form-urlencoded',
-        ];
-        if ($token) {
+        // Increased timeout for slow local connections
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_TIMEOUT_MS, 60000);
+
+        // Optimize connection
+        curl_setopt($ch, CURLOPT_TCP_KEEPALIVE, 1);
+        curl_setopt($ch, CURLOPT_TCP_KEEPIDLE, 240);
+        curl_setopt($ch, CURLOPT_TCP_KEEPINTVL, 60);
+
+        // Follow redirects and headers
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+
+        // Set HTTP headers
+        $headers = [];
+        if (!empty($token)) {
             $headers[] = 'Cookie: laravel_session=' . $token;
         }
+        $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+        $headers[] = 'Connection: keep-alive';
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-        // Set method and payload
-        $req_type = strtoupper($req_type);
-        switch ($req_type) {
-            case 'POST':
-                curl_setopt($ch, CURLOPT_POST, true);
-                if (!empty($params)) {
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
-                }
-                break;
-
-            case 'PUT':
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-                if (!empty($params)) {
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
-                }
-                break;
-
-            case 'DELETE':
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-                if (!empty($params)) {
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
-                }
-                break;
-
-            case 'GET':
-                if (!empty($params)) {
-                    $url .= '?' . http_build_query($params);
-                    curl_setopt($ch, CURLOPT_URL, $url);
-                }
-                break;
-
-            default:
-                throw new Exception("Invalid request type: $req_type");
+        // Handle different HTTP methods
+        if ($method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+        } elseif ($method === 'PUT' || $method === 'DELETE') {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
         }
 
-        // Execute request
-        $result = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        // SSL options
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 
-        if ($result === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            throw new Exception("cURL error: $error, HTTP code: $httpCode");
-        }
+        // DNS cache
+        curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 3600);
 
+        $response = curl_exec($ch);
+        $curl_error = curl_error($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        return $result;
+        if ($response === false || $curl_error) {
+            return json_encode([
+                'status' => 'error',
+                'message' => $curl_error ?: 'No response from server',
+                'http_code' => $http_code
+            ]);
+        }
+
+        if ($http_code >= 400) {
+            return json_encode([
+                'status' => 'error',
+                'message' => 'HTTP Error: ' . $http_code,
+                'response' => $response,
+                'http_code' => $http_code
+            ]);
+        }
+
+        return $response;
     }
 }

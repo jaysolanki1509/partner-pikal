@@ -3,12 +3,10 @@
 @section('pageHeader-left')
     {{ $order_lable }} Details
 @stop
-
 @section('pageHeader-right')
     <a href="/tables/create" class="btn btn-primary"><i class="fa fa-plus"></i> {{ $order_lable }}</a>
 @stop
 @section('content')
-
     <div class="row">
         <div class="col-md-12">
             <div class="widget-wrap material-table-widget">
@@ -27,15 +25,13 @@
                             @if(isset($tables) && !empty($tables))
                                 @foreach($tables as $tab)
                                     <?php
-                                            $tbl_level_name = 'Level 0';
-                                            if( isset($tab->table_level_id) && $tab->table_level_id != 0 ) {
-
-                                                $table_level = \App\TableLevel::find($tab->table_level_id);
-
-                                                if( isset($table_level) && !empty($table_level) ) {
-                                                    $tbl_level_name = $table_level->name;
-                                                }
+                                        $tbl_level_name = 'Level 0';
+                                        if( isset($tab->table_level_id) && $tab->table_level_id != 0 ) {
+                                            $table_level = \App\TableLevel::find($tab->table_level_id);
+                                            if( isset($table_level) && !empty($table_level) ) {
+                                                $tbl_level_name = $table_level->name;
                                             }
+                                        }
                                     ?>
                                     <tr class="odd gradeX">
                                         <td>{!! $tab->table_no !!}</td>
@@ -44,7 +40,6 @@
                                         <td>{{ $tab->status==0?'No':'Yes' }}</td>
                                         <td>{{ $tab->occupied_by==''?'N/A':$tab->occupied_by }}</td>
                                         {{--<td>{{ $tab->occupied_by==''?'N/A':\App\Owner::find($tab->occupied_by)->name }}</td>--}}
-
                                         <td>
                                             <a href="/tables/{!! $tab->id !!}/edit"> <span class="zmdi zmdi-edit" ></span></a>&nbsp;&nbsp;&nbsp;
                                             <a onclick="del('{!! $tab->id !!}')" href="#"><span class="zmdi zmdi-close" ></span></a>
@@ -53,7 +48,6 @@
                                             @endif
                                         </td>
                                     </tr>
-
                                 @endforeach
                             @else
                                 <tr>
@@ -97,9 +91,7 @@
                 window.location.replace(route);
             }
         }
-
         function del(id) {
-
             swal({
                 title: "Are you sure?",
                 text: "You will not be able to recover this Table Details!",
@@ -124,8 +116,6 @@
                     swal("Cancelled", "Your Table Details are safe :)", "error");
                 }
             });
-
         }
-
     </script>
 @stop

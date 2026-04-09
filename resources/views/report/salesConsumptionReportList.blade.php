@@ -1,8 +1,7 @@
-
 <table class="table table-bordered table-hover"  id="revenue_report_list">
-    @if( isset($result) && sizeof($result) > 0 && $result->status == 'success' )
+    @if( isset($result) && !empty($result) && $result->status == 'success' )
         @if( $result->report_type == 'sales with consumption' || $result->report_type == 'sales' )
-            @if( isset($result->result) && sizeof($result->result) > 0 )
+            @if( isset($result->result) && !empty($result->result) )
                 <?php $a=0; $cat_id = ''; $cat_tot = 0; $cat_ingred_tot = 0; $grand_tot = 0; $grand_ingred_tot = 0; ?>
                 @foreach( $result->result as $re )
 
@@ -53,7 +52,7 @@
                         @endif
 
                         @if( $result->report_type == 'sales with consumption' )
-                            @if( isset($re->ingrd) && sizeof($re->ingrd) > 0 )
+                            @if( isset($re->ingrd) && !empty($re->ingrd) )
                                 <td><?php $tot_price = 0; ?>
                                     @foreach( $re->ingrd as $ing )
                                         {!! $ing->itm_name !!} ( {!! $ing->itm_qty !!} ) ( &#x20b9; {!! number_format($ing->price,2) !!} )<br>
@@ -63,7 +62,7 @@
                             @else
                                 <td>-</td>
                             @endif
-                            @if( isset($re->ingrd) && sizeof($re->ingrd) > 0 )
+                            @if( isset($re->ingrd) && !empty($re->ingrd) )
                                 <td style="text-align: right">
                                     &#x20b9; {!! number_format($tot_price,2) !!}
                                     <?php $cat_ingred_tot += $tot_price; ?>
@@ -118,13 +117,13 @@
                 </tr>
             </thead>
             <tbody id="table_body">
-            @if( isset($result->result) && sizeof($result->result) > 0 )
+            @if( isset($result->result) && !empty($result->result) )
                 @foreach( $result->result as $re )
                     <tr>
                         <td style="font-weight: bold">{!! $re->name !!}</td>
                         <td >{!! $re->qty !!} {!! $re->unit !!}</td>
                         @if( $result->report_type == 'consumption wih sales' )
-                            @if( isset($re->sale) && sizeof($re->sale) > 0 )
+                            @if( isset($re->sale) && !empty($re->sale) )
                                 <td>
                                     @foreach( $re->sale as $ing )
                                         {!! $ing->item_name !!} ( {!! $ing->item_qty !!} )<br>
