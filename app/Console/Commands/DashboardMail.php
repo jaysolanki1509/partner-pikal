@@ -2,7 +2,7 @@
 
 use App\Attendance;
 use App\Expense;
-use App\invoice_detail;
+use App\InvoiceDetail;
 use App\InvoiceBill;
 use App\ItemRequest;
 use App\Location;
@@ -500,9 +500,7 @@ class DashboardMail extends Command {
                     }
                 }
             }
-
         }
-
     }
 
 	/**

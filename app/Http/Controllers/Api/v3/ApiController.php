@@ -18,7 +18,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 //use App\Libraries\Image;
-use App\invoice_detail;
+use App\InvoiceDetail;
 use App\ItemOptionGroup;
 use App\ItemOptionGroupMapper;
 use App\ItemRequest;
@@ -3815,7 +3815,7 @@ class Apicontroller extends Controller
 
                 }
 
-                //invoice_detail::where('order_id',$order_check->order_id)->update(['taxes'=>$order['tax_type'],'total'=>$order['total_price'],'round_off'=>$order['round_off'],'discount'=>$order['discounted_value'],'sub_total'=>$order['totalcost_afterdiscount']]);
+                //InvoiceDetail::where('order_id',$order_check->order_id)->update(['taxes'=>$order['tax_type'],'total'=>$order['total_price'],'round_off'=>$order['round_off'],'discount'=>$order['discounted_value'],'sub_total'=>$order['totalcost_afterdiscount']]);
 
                 $tempdata['local_id'] = $order['primary_id'];
                 $tempdata['suborder_id'] = $suborder_id;
@@ -3965,7 +3965,7 @@ class Apicontroller extends Controller
                         ]);
 
 
-                        /*invoice_detail::where('order_id',$order_check['order_id'])->update([
+                        /*InvoiceDetail::where('order_id',$order_check['order_id'])->update([
                             'round_off'=>$order['round_off'],
                             'discount'=>$order['discounted_value'],
                             'taxes'=>$order['tax_type'],

@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Session;
 
 
 class order_details extends Model {
-
-
     protected $table = 'orders';
     protected $primaryKey = 'order_id';
 
@@ -862,9 +860,9 @@ class order_details extends Model {
 
                     $order_details = order_details::where('order_id',$order_id)->first();
 
-                    //invoice_detail::where('order_id',$order_id)->update(['taxes'=>$tax_type,'total'=>$total,'round_off'=>$round_off,'discount'=>$discount,'sub_total'=>$totalcost_afterdiscount]);
+                //InvoiceDetail::where('order_id',$order_id)->update(['taxes'=>$tax_type,'total'=>$total,'round_off'=>$round_off,'discount'=>$discount,'sub_total'=>$totalcost_afterdiscount]);
 
-                } else {
+            } else {
 
                     $order_details=new order_details();
                     $order_details->address = $address;

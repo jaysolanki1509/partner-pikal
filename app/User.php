@@ -83,33 +83,78 @@ use Bican\Roles\Traits\HasRoleAndPermission;
 //         return $order_receive;
 //     }
 // }
+// class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, HasRoleAndPermissionContract
+// {
+//     use Authenticatable, Authorizable, CanResetPassword, HasRoleAndPermission;
+
+//     protected $table = 'owners';
+//     protected $softDelete = true;
+
+//     protected $fillable = ['user_name', 'email','timezone', 'password','role_id','contact_no','gender','state','city'];
+//     protected $hidden = ['password', 'remember_token'];
+
+//     public function outlet()
+//     {
+//         return $this->hasMany('App\Outlet','owner_id');
+//     }
+
+//     public static function ownerById($owner_id){
+//         return Owner::where('id',$owner_id)->first();
+//     }
+
+//     public static function getOwnerOrderReceive($owner_id, $res_id) {
+//         $order_receive = '';
+//         $owner = OutletMapper::where("owner_id",$owner_id)->where("outlet_id",$res_id)->get();
+
+//         if (sizeof($owner) > 0 && isset($owner[0]->order_receive) && $owner[0]->order_receive != '') {
+//             $order_receive = json_decode($owner[0]->order_receive);
+//         }
+//         return $order_receive;
+//     }
+// }
 class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, HasRoleAndPermissionContract
 {
-    use Authenticatable, Authorizable, CanResetPassword, HasRoleAndPermission;
+    use Authenticatable, Authorizable, CanResetPassword, HasRoleAndPermission {
+        // Resolve conflict for "can" method (example)
+        HasRoleAndPermission::can insteadof Authorizable;
+        Authorizable::can as laravelCan;
+    }
 
     protected $table = 'owners';
     protected $softDelete = true;
 
-    protected $fillable = ['user_name', 'email','timezone', 'password','role_id','contact_no','gender','state','city'];
+    protected $fillable = [
+        'user_name',
+        'email',
+        'timezone',
+        'password',
+        'role_id',
+        'contact_no',
+        'gender',
+        'state',
+        'city'
+    ];
+
     protected $hidden = ['password', 'remember_token'];
 
     public function outlet()
     {
-        return $this->hasMany('App\Outlet','owner_id');
+        return $this->hasMany('App\Outlet', 'owner_id');
     }
 
-    public static function ownerById($owner_id){
-        return Owner::where('id',$owner_id)->first();
+    public static function ownerById($owner_id)
+    {
+        return self::where('id', $owner_id)->first();
     }
 
-    public static function getOwnerOrderReceive($owner_id, $res_id) {
+    public static function getOwnerOrderReceive($owner_id, $res_id)
+    {
         $order_receive = '';
-        $owner = OutletMapper::where("owner_id",$owner_id)->where("outlet_id",$res_id)->get();
 
-        if (sizeof($owner) > 0 && isset($owner[0]->order_receive) && $owner[0]->order_receive != '') {
+        $owner = OutletMapper::where("owner_id", $owner_id)->where("outlet_id", $res_id)->get();
+        if (!empty($owner) && isset($owner[0]->order_receive) && $owner[0]->order_receive != '') {
             $order_receive = json_decode($owner[0]->order_receive);
         }
-
         return $order_receive;
     }
 }

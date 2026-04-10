@@ -563,7 +563,7 @@ Route::post('/getPieChartData','ReportController@getPieChartData');
 Route::post('/getPieChartDateData','ReportController@getPieChartDateData');
 Route::post('/getBarChartDateData','ReportController@getBarChartDateData');//use for top10 item list date wise
 Route::post('/getBarChartMonthData','ReportController@getBarChartMonthData');//use for top10 item list month wise
-Route::post('/dashboardOrderData','HomeController@dashboardOrderData');
+Route::get('/dashboardOrderData','HomeController@dashboardOrderData');
 Route::post('/ajax/selectslots','ReportController@selectslots');
 
 // Recipe
@@ -633,7 +633,7 @@ Route::get('/ajax/getServiceTypeOutletList','AddOrderController@getServiceTypeOu
 // print order
 Route::get('/printorder','newordercontroller@printOrder');
 Route::get('/printkot','newordercontroller@printKot');
-Route::get('/populate_invoice_table','HomeController@populateInvoiceTable');
+// Route::get('/populate_invoice_table','HomeController@populateInvoiceTable');
 Route::post('/cancelorder','newordercontroller@cancelOrder');
 Route::post('/deleteorder','newordercontroller@deleteOrder');
 Route::get('/processbill','newordercontroller@processBill');

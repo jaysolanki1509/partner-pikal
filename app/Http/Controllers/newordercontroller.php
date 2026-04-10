@@ -5,7 +5,7 @@ use App\Customer;
 use App\Http\Controllers\Api\v3\Apicontroller;
 use App\Http\Requests;
 use App\HttpClientWrapper;
-use App\invoice_detail;
+use App\InvoiceDetail;
 use App\ItemAttribute;
 use App\Kot;
 use App\Location;

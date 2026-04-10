@@ -2,11 +2,8 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class invoice_detail extends Model {
-
-
+class InvoiceDetail extends Model {
     protected $table ='invoice_details';
-
     protected $fillable = array
     (
         'order_id',
@@ -16,6 +13,4 @@ class invoice_detail extends Model {
         'round_off',
         'discount'
     );
-
-
 }
