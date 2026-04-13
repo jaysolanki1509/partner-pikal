@@ -1,13 +1,11 @@
-<?php namespace App;
-
+<?php 
+namespace App;
 use Illuminate\Database\Eloquent\Model;
+class OrderCouponMappers extends Model {
 
-class ordercouponmapper extends Model {
-
-	//
     protected $table = 'ordercouponmappers';
     public static function insertcoupondetails($order_id,$coupondata,$discount,$afterdiscountvalue,$totalcost,$usermobile=""){
-        $ordercoupondata=new ordercouponmapper();
+        $ordercoupondata=new OrderCouponMappers();
         if(isset($order_id) && $order_id!=''){
             $ordercoupondata->order_id=$order_id;
         }

@@ -34,8 +34,6 @@ class Image{
 
         // We can read the output path from our configuration file.
         $outputDir = Config::get('galleryresize.images.paths.output');
-
-
         // Create an output file path from the size and the filename.
         $outputFile = $outputDir . '/' . $sizeString . '_' . $filename;
 
@@ -46,7 +44,6 @@ class Image{
 
         // File doesn't exist yet, so we will resize the original.
         $inputDir = Config::get('galleryresize.images.paths.getimage');
-
         $inputFile = $inputDir . '/' . $filename;
 
         // Get the width and the height of the chosen size from the Config file.
@@ -59,16 +56,10 @@ class Image{
         $mode = \Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND;
 
         // Create the output directory if it doesn't exist yet.
-
-
         // Open the file, resize it and save it.
-        $this->imagine->open($inputFile)
-            ->thumbnail($size, $mode)
-            ->save($outputFile, array('quality' => 90));
-
+        $this->imagine->open($inputFile)->thumbnail($size, $mode)->save($outputFile, array('quality' => 90));
         // Return the resized file.
         return File::get($outputFile);
-
     }
 
     public function resize($filename, $sizeString) {

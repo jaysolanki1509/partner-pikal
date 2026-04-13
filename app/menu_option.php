@@ -1,14 +1,8 @@
-<?php namespace App;
-
+<?php 
+namespace App;
 use Illuminate\Database\Eloquent\Model;
-
-class menu_option extends Model {
-
-
-
+class MenuOption extends Model {
     protected $table = 'menu_options';
-
-
     public function user()
     {
         return $this->belongsTo('App\Owner','user_id','id');
@@ -29,7 +23,7 @@ class menu_option extends Model {
     }
 
     public static function getmenuoptionbyid($id){
-        $menud=menu_option::where('id', $id)->get();
+        $menud= MenuOption::where('id', $id)->get();
         return $menud;
 
     }
@@ -38,8 +32,8 @@ class menu_option extends Model {
         DB::table('menus')->where('outlet_id',$id)->delete();
     }
 
-//    public static function getmenuoptionbymenuid($menuid){
-//        $menu=menu_option::where('menu_id',$menuid)->get();
-//        return $menu;
-//    }
+    //    public static function getmenuoptionbymenuid($menuid){
+    //        $menu=MenuOption::where('menu_id',$menuid)->get();
+    //        return $menu;
+    //    }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -10,6 +11,7 @@
 | and give it the controller to call when that URI is requested.
 |
 */
+
 Route::get('/', 'HomeController@index');
 Route::get('home', 'HomeController@index');
 Route::get('splash','WelcomeController@index');
@@ -26,9 +28,9 @@ Route::get('/checkOrderReceive', array('as' => 'edit', 'uses' => 'UserController
 Route::post('/user/updateUser/{id}', array('as' => 'update', 'uses' => 'HomeController@updateUser'));
 
 Route::group(['prefix' => 'api/v1'], function () {
-    Route::post('/addlike', array('as' => 'addlike', 'uses' => 'Api\v1\ApiController@addlike'));
+    Route::POST('/addlike', array('as' => 'addlike', 'uses' => 'Api\v1\ApiController@addlike'));
     Route::post('/addreviews', array('as' => 'addreviews', 'uses' => 'Api\v1\ApiController@addreviews'));
-    Route::post('/getreviews', array('as' => 'getreviews', 'uses' => 'Api\v1\ApiController@getreviews'));
+    Route::POST('/getreviews', array('as' => 'getreviews', 'uses' => 'Api\v1\ApiController@getreviews'));
     Route::post('/addaddress', array('as' => 'addaddress', 'uses' => 'Api\v1\ApiController@addaddress'));
     Route::get('/addaddress', array('as' => 'addaddress', 'uses' => 'Api\v1\ApiController@addaddress'));
     Route::get('/getallcities', array('as' => 'getallcities', 'uses' => 'Api\v1\ApiController@getallcities'));
@@ -130,10 +132,9 @@ Route::controllers([
 
 Route::get('/avtar/{id}/{size}', 'Api\v1\ApiController@getImage');
 Route::get('/gallery/{id}/{size}','Api\v1\ApiController@getGallery');
-
 // API V2 //
 Route::group(['prefix' => 'api/v2'], function () {
-    Route::post('/addlike', array('as' => 'addlike', 'uses' => 'Api\v2\ApiControllerV2@addlike'));
+    Route::get('/addlike', array('as' => 'addlike', 'uses' => 'Api\v2\ApiControllerV2@addlike'));
     Route::post('/addreviews', array('as' => 'addreviews', 'uses' => 'Api\v2\ApiControllerV2@addreviews'));
     Route::post('/getreviews', array('as' => 'getreviews', 'uses' => 'Api\v2\ApiControllerV2@getreviews'));
     Route::post('/addaddress', array('as' => 'addaddress', 'uses' => 'Api\v2\ApiControllerV2@addaddress'));
@@ -753,7 +754,7 @@ Route::get('/closing-stock-report','ReportController@closingStockReport');
 Route::post('/closing-stock-report','ReportController@closingStockReport');
 Route::get('/campaign-report','ReportController@campaignReport');
 Route::post('/campaign-report','ReportController@campaignReport');
-Route::post('/get-camp-image','ReportController@getImage');
+Route::any('/get-camp-image','ReportController@getImage');
 Route::get('/unpaid-orders','ReportController@unpaidOrdersReport');
 Route::post('/unpaid-orders','ReportController@unpaidOrdersReport');
 Route::get('/zoho-unsync-orders','ReportController@zohoUnsyncOrdersReport');

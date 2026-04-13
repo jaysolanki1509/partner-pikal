@@ -1,14 +1,12 @@
-<?php namespace App;
-
+<?php 
+namespace App;
 use Illuminate\Database\Eloquent\Model;
+class PayUMoney extends Model {
 
-class payumoney extends Model {
-
-	//
     protected $table ='payumoneys';
 
     public static function insertpayudetails($order_id,$transaction_id,$transaction_status,$transaction_paymentid,$transaction_payumoneyid,$payumoney_amount){
-        $payumoney=new payumoney();
+        $payumoney=new PayUMoney();
         if(isset($order_id) && $order_id!=''){
             $payumoney->order_id=$order_id;
         }

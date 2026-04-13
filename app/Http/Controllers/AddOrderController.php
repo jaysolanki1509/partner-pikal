@@ -5,10 +5,10 @@ use App\Http\Controllers\Api\v1\ApiController;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Menu;
-use App\menu_option;
+use App\MenuOption;
 use App\MenuTitle;
 use App\OutletMapper;
-use App\ordercouponmapper;
+use App\OrderCouponMappers;
 use App\Owner;
 use Illuminate\Support\Facades\Auth;
 use App\Outlet;
@@ -83,7 +83,7 @@ class AddOrderController extends ApiController {
                     $n = 1;
                     foreach( $extra_options as $extra ){
                         //print_r($extra);exit;
-                        $getprice_data = menu_option::where('id', $extra)->first();
+                        $getprice_data = MenuOption::where('id', $extra)->first();
                         if ( sizeof($getprice_data) > 0 ){
                             if( $n == 1){
                                 $options_price .= $getprice_data->opt_price;
@@ -106,7 +106,7 @@ class AddOrderController extends ApiController {
                 $coupon_code = Input::get('coupon_box');
                 if ( $coupon_flag == 'Yes' && isset($coupon_code) ){
                     $coupondata = CouponCodes::where('coupon_code', $coupon_code)->first();
-                    $couponordermapper = ordercouponmapper::where('coupon_applied', $coupon_code)->where('user_mobile_number', Input::get('mobile'))->first();
+                    $couponordermapper = OrderCouponMappers::where('coupon_applied', $coupon_code)->where('user_mobile_number', Input::get('mobile'))->first();
                     //print_r($coupondata);exit;
                     if( sizeof($coupondata) > 0 && sizeof($couponordermapper) == 0 ){
                             //print_r($coupondata->coupon_code);exit;
@@ -223,12 +223,12 @@ class AddOrderController extends ApiController {
       //  print_r($implode_extra);exit;
         $menu_item = Menu::getMenuItemByTitleIdandMenuId($menu_item_id);
         if ( !sizeof($implode_extra) > 0 || $extra == 'undefined' || $extra == '' ){
-            $options = menu_option::where('menu_id', $menu_item_id)->get();
+            $options = MenuOption::where('menu_id', $menu_item_id)->get();
         }else {
                 $option_flag = 'extra';
                 foreach ($implode_extra as $imp) {
                     //print_r($imp);exit;
-                    $extra_price = menu_option::where('id', $imp)->first();
+                    $extra_price = MenuOption::where('id', $imp)->first();
                     if (sizeof($extra_price) > 0) {
                         $tot_extra_price += $extra_price->opt_price;
                     }

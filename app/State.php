@@ -7,7 +7,6 @@ class State extends Model {
     //protected $connection = 'my';
     protected $table = 'states';
     protected $fillable = array
-
     (
         'staid',
         'name'

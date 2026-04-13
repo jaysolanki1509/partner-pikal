@@ -5,7 +5,7 @@ use App\Kot;
 use App\order_details;
 use App\order_item_attributes;
 use App\OrderCancellation;
-use App\ordercouponmapper;
+use App\OrderCouponMappers;
 use App\OrderHistory;
 use App\OrderItem;
 use App\OrderItemOption;
@@ -13,7 +13,7 @@ use App\OrderPaymentMode;
 use App\Outlet;
 use App\OutletSetting;
 use App\Owner;
-use App\payumoney;
+use App\PayUMoney;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -72,8 +72,8 @@ class DeleteOrders extends Command {
 
                         foreach ($orders as $order) {
 
-                            ordercouponmapper::where('order_id', $order)->forceDelete();
-                            payumoney::where('order_id', $order)->forceDelete();
+                            OrderCouponMappers::where('order_id', $order)->forceDelete();
+                            PayUMoney::where('order_id', $order)->forceDelete();
                             OrderHistory::where('order_id', $order)->forceDelete();
                             OrderCancellation::where('order_id', $order)->forceDelete();
                             OrderPaymentMode::where('order_id', $order)->forceDelete();

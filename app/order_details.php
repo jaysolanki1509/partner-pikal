@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
-
-
+use App\OrderCouponMappers;
+use App\PayUMoney;
 class order_details extends Model {
     protected $table = 'orders';
     protected $primaryKey = 'order_id';
@@ -685,7 +685,7 @@ class order_details extends Model {
             if (isset($order['payumoney_amount'])) {
                 $order_payumoney_amount = $order['payumoney_amount'];
             }
-            payumoney::insertpayudetails($oid, $order_transactionid, $order_transactionstatus, $order_payment_id, $order_payumoneyid, $order_payumoney_amount);
+            PayUMoney::insertpayudetails($oid, $order_transactionid, $order_transactionstatus, $order_payment_id, $order_payumoneyid, $order_payumoney_amount);
         }
         if (isset($order['coupon_applied']) && $order['coupon_applied'] == 'Yes') {
             if (isset($order['coupondata']['id']) && $order['coupondata']['id'] != '') {
@@ -704,7 +704,7 @@ class order_details extends Model {
             if (isset($order['mobile_number']) && $order['mobile_number']) {
                 $usermobile = $order['mobile_number'];
             }
-            ordercouponmapper::insertcoupondetails($oid, $coupondata, $discount, $afterdiscountvalue, $totalcost, $usermobile);
+            OrderCouponMappers::insertcoupondetails($oid, $coupondata, $discount, $afterdiscountvalue, $totalcost, $usermobile);
         }
         $order_date = Carbon::parse($order_date)->format('d/m/Y H:i:s');
 
@@ -1020,7 +1020,7 @@ class order_details extends Model {
             if (isset($order['payumoney_amount'])) {
                 $order_payumoney_amount = $order['payumoney_amount'];
             }
-            payumoney::insertpayudetails($oid, $order_transactionid, $order_transactionstatus, $order_payment_id, $order_payumoneyid, $order_payumoney_amount);
+            PayUMoney::insertpayudetails($oid, $order_transactionid, $order_transactionstatus, $order_payment_id, $order_payumoneyid, $order_payumoney_amount);
         }
         if(isset($order['coupon_applied']) && $order['coupon_applied']=='Yes'){
             if(isset($order['coupondata']['id']) && $order['coupondata']['id']!=''){
@@ -1039,7 +1039,7 @@ class order_details extends Model {
             if(isset($order['mobile_number']) && $order['mobile_number']){
                 $usermobile=$order['mobile_number'];
             }
-            ordercouponmapper::insertcoupondetails($oid,$coupondata,$discount,$afterdiscountvalue,$totalcost,$usermobile);
+            OrderCouponMappers::insertcoupondetails($oid,$coupondata,$discount,$afterdiscountvalue,$totalcost,$usermobile);
         }
         $order_date=Carbon::parse($order_date)->format('d/m/Y H:i:s');
         return array('id'=>$oid,'order_date'=>$order_date,'discounted_value'=>$discount,'orderdetails'=>$order_details);

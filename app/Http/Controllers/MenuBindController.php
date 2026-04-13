@@ -14,7 +14,7 @@ use App\OutletMapper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use App\Menu;
-use App\menu_option;
+use App\MenuOption;
 
 class MenuBindController extends Controller {
 
@@ -85,7 +85,7 @@ class MenuBindController extends Controller {
 			$i = 0;
 
 			foreach ($menud as $cui) {
-				$menuoption=menu_option::where('menu_id',$cui->id)->get();
+				$menuoption=MenuOption::where('menu_id',$cui->id)->get();
 				$cuisinetype='';
 				if(isset($cui->food) && $cui->food!=''){
 					$foodtype=$cui->food;

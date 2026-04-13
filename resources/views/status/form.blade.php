@@ -1,5 +1,5 @@
 <?php use App\Outlet; ?>
-<?php use App\status ;?>
+<?php use App\Status ;?>
         @if($action=='add')
 
             <form class="form-horizontal" role="form" method="POST" id="status_form" novalidate="novalidate" action="{{ url('/status') }}" files="true" enctype="multipart/form-data">
