@@ -1,12 +1,9 @@
-<?php namespace App;
+<?php 
 
+namespace App;
 use Illuminate\Database\Eloquent\Model;
-
 class locality extends Model {
-
-
     protected $table = 'locality';
-
     protected $fillable = array(
         'locality_id',
         'locality'
@@ -24,7 +21,6 @@ class locality extends Model {
 
     public static function getlocalitybycityid($id){
         $loc=locality::where('city_id','=',$id)->get();
-
         return $loc;
     }
     public static function getlocalitybylocalityname($name){

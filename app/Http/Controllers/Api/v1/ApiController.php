@@ -194,8 +194,6 @@ class Apicontroller extends Controller
                 $sortedarray[$key] = $value['distance'];
             }
             array_multisort($sortedarray, SORT_ASC, $Outlet_detail);
-
-
             return Response::json(
                 array(
                     'status' => 'success',
@@ -206,10 +204,7 @@ class Apicontroller extends Controller
                 200
             );
             // }
-
-
         } else {
-
             $Outlets = Outlet::where('active', '!=', serialize(0))->get();
             $i = 0;
             foreach ($Outlets as $restcuisine) {
@@ -221,9 +216,8 @@ class Apicontroller extends Controller
 
                 $cuisinetype = array();
                 foreach ($restcui as $recui) {
-
                     $rest = CuisineType::cuisinetypebyid($recui->cuisine_type_id);
-                    if (sizeof($rest) > 0) {
+                    if (!empty($rest)) {
                         $resttype = $rest['type'];
                     } else {
                         $resttype = "";
@@ -232,12 +226,10 @@ class Apicontroller extends Controller
                         array_push($cuisinetype, $resttype);
                     }
                 }
-
                 $Outlet_type = array();
                 foreach ($restresttype as $resrest) {
-
                     $cui = OutletType::outlettypebyid($resrest->outlet_type_id);
-                    if (sizeof($cui) > 0) {
+                    if (!empty($cui)) {
                         $cutype = $cui['type'];
                     } else {
                         $cutype = "";
@@ -285,14 +277,10 @@ class Apicontroller extends Controller
                     'min_order_price' => $min_cost,
                     'locality' => $locality,
                     'famous_for' => $restcuisine->famous_for,
-
                     'restaurant_image' => $Outlet_image,
-
                 );
                 $i++;
             }
-
-
             return Response::json(
                 array(
                     'message' => 'List of all added Outlets',
@@ -304,8 +292,6 @@ class Apicontroller extends Controller
             );
         }
     }
-
-
 
     /**
      * Show the form for creating a new resource.
@@ -393,7 +379,6 @@ class Apicontroller extends Controller
         }
         return $response;
     }
-
     //for Outletmenu
     public function outletmenu()
     {
@@ -401,16 +386,12 @@ class Apicontroller extends Controller
         $Outletid = Input::get('restaurant_id');
         $menutitle = MenuTitle::getmenutitlebyrestaurantid($Outletid);
         $useragent = Request::header('User-Agent');
-
         foreach ($menutitle as $menudetails) {
             $menutitle = $menudetails->title;
-            //print_r($menutitle);exit;
             $menud = Menu::getmenubymenutitleid($menudetails->id);
-
             $i = 0;
-
             foreach ($menud as $cui) {
-                $menuoption = MenuOption::where('menu_id', $cui->id)->get();
+                $menuoption = MenuOption::where('menu_id', $cui['id'])->get();
                 $cuisinetype = '';
                 if (isset($cui->food) && $cui->food != '') {
                     $foodtype = $cui->food;
@@ -448,7 +429,6 @@ class Apicontroller extends Controller
             );
         }
     }
-
     //for creating url of Outlet gallery
     public function getGallery($id, $size)
     {
@@ -477,7 +457,7 @@ class Apicontroller extends Controller
     public function outletinformation()
     {
         $restinfo = array();
-        $outlet_id = Input::get('restaurant_id');
+        $outlet_id = Request::get('restaurant_id');
         $Outlets = Outlet::find($outlet_id);
         $states = State::findstates($Outlets->state_id);
         if (!empty($states)) {
@@ -583,6 +563,7 @@ class Apicontroller extends Controller
             'longitude' => $longitude,
             'restaurant_images' => $allimages
         );
+        echo "restinfo <pre>"; print_r($restinfo); echo "</pre>"; exit;
         return Response::json(
             array(
                 'message' => 'Information of Outlet',
@@ -1809,25 +1790,20 @@ class Apicontroller extends Controller
             200
         );
     }
-
     public function addaddress(Request $request)
     {
-        $getuserid = Input::json('user_id');
-        $getaddress = Input::json('address');
-        $getlocality = Input::json('locality');
-        $pincode = Input::json('pincode');
-        $phonenumber = Input::json('user_mobile_number');
-        $address_tag = Input::json('address_tag');
-        $state = Input::json('state');
-        $city = Input::json('city');
-        $country = Input::json('country');
-        $landmark = Input::json('landmark');
-        $flatnumber = Input::json('flatnumber');
-
-
+        $getuserid = Request::get('user_id');
+        $getaddress = Request::get('address');
+        $getlocality = Request::get('locality');
+        $pincode = Request::get('pincode');
+        $phonenumber = Request::get('user_mobile_number');
+        $address_tag = Request::get('address_tag');
+        $state = Request::get('state');
+        $city = Request::get('city');
+        $country = Request::get('country');
+        $landmark = Request::get('landmark');
+        $flatnumber = Request::get('flatnumber');
         $address = new address();
-
-
         if (isset($phonenumber)) {
             $address->user_mobile_number = $phonenumber;
         }
@@ -1876,7 +1852,6 @@ class Apicontroller extends Controller
     }
     public function payusuccess()
     {
-
         return view('payu.success');
     }
     public function payufailure()
@@ -1905,13 +1880,11 @@ class Apicontroller extends Controller
 
     public function logincustomers()
     {
-        $contact = Input::json('mobile');
-
+        $contact = Request::get('mobile');
         if (isset($contact)) {
             //for finding customer by phone_number
             $usercheck = users::findcustomerbyphonenumber($contact);
             //   $orders=order_details::where('user_mobile_number',$contact)->get();
-
             $password = users::generateotp();
             users::sendotpbymessage($password, $contact);
             //                $ordarray=array();
@@ -1924,11 +1897,8 @@ class Apicontroller extends Controller
             //                                            'item_price'=>$orderitems->item_price);
             //
             //                    }
-
             if (count($usercheck) == 0) {
-
                 $id = users::getidofaddedcustomer($contact, $password, $password);
-
                 return Response::json(
                     array(
                         'message' => 'User Logged in Successfully',
@@ -1961,14 +1931,13 @@ class Apicontroller extends Controller
         $states = State::getallstates();
         $array = array();
         $i = 0;
-        foreach ($states as $ssta) {
-            $city = City::getcitybystateid($ssta->id);
+        foreach ($states as $stateData) {
+            $city = City::getcitybystateid($stateData->id);
             foreach ($city as $cty) {
-                $array[$i]['city'] = $cty->name . '-' . $ssta->name;
+                $array[$i]['city'] = $cty->name . '-' . $stateData->name;
                 $i++;
             }
         }
-
         return Response::json(
             array(
                 'message' => 'Cities fetched successfully',
@@ -1979,25 +1948,20 @@ class Apicontroller extends Controller
             200
         );
     }
-
-
     public function getlocalitybycity()
     {
-        $ctyid = Input::get('city');
+        $ctyid = Request::get('city');
         if ($ctyid != 'Select City' && $ctyid != 'Select') {
             $cityname = explode('-', $ctyid);
 
             $city = City::getcitybycityname($cityname[0]);
-
             $array = array();
             $i = 0;
             $locality = locality::getlocalitybycityid($city[0]['id']);
             foreach ($locality as $lcty) {
-
                 $array[$i]['locality'] = $lcty->locality;
                 $i++;
             }
-
             return Response::json(
                 array(
                     'message' => 'Locality fetched successfully',
@@ -2024,11 +1988,9 @@ class Apicontroller extends Controller
         $i = 0;
         $locality = locality::getalllocality();
         foreach ($locality as $lcty) {
-
             $array[$i]['locality'] = $lcty->locality;
             $i++;
         }
-
         return Response::json(
             array(
                 'message' => 'Locality fetched successfully',
@@ -2039,8 +2001,6 @@ class Apicontroller extends Controller
             200
         );
     }
-
-
     public function ownerfetchdata(Request $request)
     {
         $username = Input::json('owner_name');

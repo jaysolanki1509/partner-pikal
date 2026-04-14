@@ -15,9 +15,7 @@ if(!empty($_POST)) {
     //print_r($_POST);
     foreach($_POST as $key => $value) {
         $posted[$key] = $value;
-
     }
-
 }
 
 $formError = 0;
@@ -31,7 +29,7 @@ if(empty($posted['txnid'])) {
 $hash = '';
 // Hash Sequence
 $hashSequence = "key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10";
-if(empty($posted['hash']) && sizeof($posted) > 0) {
+if(empty($posted['hash']) && !empty($posted)) {
     if(
             empty($posted['key'])
             || empty($posted['txnid'])
@@ -55,7 +53,6 @@ if(empty($posted['hash']) && sizeof($posted) > 0) {
         }
 
         $hash_string .= $SALT;
-
 
         $hash = strtolower(hash('sha512', $hash_string));
         $action = $PAYU_BASE_URL . '/_payment';

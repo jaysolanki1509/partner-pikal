@@ -1,18 +1,14 @@
-<?php namespace App;
+<?php 
 
+namespace App;
 use Illuminate\Database\Eloquent\Model;
-
 class City extends Model {
-
-
     protected $table = 'cities';
     protected $fillable = array
-
     (
         'staid',
         'name'
     );
-
     public static function getllcities(){
         $city=City::all();
         return $city;
@@ -21,7 +17,6 @@ class City extends Model {
         $getcity=City::find($cityid);
         return $getcity;
     }
-
     public static function getcitybyid($id){
         $cities=City::where('id','=',$id)->get();
         return $cities;

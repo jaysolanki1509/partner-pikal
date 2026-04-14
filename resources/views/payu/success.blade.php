@@ -1,6 +1,6 @@
 <?php
 $status=$_POST["status"];
-$firstname=$_POST["firstname"];
+$firstname=$_POST["2"];
 $amount=$_POST["amount"];
 $txnid=$_POST["txnid"];
 $posted_hash=$_POST["hash"];
@@ -14,12 +14,9 @@ $message='';
 If (isset($_POST["additionalCharges"])) {
     $additionalCharges=$_POST["additionalCharges"];
     $retHashSeq = $additionalCharges.'|'.$salt.'|'.$status.'|||||||||||'.$email.'|'.$firstname.'|'.$productinfo.'|'.$amount.'|'.$txnid.'|'.$key;
-
 }
 else {
-
     $retHashSeq = $salt.'|'.$status.'|||||||||||'.$email.'|'.$firstname.'|'.$productinfo.'|'.$amount.'|'.$txnid.'|'.$key;
-
 }
 $hash = hash("sha512", $retHashSeq);
 
@@ -28,17 +25,13 @@ if ($hash != $posted_hash) {
     echo "Invalid Transaction. Please try again";
 }
 else {
-
     $payuMoneyId=$_POST['payuMoneyId'];
     $encryptedPaymentId=$_POST['encryptedPaymentId'];
     echo "<h3>Thank You. Your order status is ". $status .".</h3>";
     echo "<h4>Your Transaction ID for this transaction is ".$txnid.".</h4>";
     echo "<h4>We have received a payment of Rs. " . $amount . ". Your order will soon be shipped.</h4>";
-
 }
-
 ?>
-
 <script>
     function success() {
         window.PayUMoney.success('<?php echo $payuMoneyId; ?>','<?php echo $encryptedPaymentId; ?>','<?php echo $message;?>','<?php echo $txnid;?>','<?php echo $status;?>','<?php echo $amount;?>');
