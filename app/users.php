@@ -5,13 +5,8 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
 class users extends Model {
-
- 
     protected $table = 'users';
-
     protected $fillable = ['first_name','last_name', 'email', 'password','mobile_number','state','city','country','gender','otp','status','device_id'];
-
-
     //addcustomer function is for adding customer if he/she is not registered from mobile
     // new app users
     public static function getidofaddedcustomer($contact,$pass,$num){
@@ -20,10 +15,7 @@ class users extends Model {
         );
         return $id;
     }
-
-
     // function for generating otp
-
     public static function generateotp(){
         $num= rand(000000,999999);
         return $num;
@@ -123,9 +115,9 @@ class users extends Model {
     }
 
     //get id of user
-    public static function getidofuserinserted($mobile){
-        $user=DB::table('users')->where('mobile_number',$mobile);
-        $id=$user->select('id')->get();
+    public static function getidofuserinserted($mobile)
+    {
+        $id = DB::table('users')->where('mobile_number', $mobile)->select('id')->get();
         return $id;
     }
 

@@ -19,10 +19,11 @@ use App\Owner;
 use App\Printsummary;
 use App\Reviews;
 use App\State;
-//use Illuminate\Http\Request;
 use App\Termsandcondition;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
+// use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Request as RequestFacade;
 use App\Outlet;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
@@ -84,7 +85,7 @@ class Apicontroller extends Controller
         $lat = Input::get('latitude');
         $long = Input::get('longitude');
         $delivery_type = Input::get('order_type');
-        $useragent = Request::header('User-Agent');
+        $useragent = RequestFacade::header('User-Agent');
 
         if (isset($start) || isset($limit) || isset($location) || isset($cuistype) || isset($resttype) || isset($restname) || isset($costmin) || isset($costmax) || isset($lat) || isset($long) || isset($delivery_type)) {
             $restdetails = Outlet::searchoutlet($start, $limit, $location, $cuistype, $resttype, $restname, $costmin, $costmax, $lat, $long, $delivery_type);
@@ -380,12 +381,13 @@ class Apicontroller extends Controller
         return $response;
     }
     //for Outletmenu
-    public function outletmenu()
+    public function outletmenu(Request $request)
     {
         $restmenu = array();
-        $Outletid = Input::get('restaurant_id');
+        // $Outletid = Input::get('restaurant_id');
+        $Outletid = $request->input('restaurant_id');
         $menutitle = MenuTitle::getmenutitlebyrestaurantid($Outletid);
-        $useragent = Request::header('User-Agent');
+        $useragent = RequestFacade::header('User-Agent');
         foreach ($menutitle as $menudetails) {
             $menutitle = $menudetails->title;
             $menud = Menu::getmenubymenutitleid($menudetails->id);
@@ -454,10 +456,10 @@ class Apicontroller extends Controller
     }
 
     //information of Outlets
-    public function outletinformation()
+    public function outletinformation(Request $request)
     {
         $restinfo = array();
-        $outlet_id = Request::get('restaurant_id');
+        $outlet_id = $request->input('restaurant_id');
         $Outlets = Outlet::find($outlet_id);
         $states = State::findstates($Outlets->state_id);
         if (!empty($states)) {
@@ -563,7 +565,10 @@ class Apicontroller extends Controller
             'longitude' => $longitude,
             'restaurant_images' => $allimages
         );
-        echo "restinfo <pre>"; print_r($restinfo); echo "</pre>"; exit;
+        echo "restinfo <pre>";
+        print_r($restinfo);
+        echo "</pre>";
+        exit;
         return Response::json(
             array(
                 'message' => 'Information of Outlet',
@@ -576,21 +581,18 @@ class Apicontroller extends Controller
     }
 
     //order added from here in backend
-    public function orderdetails($order_from_web = null)
+    public function orderdetails($order_from_web = null,Request $request)
     {
         $order = '';
         $flag = '';
         if (isset($order_from_web)) {
             $order = $order_from_web['order'];
             $flag = $order['flag'];
-            //print_r($flag);exit;
         } else {
-            $order = Input::json('order');
+            $order = $request->input('order');
         }
-
         $array = array();
         $Outlet = Outlet::Outletbyid($order['restaurant_id']);
-
         if (isset($Outlet)) {
             $startingstatus = Status::getallstatusofOutlet($order['restaurant_id']);
             $lastindex = count($startingstatus) - 1;
@@ -603,36 +605,29 @@ class Apicontroller extends Controller
             } else {
                 $status = '';
             }
-
             $order_ids = order_details::getorderid();
-
             $suborder_id = order_details::getorderidofrestaurant($order['restaurant_id']);
             $a = $Outlet->lists('code');
+            echo "Web From Order <pre>";
+            print_r($order);
+            echo "</pre>";
+            exit;
             if (isset($order['mobile_number'])) {
                 DB::table('orders')->where('user_mobile_number', $order['mobile_number'])->update(array('device_id' => $order['device_id']));
             }
             $saveorder = order_details::insertorderdetails($a, $order_ids, $order, $status, $suborder_id);
 
-
             foreach ($order['menu_item'] as $asd) {
                 $orderid = OrderItem::insertmenuitemoforders($saveorder['id'], $asd);
             }
-
             // Queue::push('App\Commands\MailNotification@getorderdetails', array('orderdetails'=>$saveorder));
-
             $date = $saveorder['order_date'];
             $date = str_replace('/', '-', $date);
-
             $orddate = date("F j, Y g:i a", strtotime($date));
-
-
-
-
             Queue::push('App\Commands\OwnerNotification@getownernotification', array('outlet_id' => $order['restaurant_id']));
             if (isset($flag) && $flag == 'webapp_order') {
                 return 'success';
             } else {
-
                 return Response::json(
                     array(
                         'message' => 'Order Placed Successfully.Go To My Order To Check Your Status',
@@ -657,24 +652,18 @@ class Apicontroller extends Controller
             );
         }
     }
-
     //new mobileend user added from here
     public function addcustomer(Request $request)
     {
-        $contact = Input::json('contact_no');
-        $pass = Input::json('password');
-
-
+        $contact = $request->input('contact_no');
+        $pass = $request->input('password');
         if (isset($contact)) {
             //for finding customer by phone_number
             $usercheck = users::findcustomerbyphonenumber($contact);
-
             $num = users::generateotp();
-            if (count($usercheck) == 0) {
-
+            if (empty($usercheck)) {
                 $id = users::getidofaddedcustomer($contact, $pass, $num);
                 users::sendotpbymessage($num, $contact);
-
                 return Response::json(
                     array(
                         'message' => 'User is Added successfully',
@@ -686,11 +675,8 @@ class Apicontroller extends Controller
                     200
                 );
             } else if ($usercheck->lists('status')[0] == "NotVerified") {
-
                 users::updateotp($contact, $num);
-
                 users::sendotpbymessage($num, $contact);
-
                 return Response::json(
                     array(
                         'message' => 'User Added successfully',
@@ -714,15 +700,12 @@ class Apicontroller extends Controller
             }
         }
     }
-
     //for the verification of otp sent to user in backend database
     public function verifyotp(Request $request)
     {
-
-        $id = Input::json('user_id');
-        $otp = Input::json('user_otp');
+        $id = $request->input('user_id');
+        $otp = $request->input('user_otp');
         $user = users::selectotp($id);
-
         if ($user->otp == $otp) {
             users::updateotpstatus($id);
             return Response::json(
@@ -835,21 +818,17 @@ class Apicontroller extends Controller
      */
     public function updatedetail(Request $request)
     {
-
-        $serverid = Input::json('serverid');
-        //$mobile=Input::json('user_mobile');
-        $firstname = Input::json('first_name');
-        // $lastname=Input::json('last_name');
-        $email = Input::json('email');
-
-        //$password=Input::json('password');
-        //$gender=Input::json('gender');
-        // print_r(\Illuminate\Support\Facades\Request::get('image'));exit;
-        // $image=  Request::file('image');
+        $serverid = $request->input('serverid');
+        //$mobile = $request->input('user_mobile');
+        $firstname = $request->input('first_name');
+        //$lastname = $request->input('last_name');
+        $email = $request->input('email');
+        //$password = $request->input('password');
+        //$gender = $request->input('gender');
+        // print_r(\Illuminate\Support\Facades\RequestFacade::get('image'));exit;
+        // $image=  RequestFacade::file('image');
         // print_r($image);exit;
         $update = array();
-
-
         $user = DB::table('users');
         if (isset($firstname)) {
             $update['first_name'] = $firstname;
@@ -860,7 +839,6 @@ class Apicontroller extends Controller
         if (isset($email)) {
             $update['email'] = $email;
         }
-
         if (isset($password)) {
             $update['password'] = $password;
         }
@@ -918,7 +896,8 @@ class Apicontroller extends Controller
     //    }
     public function forgotpassword(Request $request)
     {
-        $mobile = Input::json('user_mobile');
+        $mobile = $request->input('user_mobile');
+        echo "mobile" . $mobile; exit;
         if (isset($mobile)) {
             $num = users::generateotp();
             $affectedRows = users::updateotp($mobile, $num);
@@ -979,11 +958,12 @@ class Apicontroller extends Controller
     }
     public function addresschange(Request $request)
     {
-        $mobile = Input::json('user_mobile');
-        $address = Input::json('address');
-        $locality = Input::json('locality');
-        $pincode = Input::json('pincode');
-        $addressuniq = Input::json('addressid');
+        $mobile = $request->input('user_mobile');
+        $address = $request->input('address');
+        $locality = $request->input('locality');
+        $pincode = $request->input('pincode');
+        $addressuniq = $request->input('addressid');
+        
         if (isset($mobile)) {
             if (isset($address)) {
                 $adressarray['address'] = $address;
@@ -994,11 +974,10 @@ class Apicontroller extends Controller
             if (isset($pincode)) {
                 $adressarray['pincode'] = $pincode;
             }
-            if ($addressuniq == null || $addressuniq == '') {
+            if ($addressuniq=='') {
                 $id = users::getidofuserinserted($mobile);
-                if (count($id) > 0) {
+                if ($id !== null) {
                     $adressarray['customer_id'] = (string) $id[0]->id;
-
                     $addressid = address::insertaddress($adressarray);
                     return Response::json(
                         array(
@@ -1018,9 +997,8 @@ class Apicontroller extends Controller
                     );
                 }
             } else {
-
+                echo "Else Else <pre>";
                 address::updateaddress($addressuniq, $adressarray);
-
                 return Response::json(
                     array(
                         'message' => 'Address Updated Successfully',
@@ -1773,8 +1751,8 @@ class Apicontroller extends Controller
 
     public function sendmail(Request $request)
     {
-        $mail = Input::get('mail');
-        $password = Input::get('password');
+        $mail = $request->input('mail');
+        $password = $request->input('password');
         Mail::send('emails.sendpassword', ['password' => $password], function ($message) use ($mail) {
             $message->from('we@pikal.io', 'Pikal');
             $message->to($mail, 'Pikal');
@@ -1792,17 +1770,18 @@ class Apicontroller extends Controller
     }
     public function addaddress(Request $request)
     {
-        $getuserid = Request::get('user_id');
-        $getaddress = Request::get('address');
-        $getlocality = Request::get('locality');
-        $pincode = Request::get('pincode');
-        $phonenumber = Request::get('user_mobile_number');
-        $address_tag = Request::get('address_tag');
-        $state = Request::get('state');
-        $city = Request::get('city');
-        $country = Request::get('country');
-        $landmark = Request::get('landmark');
-        $flatnumber = Request::get('flatnumber');
+        $getuserid = $request->input('user_id');
+        $getaddress = $request->input('address');
+        $getlocality = $request->input('locality');
+        $pincode = $request->input('pincode');
+        $phonenumber = $request->input('user_mobile_number');
+        $address_tag = $request->input('address_tag');
+        $state = $request->input('state');
+        $city = $request->input('city');
+        $country = $request->input('country');
+        $landmark = $request->input('landmark');
+        $flatnumber = $request->input('flatnumber');
+
         $address = new address();
         if (isset($phonenumber)) {
             $address->user_mobile_number = $phonenumber;
@@ -1878,9 +1857,9 @@ class Apicontroller extends Controller
         }
     }
 
-    public function logincustomers()
+    public function logincustomers(Request $request)
     {
-        $contact = Request::get('mobile');
+        $contact = $request->input('mobile');
         if (isset($contact)) {
             //for finding customer by phone_number
             $usercheck = users::findcustomerbyphonenumber($contact);
@@ -1948,9 +1927,9 @@ class Apicontroller extends Controller
             200
         );
     }
-    public function getlocalitybycity()
+    public function getlocalitybycity(Request $request)
     {
-        $ctyid = Request::get('city');
+        $ctyid = $request->input('city');
         if ($ctyid != 'Select City' && $ctyid != 'Select') {
             $cityname = explode('-', $ctyid);
 
@@ -2547,14 +2526,14 @@ class Apicontroller extends Controller
         ), 200);
     }
 
-    public function addreviews()
+    public function addreviews(Request $request)
     {
-        $usermobile = Request::get('mobile');
-        $user_name = Request::get('user_name');
-        $rating = Request::get('rating');
-        $fav = Request::get('fav');
-        $comment = Request::get('comment');
-        $resid = Request::get('res_id');
+        $usermobile = $request->input('mobile');
+        $user_name = $request->input('user_name');
+        $rating = $request->input('rating');
+        $fav = $request->input('fav');
+        $comment = $request->input('comment');
+        $resid = $request->input('res_id');
 
         $review = new Reviews();
         $review->mobile = $usermobile;
@@ -2574,10 +2553,11 @@ class Apicontroller extends Controller
         ), 200);
     }
 
-    public function getreviews()
+    public function getreviews(Request $request)
     {
-        $resid = Request::get('res_id');
-        $mobile_number = Request::get('user_mobile_number');
+        $resid = $request->input('res_id');
+        $mobile_number = $request->input('user_mobile_number');
+
         $reviews = Reviews::where('resid', $resid)->get();
         if (isset($mobile_number) && $mobile_number != "") {
             $rev = order_details::where('outlet_id', $resid)->where('user_mobile_number', $mobile_number)->get();
@@ -2601,12 +2581,13 @@ class Apicontroller extends Controller
         ), 200);
     }
 
-    public function addlike()
+    public function addlike(Request $request)
     {
-        $resid = Request::get('res_id');
-        $itemid = Request::get('item_id');
-        $like = Request::get('like');
-        $mobilenumber = Request::get('user_mobile_number');
+        $resid = $request->input('res_id');
+        $itemid = $request->input('item_id');
+        $like = $request->input('like');
+        $mobilenumber = $request->input('user_mobile_number');
+
         $pastlike = Itemreview::where('item_id', $itemid)->where('user_mobile_number', $mobilenumber)->orderby('created_at', 'desc')->first();
         $menulike = Menu::where('id', $itemid)->first();
         if ($like == 0) {

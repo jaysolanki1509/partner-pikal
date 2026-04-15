@@ -29,7 +29,6 @@ class OrderItem extends Model {
 
     public static function insertmenuitemoforders($saveorder,$orderitem,$rest_id,$inv_no = NULL)
     {
-
         if (isset($orderitem['item_unique_id']) && $orderitem['item_unique_id'] != '0') {
             $chck_item = OrderItem::where('item_unique_id', $orderitem['item_unique_id'])->where('order_id', $saveorder)->get();
             if (isset($chck_item) && sizeof($chck_item) > 0) {

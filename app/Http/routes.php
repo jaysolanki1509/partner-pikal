@@ -55,7 +55,7 @@ Route::group(['prefix' => 'api/v1'], function () {
     Route::get('/payuview','Api\v1\ApiController@payuview');
 
     Route::post('/orderdetails','Api\v1\ApiController@orderdetails');
-    Route::post('/orderdetails','Api\v1\ApiController@orderdetails');
+    // Route::post('/orderdetails','Api\v1\ApiController@orderdetails');
     Route::post('/addcustomer','Api\v1\ApiController@addcustomer');
     Route::post('/verifyotp','Api\v1\ApiController@verifyotp');
     Route::post('/login','Api\v1\ApiController@login');
