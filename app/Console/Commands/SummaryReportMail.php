@@ -1,7 +1,9 @@
-<?php namespace App\Console\Commands;
+<?php
+
+namespace App\Console\Commands;
 
 use App\DailySummary;
-use App\order_details;
+use App\OrderDetails;
 use App\OrderItem;
 use App\OrderPaymentMode;
 use App\Outlet;
@@ -21,75 +23,76 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Savitriya\Icici_upi\IciciUpiTxn;
 
-class SummaryReportMail extends Command {
+class SummaryReportMail extends Command
+{
 
-	/**
-	 * The console command name.
-	 *
-	 * @var string
-	 */
-	protected $name = 'pikal:summary';
+    /**
+     * The console command name.
+     *
+     * @var string
+     */
+    protected $name = 'pikal:summary';
 
-	/**
-	 * The console command description.
-	 *
-	 * @var string
-	 */
-	protected $description = 'Daily Pikal Summary Report.';
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Daily Pikal Summary Report.';
 
-	/**
-	 * Create a new command instance.
-	 *
-	 * @return void
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-	}
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
-	/**
-	 * Execute the console command.
-	 *
-	 * @return mixed
-	 */
-	public function fire()
-	{
-		//echo 'here';exit;
-		$owners = Owner::all();
-		$data = array();
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function fire()
+    {
+        //echo 'here';exit;
+        $owners = Owner::all();
+        $data = array();
 
         $to_date = date('Y-m-d H:i:s');
-        $from_date =  date('Y-m-d H:i:s',strtotime('-1 day'));
-		//$from_date = new Carbon(date('Y-m-d',strtotime('yesterday')).' 03:00:00');
-		//$to_date = '2017-01-11 03:00:00';
+        $from_date =  date('Y-m-d H:i:s', strtotime('-1 day'));
+        //$from_date = new Carbon(date('Y-m-d',strtotime('yesterday')).' 03:00:00');
+        //$to_date = '2017-01-11 03:00:00';
 
-		if( sizeof($owners) > 0 ){
-			foreach( $owners as $owner ){
+        if (sizeof($owners) > 0) {
+            foreach ($owners as $owner) {
 
-				$outlets = Outlet::where('owner_id', $owner->id)->where('active','=','Yes')
-                                    ->where('id','!=',44)->where('id','!=',45)->get(); //not send to chinahut outlet
-				
-				if( sizeof($outlets) > 0 ){
-					foreach($outlets as $outlet) {
+                $outlets = Outlet::where('owner_id', $owner->id)->where('active', '=', 'Yes')
+                    ->where('id', '!=', 44)->where('id', '!=', 45)->get(); //not send to chinahut outlet
+
+                if (sizeof($outlets) > 0) {
+                    foreach ($outlets as $outlet) {
                         $data['outlet_name'] = $outlet->name;
 
                         $is_send = SendCloseCounterStatus::where('outlet_id', $outlet->id)
-                            ->whereDate('report_date','=',Carbon::yesterday()->format('Y-m-d'))
-                            ->select('is_send','created_at')->get();
+                            ->whereDate('report_date', '=', Carbon::yesterday()->format('Y-m-d'))
+                            ->select('is_send', 'created_at')->get();
 
 
-                        if(sizeof($is_send) == 0) {
+                        if (sizeof($is_send) == 0) {
 
                             $total_tax = 0.0;
                             $daily_summarry = new DailySummary();
-                            $daily_summarry->report_date = date('Y-m-d',strtotime('-1 day'));
+                            $daily_summarry->report_date = date('Y-m-d', strtotime('-1 day'));
                             $daily_summarry->outlet_id = $outlet->id;
 
-                            $orders = order_details::where('orders.table_end_date', '>=', $from_date)
-                                                ->where('orders.table_end_date', '<=', $to_date)
-                                                ->where('outlet_id', '=', $outlet->id)
-                                                ->where('orders.invoice_no', "!=", '')
-                                                ->where('cancelorder', '!=', 1);
+                            $orders = OrderDetails::where('orders.table_end_date', '>=', $from_date)
+                                ->where('orders.table_end_date', '<=', $to_date)
+                                ->where('outlet_id', '=', $outlet->id)
+                                ->where('orders.invoice_no', "!=", '')
+                                ->where('cancelorder', '!=', 1);
 
 
                             $l_order = $orders->min('orders.totalprice');
@@ -101,22 +104,22 @@ class SummaryReportMail extends Command {
                             $t_person = $orders->sum('orders.person_no');
 
                             //today's unique number
-                            $today_unique_mobile = order_details::join("users as u", "u.id", "=", "orders.user_id")
-                                                            ->where('orders.table_end_date', '>=', $from_date)
-                                                            ->where('orders.table_end_date', '<=', $to_date)
-                                                            ->where('outlet_id', '=', $outlet->id)
-                                                            ->where('orders.invoice_no', "!=", '')
-                                                            ->where('cancelorder', '!=', 1)
-                                                            ->where('u.mobile_number','!=',0)
-                                                            ->distinct()->count('u.mobile_number');
+                            $today_unique_mobile = OrderDetails::join("users as u", "u.id", "=", "orders.user_id")
+                                ->where('orders.table_end_date', '>=', $from_date)
+                                ->where('orders.table_end_date', '<=', $to_date)
+                                ->where('outlet_id', '=', $outlet->id)
+                                ->where('orders.invoice_no', "!=", '')
+                                ->where('cancelorder', '!=', 1)
+                                ->where('u.mobile_number', '!=', 0)
+                                ->distinct()->count('u.mobile_number');
 
                             //total unique number
-                            $total_unique_mobile = order_details::join("users as u", "u.id", "=", "orders.user_id")
-                                                                ->where('outlet_id', '=', $outlet->id)
-                                                                ->where('orders.invoice_no', "!=", '')
-                                                                ->where('cancelorder', '!=', 1)
-                                                                ->where('u.mobile_number','!=',0)
-                                                                ->distinct()->count('u.mobile_number');
+                            $total_unique_mobile = OrderDetails::join("users as u", "u.id", "=", "orders.user_id")
+                                ->where('outlet_id', '=', $outlet->id)
+                                ->where('orders.invoice_no', "!=", '')
+                                ->where('cancelorder', '!=', 1)
+                                ->where('u.mobile_number', '!=', 0)
+                                ->distinct()->count('u.mobile_number');
 
 
                             $data['lowest_order'] = number_format($l_order, 0);
@@ -125,7 +128,7 @@ class SummaryReportMail extends Command {
                             $data['gross_total'] = number_format($g_total, 0);
                             $data['total_person'] = $t_person;
                             //	$data['total_orders'] = $orders->count();
-                            $data['total_orders'] = $t_orders;//$orderscount;
+                            $data['total_orders'] = $t_orders; //$orderscount;
                             $data['average'] = number_format($avg, 2);
                             $data['total_discount'] = 0;
                             $data['total_nc'] = 0;
@@ -151,110 +154,98 @@ class SummaryReportMail extends Command {
                                     if ($disc_amt == '') {
                                         $disc_amt = 0;
                                     }
-                                    if ($or->totalprice == 0 ) {
+                                    if ($or->totalprice == 0) {
                                         $nc += $disc_amt;
                                     } else {
                                         $discount += $disc_amt;
                                     }
 
                                     //get total cash and prepaid amount
-                                    $payment_modes = OrderPaymentMode::where('order_id',$or->order_id)->get();
+                                    $payment_modes = OrderPaymentMode::where('order_id', $or->order_id)->get();
 
-                                    if ( isset($payment_modes) && sizeof($payment_modes) > 0 ) {
-                                        foreach ( $payment_modes as $py_mode ) {
+                                    if (isset($payment_modes) && sizeof($payment_modes) > 0) {
+                                        foreach ($payment_modes as $py_mode) {
 
                                             $check_payment_type = PaymentOption::find($py_mode->payment_option_id);
                                             $source = Sources::find($py_mode->source_id);
                                             $upi_status = false;
-                                            if ( isset($check_payment_type) && sizeof($check_payment_type) != '' ) {
+                                            if (isset($check_payment_type) && sizeof($check_payment_type) != '') {
 
-                                                if ( strtolower($check_payment_type->name) == 'cash' ) {
+                                                if (strtolower($check_payment_type->name) == 'cash') {
                                                     $t_cash += $py_mode->amount;
-                                                } else if ( strtolower($check_payment_type->name) == 'online' ) {
+                                                } else if (strtolower($check_payment_type->name) == 'online') {
 
-                                                    if ( isset($source) && sizeof($source) > 0 ) {
+                                                    if (isset($source) && sizeof($source) > 0) {
 
-                                                        if ( strtolower($source->name) == 'upi' ) {
+                                                        if (strtolower($source->name) == 'upi') {
 
                                                             //check payment status
-                                                            $check_payment_status = IciciUpiTxn::where('status','=',1)->where('bill_no',$or->order_unique_id)->first();
+                                                            $check_payment_status = IciciUpiTxn::where('status', '=', 1)->where('bill_no', $or->order_unique_id)->first();
 
-                                                            if( isset($check_payment_status) && sizeof($check_payment_status) > 0 ) {
+                                                            if (isset($check_payment_status) && sizeof($check_payment_status) > 0) {
                                                                 $upi_status = true;
                                                                 $t_prepaid += $py_mode->amount;
                                                             } else {
                                                                 $t_unpaid += $py_mode->amount;
                                                             }
-
                                                         } else {
                                                             $t_prepaid += $py_mode->amount;
                                                         }
-
                                                     } else {
                                                         $t_prepaid += $py_mode->amount;
                                                     }
-
-                                                } else if ( strtolower($check_payment_type->name) == 'cheque' ) {
+                                                } else if (strtolower($check_payment_type->name) == 'cheque') {
                                                     $t_cheque += $py_mode->amount;
                                                 }
 
-                                                if ( isset($source) && sizeof($source) > 0 ) {
+                                                if (isset($source) && sizeof($source) > 0) {
 
-                                                    if ( strtolower($source->name) == 'upi' ) {
+                                                    if (strtolower($source->name) == 'upi') {
 
                                                         //check upi payment status
 
-                                                        if( $upi_status == true ) {
+                                                        if ($upi_status == true) {
 
-                                                            if ( isset($payment_opt[$check_payment_type->name][$source->name])) {
+                                                            if (isset($payment_opt[$check_payment_type->name][$source->name])) {
                                                                 $payment_opt[$check_payment_type->name][$source->name] += $py_mode->amount;
                                                             } else {
                                                                 $payment_opt[$check_payment_type->name][$source->name] = $py_mode->amount;
                                                             }
-
                                                         } else {
 
                                                             //if payment status is not success than make it unpaid
-                                                            if ( isset($payment_opt['UnPaid'])) {
+                                                            if (isset($payment_opt['UnPaid'])) {
                                                                 $payment_opt['UnPaid'] += $py_mode->amount;
                                                             } else {
                                                                 $payment_opt['UnPaid'] = $py_mode->amount;
                                                             }
-
                                                         }
-
                                                     } else {
 
-                                                        if ( isset($payment_opt[$check_payment_type->name][$source->name])) {
+                                                        if (isset($payment_opt[$check_payment_type->name][$source->name])) {
                                                             $payment_opt[$check_payment_type->name][$source->name] += $py_mode->amount;
                                                         } else {
                                                             $payment_opt[$check_payment_type->name][$source->name] = $py_mode->amount;
                                                         }
-
                                                     }
-
-
                                                 } else {
 
-                                                    if ( isset($payment_opt[$check_payment_type->name]['direct'])) {
+                                                    if (isset($payment_opt[$check_payment_type->name]['direct'])) {
                                                         $payment_opt[$check_payment_type->name]['direct'] += $py_mode->amount;
                                                     } else {
                                                         $payment_opt[$check_payment_type->name]['direct'] = $py_mode->amount;
                                                     }
-
                                                 }
-
                                             } else {
 
                                                 $t_unpaid += $py_mode->amount;
 
-                                                if ( isset($payment_opt['UnPaid'])) {
+                                                if (isset($payment_opt['UnPaid'])) {
                                                     $payment_opt['UnPaid'] +=  $py_mode->amount;
                                                 } else {
                                                     $payment_opt['UnPaid'] =  $py_mode->amount;
                                                 }
                                             }
-
                                         }
                                     }
 
@@ -274,7 +265,6 @@ class SummaryReportMail extends Command {
 
                                     $total_tax += $tax_total;
                                     $t_person_visit += $or->person_no;
-
                                 }
 
                                 $daily_summarry->total_bifurcation = json_encode($payment_opt);
@@ -287,13 +277,13 @@ class SummaryReportMail extends Command {
                                 $data['total_cheque'] = number_format($t_cheque, 0);
                                 $data['total_unpaid'] = number_format($t_unpaid, 0);
                                 $net_sale = $g_total - ($discount + $nc);
-                                $data['net_sale'] = number_format($net_sale,0);
+                                $data['net_sale'] = number_format($net_sale, 0);
 
                                 $avg_per_person = 0;
-                                if ( isset($t_person_visit) && $t_person_visit > 0 ) {
-                                    $avg_per_person = floatval($g_total/$t_person_visit);
+                                if (isset($t_person_visit) && $t_person_visit > 0) {
+                                    $avg_per_person = floatval($g_total / $t_person_visit);
                                 }
-                                $data['avg_per_person'] =  number_format($avg_per_person,2);
+                                $data['avg_per_person'] =  number_format($avg_per_person, 2);
 
                                 $daily_summarry->total_discount = $discount;
                                 $daily_summarry->total_nc_order = $nc;
@@ -340,8 +330,8 @@ class SummaryReportMail extends Command {
                                 $data['top_selling_item'] = "None";
                                 $count = 0;
                                 $total_item_sell = 0;
-                                foreach ( $items as $item) {
-                                    if ( $item->count > $count) {
+                                foreach ($items as $item) {
+                                    if ($item->count > $count) {
                                         $count = $item->count;
                                         $data['top_selling_item'] = ucfirst($item->item);
 
@@ -353,14 +343,14 @@ class SummaryReportMail extends Command {
                                 $daily_summarry->total_unique_item_sell = sizeof($unique_items);
                                 $daily_summarry->total_item_sell = $total_item_sell;
                                 $daily_summarry->active_item = sizeof($active_items);
-                                if ( $t_person == 0 || $t_person == '') {
+                                if ($t_person == 0 || $t_person == '') {
                                     $daily_summarry->tot_sale_per_person = 0;
                                 } else {
                                     $daily_summarry->tot_sale_per_person = $t_sell / $t_person;
                                 }
 
 
-                                $cancel_order = order_details::leftJoin('order_cancellation_mapper as ocm', 'ocm.order_id', '=', 'orders.order_id')
+                                $cancel_order = OrderDetails::leftJoin('order_cancellation_mapper as ocm', 'ocm.order_id', '=', 'orders.order_id')
                                     ->leftJoin('owners as o', 'o.id', '=', 'ocm.created_by')
                                     ->select('orders.*', 'ocm.reason as reason', 'o.user_name as user_name')
                                     ->where('orders.table_end_date', '>=', $from_date)
@@ -389,11 +379,11 @@ class SummaryReportMail extends Command {
                                     $emails1 = array("dev@savitriya.com");
                                     $allemail = array_merge($emails, $emails1);
                                 } else {*/
-                                    $allemail = $emails;
+                                $allemail = $emails;
                                 //}
                                 $a = Carbon::parse($outlet->start_date)->diff(Carbon::parse($outlet->end_date));
                                 //$total_hours = $a->format("%H:%i");
-                                $total_hours = Outlet::getTotalHours($outlet->id,$from_date);
+                                $total_hours = Outlet::getTotalHours($outlet->id, $from_date);
 
 
                                 $mobiles = explode(',', $outlet->contact_no);
@@ -426,20 +416,18 @@ class SummaryReportMail extends Command {
                             } else {
                                 //	Log::info("No Orders Found.");
                             }
-
                         }
                     }
-				}
-			}
-		}
+                }
+            }
+        }
+    }
 
-	}
-
-	/**
-	 * Get the console command arguments.
-	 *
-	 * @return array
-	 */
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
 	/*protected function getArguments()
 	{
 		return [
@@ -447,16 +435,15 @@ class SummaryReportMail extends Command {
 		];
 	}*/
 
-	/**
-	 * Get the console command options.
-	 *
-	 * @return array
-	 */
-	/*protected function getOptions()
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    /*protected function getOptions()
 	{
 		return [
 			['example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null],
 		];
 	}*/
-
 }

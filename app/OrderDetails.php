@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Session;
 use App\OrderCouponMappers;
 use App\PayUMoney;
 
-class order_details extends Model
+class OrderDetails extends Model
 {
     protected $table = 'orders';
     protected $primaryKey = 'order_id';
@@ -28,14 +28,14 @@ class order_details extends Model
 
     public static function getorderid()
     {
-        // $getallorders = order_details::get();
+        // $getallorders = OrderDetails::get();
         // $last_inserted_id = 0;
         // foreach ($getallorders as $odids) {
         //     $last_inserted_id = $odids->order_id;
         // }
         // $order_ids = $last_inserted_id + 1;
         // return $order_ids;
-        $last_inserted_id = order_details::max('order_id');
+        $last_inserted_id = OrderDetails::max('order_id');
         $order_ids = 0;
         $order_ids = $last_inserted_id + 1;
         return $order_ids;
@@ -53,7 +53,7 @@ class order_details extends Model
 
     public static function getorderidofrestaurant($restaurantid)
     {
-        /*$getallorders=order_details::all();
+        /*$getallorders=OrderDetails::all();
         $ordersrestaurantid=array();
         foreach($getallorders as $getorders){
             if($restaurantid!=$getorders->outlet_id){
@@ -66,7 +66,7 @@ class order_details extends Model
         if(isset($reset) && $reset=='true'){
             $neworderid=1;
         }else{
-        $getallor=order_details::whereNotIn('outlet_id',$ordersrestaurantid)->whereDate('created_at','>=',gmdate('Y-m-d'))->get();
+        $getallor=OrderDetails::whereNotIn('outlet_id',$ordersrestaurantid)->whereDate('created_at','>=',gmdate('Y-m-d'))->get();
 
             $last_inserted_id=0;
             foreach($getallor as $odids){
@@ -75,7 +75,7 @@ class order_details extends Model
             $neworderid=$last_inserted_id+1;
         }*/
 
-        $getallor = order_details::where('outlet_id', $restaurantid)->whereDate('created_at', '>=', gmdate('Y-m-d'))->get();
+        $getallor = OrderDetails::where('outlet_id', $restaurantid)->whereDate('created_at', '>=', gmdate('Y-m-d'))->get();
         $last_inserted_id = 0;
         foreach ($getallor as $odids) {
             $last_inserted_id = $odids->suborder_id;
@@ -389,7 +389,7 @@ class order_details extends Model
 
         if (isset($order_id) && $order_id != "0") {
 
-            order_details::where('order_id', $order_id)->where('invoice_no', '')->update([
+            OrderDetails::where('order_id', $order_id)->where('invoice_no', '')->update([
                 'table_no' => $table_no,
                 'user_id' => $customer_id,
                 'person_no' => $person_no,
@@ -419,7 +419,7 @@ class order_details extends Model
             //delte old payment modes
             OrderPaymentMode::where('order_id', $order_id)->delete();
 
-            $order_details = order_details::where('order_id', $order_id)->first();
+            $order_details = OrderDetails::where('order_id', $order_id)->first();
             $order_type = $order_details->order_type;
             $discount = $order_details->discount_value;
             $delivery_charge = $order_details->delivery_charge;
@@ -836,7 +836,7 @@ class order_details extends Model
 
             if (isset($order_id) && $order_id != '') {
 
-                order_details::where('order_id', $order_id)->update([
+                OrderDetails::where('order_id', $order_id)->update([
                     'table_no' => $table_no,
                     'person_no' => $person_no,
                     'totalprice' => $total,
@@ -851,7 +851,7 @@ class order_details extends Model
                     'payment_status' => $pay_status
                 ]);
 
-                $order_details = order_details::where('order_id', $order_id)->first();
+                $order_details = OrderDetails::where('order_id', $order_id)->first();
 
                 //InvoiceDetail::where('order_id',$order_id)->update(['taxes'=>$tax_type,'total'=>$total,'round_off'=>$round_off,'discount'=>$discount,'sub_total'=>$totalcost_afterdiscount]);
 
@@ -1046,7 +1046,7 @@ class order_details extends Model
 
     public static function getorderbystatusandorderid($currentstatus, $orderid)
     {
-        $ordstat = order_details::where('status', $currentstatus)->where('order_id', $orderid)->first();
+        $ordstat = OrderDetails::where('status', $currentstatus)->where('order_id', $orderid)->first();
         return $ordstat;
     }
 
@@ -1759,7 +1759,7 @@ class order_details extends Model
 
     public static function getordernotification($datetime, $arrayofrestids)
     {
-        $orddetails = order_details::where('created_at', '>=', new Carbon($datetime))->where('read', '!=', 1)->whereIn('outlet_id', $arrayofrestids)->orderBy('created_at', 'desc')->get();
+        $orddetails = OrderDetails::where('created_at', '>=', new Carbon($datetime))->where('read', '!=', 1)->whereIn('outlet_id', $arrayofrestids)->orderBy('created_at', 'desc')->get();
         return $orddetails;
     }
 
@@ -1798,9 +1798,9 @@ class order_details extends Model
             }
         }
         $maxOrder = 0;
-        $maxOrder = order_details::whereIn('outlet_id', $outlet_ids)->max('order_id');
+        $maxOrder = OrderDetails::whereIn('outlet_id', $outlet_ids)->max('order_id');
         if (isset($maxOrder) && $maxOrder > 0) {
-            $time = order_details::where('order_id', $maxOrder)->get();
+            $time = OrderDetails::where('order_id', $maxOrder)->get();
             $last_order_time = $time[0]['table_end_date'];
         } else {
             $last_order_time = 'No Orders Found';
@@ -1838,7 +1838,7 @@ class order_details extends Model
                         $code = $prefix_check->$type;
                     }
 
-                    $check_invoice_no = order_details::where('outlet_id', $outlet_id)
+                    $check_invoice_no = OrderDetails::where('outlet_id', $outlet_id)
                         ->whereRaw($condition)
                         ->get();
 
@@ -1875,7 +1875,7 @@ class order_details extends Model
                     $condition = "orders.table_end_date BETWEEN '$from' AND '$to'";
                 }
 
-                $check_invoice_no = order_details::where('outlet_id', $outlet_id)
+                $check_invoice_no = OrderDetails::where('outlet_id', $outlet_id)
                     ->whereRaw($condition)
                     ->get();
 
@@ -1941,7 +1941,7 @@ class order_details extends Model
             }
 
 
-            $orders = order_details::where('orders.table_end_date', '>=', $from)
+            $orders = OrderDetails::where('orders.table_end_date', '>=', $from)
                 ->where('orders.table_end_date', '<=', $to)
                 ->where('orders.outlet_id', '=', $ot->id)
                 ->orderBy('orders.order_id', 'desc')

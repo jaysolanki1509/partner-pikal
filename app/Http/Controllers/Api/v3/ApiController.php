@@ -32,7 +32,7 @@ use App\LogDetails;
 use App\LogLevel;
 use App\MenuOption;
 use App\MenuItemOption;
-use App\order_details;
+use App\OrderDetails;
 use App\OrderCancellation;
 use App\OrderCouponMappers;
 use App\OrderItemOption;
@@ -760,7 +760,7 @@ class Apicontroller extends Controller
             }
 
             //change for sync issue from partner app
-            //$suborder_id=order_details::getorderidofrestaurant($order['restaurant_id']);
+            //$suborder_id=OrderDetails::getorderidofrestaurant($order['restaurant_id']);
             $suborder_id = 0;
 
             $a = $Outlet->lists('code');
@@ -769,13 +769,13 @@ class Apicontroller extends Controller
             }
 
             if ($order['order_type'] == 'home_delivery') {
-                $today_hd_orders = order_details::where('table_start_date', '>=', Carbon::today()->startOfDay())
+                $today_hd_orders = OrderDetails::where('table_start_date', '>=', Carbon::today()->startOfDay())
                     ->where('table_start_date', '<=', Carbon::today()->endOfDay())
                     ->where('order_type', '=', 'home_delivery')->get()->count();
                 $order['table'] = 'H' . ($today_hd_orders + 1);
                 //$person_no = $order_detail->person_no;
             } else if ($order['order_type'] == 'take_away') {
-                $today_ta_orders = order_details::where('table_start_date', '>=', Carbon::today()->startOfDay())
+                $today_ta_orders = OrderDetails::where('table_start_date', '>=', Carbon::today()->startOfDay())
                     ->where('table_start_date', '<=', Carbon::today()->endOfDay())
                     ->where('order_type', '=', 'take_away')->get()->count();
                 $order['table'] = 'T' . ($today_ta_orders + 1);
@@ -784,8 +784,8 @@ class Apicontroller extends Controller
 
             try {
 
-                // $invoice_no = order_details::generateinvoicenumber($order['restaurant_id'],$suborder_id);
-                $saveorder = order_details::insertConsumerDinein($order_id, $order, $status, $suborder_id, '', $service_tax);
+                // $invoice_no = OrderDetails::generateinvoicenumber($order['restaurant_id'],$suborder_id);
+                $saveorder = OrderDetails::insertConsumerDinein($order_id, $order, $status, $suborder_id, '', $service_tax);
 
                 if (isset($order['order_id']) && $order['order_id'] != '') {
                     $order_id = $order['order_id'];
@@ -1425,7 +1425,7 @@ class Apicontroller extends Controller
                 $order_receive = User::getOwnerOrderReceive($user->id, $restaurant_id);
 
                 //last order sequence
-                $last_order_json = order_details::lastOrderSequence($restaurant_id);
+                $last_order_json = OrderDetails::lastOrderSequence($restaurant_id);
 
                 //feedback questions
                 $fb_question = FeedbackQuestion::getFbQuestions($restaurant_id);
@@ -1748,7 +1748,7 @@ class Apicontroller extends Controller
             $order_receive = User::getOwnerOrderReceive($user->id, $restaurant_id);
 
             //last order sequence
-            $last_order_json = order_details::lastOrderSequence($restaurant_id);
+            $last_order_json = OrderDetails::lastOrderSequence($restaurant_id);
 
             //feedback questions
             $fb_question = FeedbackQuestion::getFbQuestions($restaurant_id);
@@ -2163,10 +2163,10 @@ class Apicontroller extends Controller
 
             if (isset($getnextstatus) && sizeof($getnextstatus) > 0) {
 
-                $ordstat = order_details::where('order_id', $order_id)->first();
+                $ordstat = OrderDetails::where('order_id', $order_id)->first();
 
 
-                order_details::where('status', $currents)->where('order_id', $order_id)->update(array('status' => $getnextstatus->status));
+                OrderDetails::where('status', $currents)->where('order_id', $order_id)->update(array('status' => $getnextstatus->status));
 
                 $restname = Outlet::where('id', $ordstat['restaurant_id'])->first();
 
@@ -2441,7 +2441,7 @@ class Apicontroller extends Controller
         if (isset($contact)) {
             //for finding customer by phone_number
             $usercheck = users::findcustomerbyphonenumber($contact);
-            //   $orders=order_details::where('user_mobile_number',$contact)->get();
+            //   $orders=OrderDetails::where('user_mobile_number',$contact)->get();
 
             $password = users::generateotp();
             users::sendotpbymessage($password, $contact);
@@ -3078,14 +3078,14 @@ class Apicontroller extends Controller
         $resid = Input::json('resid');
 
 
-        $setorderid = order_details::where('outlet_id', $resid)->orderBy('created_at', 'desc')->get();
+        $setorderid = OrderDetails::where('outlet_id', $resid)->orderBy('created_at', 'desc')->get();
         $i = 0;
         foreach ($setorderid as $orderid) {
             $suborder_id[] = $orderid->suborder_id;
             $i++;
         }
 
-        $resetupdate = order_details::where('suborder_id', $suborder_id[0])->update(array('reset' => 'true'));
+        $resetupdate = OrderDetails::where('suborder_id', $suborder_id[0])->update(array('reset' => 'true'));
 
         if (count($setorderid) > 0) {
             return Response::json(array(
@@ -3112,7 +3112,7 @@ class Apicontroller extends Controller
 
         $getrestaurant = Outlet::where('owner_id', $userid)->get();
 
-        $getorders = order_details::where('outlet_id', $getrestaurant[0]->id)->whereBetween('created_at', array($startdate, $enddate))->get();
+        $getorders = OrderDetails::where('outlet_id', $getrestaurant[0]->id)->whereBetween('created_at', array($startdate, $enddate))->get();
         $result = array();
 
         $i = 0;
@@ -3239,14 +3239,14 @@ class Apicontroller extends Controller
         $reason = Input::json('reason');
         $orderdate = Input::json('order_date');
 
-        order_details::where('order_id', $neworder_id)->update(array('cancelorder' => 1));
+        OrderDetails::where('order_id', $neworder_id)->update(array('cancelorder' => 1));
         $ordercancellation = new OrderCancellation();
         $ordercancellation->outlet_id = $resid;
         $ordercancellation->order_id = $neworder_id;
         $ordercancellation->reason = $reason;
         // $ordercancellation->order_date=$orderdate;
         $ordercancellation->save();
-        $orderdetails = order_details::where('order_id', $neworder_id)->get();
+        $orderdetails = OrderDetails::where('order_id', $neworder_id)->get();
         $cancel = array('device_id' => $orderdetails[0]->device_id, 'order_id' => $order_id, 'reason' => $reason, 'created_at' => $orderdate);
         Queue::push('App\Commands\CancelOrderNotification@getcancelorder', array('cancellation' => $cancel));
         return Response::json(array(
@@ -3336,7 +3336,7 @@ class Apicontroller extends Controller
         $reviews = Reviews::where('resid', $resid)->get();
         $rev = array();
         if (isset($mobile_number) && $mobile_number != "") {
-            $rev = order_details::where('outlet_id', $resid)->where('user_mobile_number', $mobile_number)->get();
+            $rev = OrderDetails::where('outlet_id', $resid)->where('user_mobile_number', $mobile_number)->get();
         } else {
             $ordercount = 0;
         }
@@ -3636,7 +3636,7 @@ class Apicontroller extends Controller
             $array = array();
             // $orders_count=DB::table('orders')->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])->where('order_unique_id',$order['orderuniqueid'])->count();
 
-            $orders_count = order_details::where('order_unique_id', $order['orderuniqueid'])->count();
+            $orders_count = OrderDetails::where('order_unique_id', $order['orderuniqueid'])->count();
 
             if ($orders_count == 0) {
                 $Outlet = Outlet::Outletbyid($order['restaurant_id']);
@@ -3672,10 +3672,10 @@ class Apicontroller extends Controller
                         $status = '';
                     }
 
-                    //$order_ids = order_details::getorderid();
+                    //$order_ids = OrderDetails::getorderid();
                     $order_ids = $order['order_id_server'];
 
-                    //$suborder_id = order_details::getorderidofrestaurant($order['restaurant_id']);
+                    //$suborder_id = OrderDetails::getorderidofrestaurant($order['restaurant_id']);
                     $suborder_id = 1;
                     //$invoice_no = $this->getLastInvoiceNo($order['order_type'],$order['restaurant_id']);
                     $invoice_no = '';
@@ -3686,8 +3686,8 @@ class Apicontroller extends Controller
 
                     $a = $Outlet->lists('code');
 
-                    //$invoice_no = order_details::generateinvoicenumber($order['restaurant_id'],$suborder_id);
-                    $saveorder = order_details::insertorderdetails($a, $order_ids, $order, $status, $suborder_id, $invoice_no, $service_tax);
+                    //$invoice_no = OrderDetails::generateinvoicenumber($order['restaurant_id'],$suborder_id);
+                    $saveorder = OrderDetails::insertorderdetails($a, $order_ids, $order, $status, $suborder_id, $invoice_no, $service_tax);
                     $inv_no = NULL;
                     if (isset($order['invoice'])) {
                         $inv_no = $order['invoice'];
@@ -3742,7 +3742,7 @@ class Apicontroller extends Controller
 
                     // Queue::push('App\Commands\MailNotification@getorderdetails', array('orderdetails'=>$saveorder));
 
-                    $order_arr[] = order_details::select('invoice', 'invoice_no', 'suborder_id', 'order_unique_id')->where('order_id', $saveorder['id'])->first();
+                    $order_arr[] = OrderDetails::select('invoice', 'invoice_no', 'suborder_id', 'order_unique_id')->where('order_id', $saveorder['id'])->first();
 
                     if ($order['invoice'] == '') {
                         $unprocessed_orders[] = $saveorder['id'];
@@ -3750,7 +3750,7 @@ class Apicontroller extends Controller
                 }
             } else {
 
-                //$suborder_id = order_details::getorderidofrestaurant($order['restaurant_id']);
+                //$suborder_id = OrderDetails::getorderidofrestaurant($order['restaurant_id']);
                 $suborder_id = 1;
 
                 if (isset($order['cancelorder']) && $order['cancelorder'] == 1) {
@@ -3765,7 +3765,7 @@ class Apicontroller extends Controller
                 }
 
                 //update payment option
-                $update = order_details::where('order_unique_id', $order['orderuniqueid'])
+                $update = OrderDetails::where('order_unique_id', $order['orderuniqueid'])
                     ->update(array(
                         'cancelorder' => $order['cancelorder'],
                         'tax_type' => $order['tax_type'],
@@ -3793,7 +3793,7 @@ class Apicontroller extends Controller
                     ));
                 }
 
-                $order_id = order_details::where('order_unique_id', $order['orderuniqueid'])->pluck('order_id');
+                $order_id = OrderDetails::where('order_unique_id', $order['orderuniqueid'])->pluck('order_id');
 
                 if ($order['cancelorder'] == 1) {
 
@@ -3855,7 +3855,7 @@ class Apicontroller extends Controller
                 $tempdata['suborder_id'] = $suborder_id;
                 array_push($serverids, $tempdata);
 
-                $order_arr[] = order_details::select('invoice', 'invoice_no', 'suborder_id', 'order_unique_id')->where('order_unique_id', $order['orderuniqueid'])->first();
+                $order_arr[] = OrderDetails::select('invoice', 'invoice_no', 'suborder_id', 'order_unique_id')->where('order_unique_id', $order['orderuniqueid'])->first();
             }
         }
 
@@ -3912,7 +3912,7 @@ class Apicontroller extends Controller
 
         $end_date = date('Y-m-d H:i:s');
 
-        $amount_fromdb = order_details::where('orders.table_start_date', '>=', $start_date)
+        $amount_fromdb = OrderDetails::where('orders.table_start_date', '>=', $start_date)
             ->where('orders.table_end_date', '<=', $end_date)
             ->where('outlet_id', '=', $outlet_id)
             ->where('orders.invoice_no', "!=", '')
@@ -3971,7 +3971,7 @@ class Apicontroller extends Controller
         for ($i = 0; $i < count($orders); $i++) {
 
             $order = $orders[$i];
-            $order_check = order_details::where('order_unique_id', $order['orderuniqueid'])->first();
+            $order_check = OrderDetails::where('order_unique_id', $order['orderuniqueid'])->first();
 
             if ($order_check['invoice_no'] == '') {
 
@@ -3982,7 +3982,7 @@ class Apicontroller extends Controller
                         //$invoice_no = $this->getLastInvoiceNo($order['order_type'],$order_check['outlet_id']);
                         //$inv_arr = explode("_",$invoice_no);
 
-                        order_details::where('order_unique_id', $order['orderuniqueid'])->update([
+                        OrderDetails::where('order_unique_id', $order['orderuniqueid'])->update([
                             'invoice_no' => $order['invoice'], //$inv_arr[1],
                             'invoice' => $order['invoice_id'], //$inv_arr[0],
                             'discount_value' => $order['discounted_value'],
@@ -4030,7 +4030,7 @@ class Apicontroller extends Controller
                 }
             }
 
-            $order_arr[] = order_details::select('invoice', 'invoice_no', 'suborder_id', 'order_unique_id')->where('order_unique_id', $order['orderuniqueid'])->first();
+            $order_arr[] = OrderDetails::select('invoice', 'invoice_no', 'suborder_id', 'order_unique_id')->where('order_unique_id', $order['orderuniqueid'])->first();
         }
 
         return Response::json(array(
@@ -4077,7 +4077,7 @@ class Apicontroller extends Controller
 
 
             //check last invoice no.
-            $check_invoice_no = order_details::where('outlet_id', $res_id)
+            $check_invoice_no = OrderDetails::where('outlet_id', $res_id)
                 ->whereRaw($condition)
                 ->get();
 
@@ -4243,7 +4243,7 @@ class Apicontroller extends Controller
                 $order_receive = User::getOwnerOrderReceive($user->id, $outlet_id);
 
                 //last order sequence
-                $last_order_json = order_details::lastOrderSequence($outlet_id);
+                $last_order_json = OrderDetails::lastOrderSequence($outlet_id);
 
                 //feedback questions
                 $fb_question = FeedbackQuestion::getFbQuestions($outlet_id);
@@ -4353,7 +4353,7 @@ class Apicontroller extends Controller
         $table_no = '';
         $person_no = '';
 
-        $order_detail = order_details::where('order_unique_id', $order_unique_id)->first();
+        $order_detail = OrderDetails::where('order_unique_id', $order_unique_id)->first();
 
         if (isset($order_detail) && sizeof($order_detail) > 0) {
 
@@ -4545,7 +4545,7 @@ class Apicontroller extends Controller
             }
 
             #TODO: Check order from customer or partner app
-            $check_order = order_details::where('order_id', $order_id)->first();
+            $check_order = OrderDetails::where('order_id', $order_id)->first();
 
             if (isset($check_order) && sizeof($check_order) > 0) {
                 if ($check_order->customer_order == 1 && $type == 'dine_in') {
@@ -4733,7 +4733,7 @@ class Apicontroller extends Controller
             $person_no = Input::json('person_no');
             $local_id = Input::json('local_id');
 
-            $check_order = order_details::where('order_unique_id', $order_unique_id)->first();
+            $check_order = OrderDetails::where('order_unique_id', $order_unique_id)->first();
 
             if (isset($check_order) && sizeof($check_order) > 0) {
 
@@ -6033,7 +6033,7 @@ class Apicontroller extends Controller
         //outlet details
         $outlet = Outlet::find($outlet_id);
         //order details
-        $order_detail = order_details::where('orders.table_end_date', '>=', $from)
+        $order_detail = OrderDetails::where('orders.table_end_date', '>=', $from)
             ->where('orders.table_end_date', '<=', $to)
             ->where('orders.outlet_id', '=', $outlet_id)
             ->Where(function ($query) {

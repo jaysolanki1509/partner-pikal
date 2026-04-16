@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-//use App\order_details;
+//use App\OrderDetails;
 use App\Account;
 use App\DailySummary;
 use App\Expense;
@@ -15,7 +15,7 @@ use App\Kot;
 use App\Language;
 use App\Menu;
 use App\MenuItemOption;
-use App\order_details;
+use App\OrderDetails;
 use App\order_item_attributes;
 use App\order_payment_mode;
 use App\OrderCancellation;
@@ -115,14 +115,14 @@ class HomeController extends Controller
         if (isset($sess_outlet_id) && $sess_outlet_id != '') {
             $outlet_ids[] = $sess_outlet_id;
         } else {
-                $outlets = DB::table("outlets")->join('outlets_mapper', 'outlets.id', '=', 'outlets_mapper.outlet_id')->where('outlets_mapper.owner_id', Auth::User()->id)->get();
+            $outlets = DB::table("outlets")->join('outlets_mapper', 'outlets.id', '=', 'outlets_mapper.outlet_id')->where('outlets_mapper.owner_id', Auth::User()->id)->get();
             /*getting outlet ids*/
             foreach ($outlets as $outlet) {
                 $data['outlets'][$outlet->id] = $outlet->name;
                 $outlet_ids[] = $outlet->outlet_id;
             }
         }
-        $date_ord_pax = order_details::whereIn('orders.outlet_id', $outlet_ids)->where('orders.table_end_date', '>=', $sod)->where('orders.table_end_date', '<=', $eod)->where('orders.cancelorder', '!=', '1')->where('orders.invoice_no', "!=", '')->get();
+        $date_ord_pax = OrderDetails::whereIn('orders.outlet_id', $outlet_ids)->where('orders.table_end_date', '>=', $sod)->where('orders.table_end_date', '<=', $eod)->where('orders.cancelorder', '!=', '1')->where('orders.invoice_no', "!=", '')->get();
         $date_ord = sizeof($date_ord_pax);
         $date_person = 0;
         $date_revenue = 0;
@@ -178,7 +178,7 @@ class HomeController extends Controller
     }
     /* public function populateInvoiceTable()
     {
-        $orders = order_details::all();
+        $orders = OrderDetails::all();
         if (isset($orders) && !empty($orders) ) {
             foreach ($orders as $or) {
                 $inv_detail = InvoiceDetail::where('order_id',$or->order_id)->first();
@@ -197,10 +197,10 @@ class HomeController extends Controller
     public function changeTaxFormat()
     {
         ini_set('max_execution_time', 0);
-        $orders = order_details::all();
+        $orders = OrderDetails::all();
         if (isset($orders) && sizeof($orders) > 0) {
             foreach ($orders as $order) {
-                //$singleorder=order_details::find($order->order_id);
+                //$singleorder=OrderDetails::find($order->order_id);
                 if ($order->tax_type != null && $order->tax_type != "") {
                     if ($order->order_id < 3292) {
                         $oldtax = json_decode($order->tax_type);
@@ -210,7 +210,7 @@ class HomeController extends Controller
                             $obj->$key = $value;
                             $newarray[] = json_encode($obj);
                         }
-                        $order_new = order_details::where('order_id', $order->order_id)->update(['tax_type' => json_encode($newarray)]);
+                        $order_new = OrderDetails::where('order_id', $order->order_id)->update(['tax_type' => json_encode($newarray)]);
                         //$order_new = InvoiceDetail::where('order_id', $order->order_id)->update(['taxes' => json_encode($newarray)]);
                     }
                 }
@@ -235,14 +235,14 @@ class HomeController extends Controller
     public function populateInvoiceField()
     {
         ini_set('max_execution_time', 0);
-        $orders = order_details::all();
+        $orders = OrderDetails::all();
         if (isset($orders) && !empty($orders)) {
             foreach ($orders as  $order) {
                 $outlet = Outlet::find($order->outlet_id);
                 if (isset($order->invoice_no) && $order->invoice_no != '') {
                     $inv = substr($order->invoice_no, -3);
                     echo $order->invoice_no . "==" . intval($inv) . "<br>";
-                    order_details::where('order_id', $order->order_id)->update(['invoice' => intval($inv)]);
+                    OrderDetails::where('order_id', $order->order_id)->update(['invoice' => intval($inv)]);
                 }
             }
         }
@@ -251,7 +251,7 @@ class HomeController extends Controller
     {
         //ini_set('max_execution_time', 0);
         $date = Input::get('date');
-        $orders = order_details::where('outlet_id', 23)->where('orders.table_end_date', '>=', (new Carbon($date))->startOfDay())->where('orders.table_end_date', '<=', (new Carbon($date))->endOfDay())->get();
+        $orders = OrderDetails::where('outlet_id', 23)->where('orders.table_end_date', '>=', (new Carbon($date))->startOfDay())->where('orders.table_end_date', '<=', (new Carbon($date))->endOfDay())->get();
         $n = 0;
         if (isset($orders) && !empty($orders)) {
             foreach ($orders as $ord) {
@@ -260,7 +260,7 @@ class HomeController extends Controller
                     ->groupby('order_id')
                     ->get();
                 if ($items_sum[0]->subtotal != $ord->totalcost_afterdiscount) {
-                    order_details::where('order_id', $ord->order_id)->update(['totalcost_afterdiscount' => $items_sum[0]->subtotal]);
+                    OrderDetails::where('order_id', $ord->order_id)->update(['totalcost_afterdiscount' => $items_sum[0]->subtotal]);
                     $n++;
                 }
                 //InvoiceDetail::where('order_id', $ord->order_id)->update(['sub_total'=> $items_sum]);
@@ -284,7 +284,7 @@ class HomeController extends Controller
     }
     public function updateInvoiceNumber()
     {
-        $orders = order_details::where('outlet_id', 23)->orderby('table_end_date')->get();
+        $orders = OrderDetails::where('outlet_id', 23)->orderby('table_end_date')->get();
         if (isset($orders) && !empty($orders)) {
             $compare_date = '';
             $cnt = 1;
@@ -302,7 +302,7 @@ class HomeController extends Controller
                         $inv_no = 'R' . date('Ymd', strtotime($ord->table_end_date)) . '' . str_pad($cnt, 3, 0, STR_PAD_LEFT);
                     }
                     //echo $ord->table_end_date."====".$inv_no."<br>";
-                    order_details::where('order_id', $ord->order_id)->update(['invoice_no' => $inv_no, 'invoice' => $cnt]);
+                    OrderDetails::where('order_id', $ord->order_id)->update(['invoice_no' => $inv_no, 'invoice' => $cnt]);
                     $records++;
                 }
             }
@@ -336,7 +336,7 @@ class HomeController extends Controller
         $from_date_time = '2016-06-01 00:00:00';
         $to_date_time = '2016-06-08 23:59:59';
         $outlet = Outlet::find(23);
-        $orders = order_details::join("invoice_details as inv", "inv.order_id", "=", "orders.order_id")->select('orders.*', "inv.total as inv_total", "inv.discount as inv_discount", "inv.round_off as inv_round_off")->where('orders.table_start_date', '>=', Carbon::createFromFormat("Y-m-d H:i:s", $from_date_time))->where('orders.table_start_date', '<=', Carbon::createFromFormat("Y-m-d H:i:s", $to_date_time))->where('orders.outlet_id', '=', 23)->orderBy('orders.created_at', 'desc')->where('orders.cancelorder', '!=', 1)->where('orders.invoice_no', '!=', '')->get();
+        $orders = OrderDetails::join("invoice_details as inv", "inv.order_id", "=", "orders.order_id")->select('orders.*', "inv.total as inv_total", "inv.discount as inv_discount", "inv.round_off as inv_round_off")->where('orders.table_start_date', '>=', Carbon::createFromFormat("Y-m-d H:i:s", $from_date_time))->where('orders.table_start_date', '<=', Carbon::createFromFormat("Y-m-d H:i:s", $to_date_time))->where('orders.outlet_id', '=', 23)->orderBy('orders.created_at', 'desc')->where('orders.cancelorder', '!=', 1)->where('orders.invoice_no', '!=', '')->get();
         $tax = json_decode($outlet->taxes);
         $n = 0;
         foreach ($orders as $ord) {
@@ -356,10 +356,10 @@ class HomeController extends Controller
                 $round_of_total = round($total);
                 $round_of_val = number_format(abs($total - $round_of_total), 2, '.', '');
                 $total = number_format($round_of_total, 2, '.', '');
-                order_details::where('order_id', $ord->order_id)->update(['tax_type' => json_encode($tr), 'totalprice' => $total]);
+                OrderDetails::where('order_id', $ord->order_id)->update(['tax_type' => json_encode($tr), 'totalprice' => $total]);
                 //InvoiceDetail::where('order_id',$ord->order_id)->update(['taxes'=>json_encode($tr),'total'=>$total,'round_off'=>$round_of_val]);
             } else {
-                order_details::where('order_id', $ord->order_id)->update(['tax_type' => '']);
+                OrderDetails::where('order_id', $ord->order_id)->update(['tax_type' => '']);
                 //InvoiceDetail::where('order_id',$ord->order_id)->update(['taxes'=>json_encode()]);
             }
             $n++;
@@ -542,7 +542,7 @@ class HomeController extends Controller
     #TODO: change payment mode id according to source_id
     public static function changePaymentModeId()
     {
-        $orders = order_details::where('payment_option_id', '!=', 1)->get();
+        $orders = OrderDetails::where('payment_option_id', '!=', 1)->get();
         $i = 0;
         foreach ($orders as $ord) {
             if (isset($ord->payment_option_id) && $ord->payment_option_id != 0) {
@@ -551,22 +551,22 @@ class HomeController extends Controller
                 if (isset($py_option) && strtolower($py_option->name) == 'upi') {
                     $source = Sources::where('name', 'UPI')->first();
                     if (isset($source) && !empty($source)) {
-                        order_details::where('order_id', $ord->order_id)->update(['payment_option_id' => $online->id, 'source_id' => $source->id]);
+                        OrderDetails::where('order_id', $ord->order_id)->update(['payment_option_id' => $online->id, 'source_id' => $source->id]);
                     }
                 } else if (isset($py_option) &&  strtolower($py_option->name) == 'paytm') {
                     $source = Sources::where('name', 'Paytm')->first();
                     if (isset($source) && !empty($source)) {
-                        order_details::where('order_id', $ord->order_id)->update(['payment_option_id' => $online->id, 'source_id' => $source->id]);
+                        OrderDetails::where('order_id', $ord->order_id)->update(['payment_option_id' => $online->id, 'source_id' => $source->id]);
                     }
                 } else if (isset($py_option) && strtolower($py_option->name) == 'card') {
                     $source = Sources::where('name', 'Card')->first();
                     if (isset($source) && !empty($source)) {
-                        order_details::where('order_id', $ord->order_id)->update(['payment_option_id' => $online->id, 'source_id' => $source->id]);
+                        OrderDetails::where('order_id', $ord->order_id)->update(['payment_option_id' => $online->id, 'source_id' => $source->id]);
                     }
                 } else if (isset($py_option) && strtolower($py_option->name) == 'zomato') {
                     $source = Sources::where('name', 'Zomato')->first();
                     if (isset($source) && !empty($source)) {
-                        order_details::where('order_id', $ord->order_id)->update(['payment_option_id' => $online->id, 'source_id' => $source->id]);
+                        OrderDetails::where('order_id', $ord->order_id)->update(['payment_option_id' => $online->id, 'source_id' => $source->id]);
                     }
                 }
             }
@@ -734,7 +734,7 @@ class HomeController extends Controller
                             $data['outlet_name'] = $outlet->name;
                             $is_send = DailySummary::where('outlet_id', $outlet->id)->where('report_date', $from_date)->first();
                             if (sizeof($is_send) == 0) {
-                                $orders = order_details::where('orders.table_end_date', '>=', $from)
+                                $orders = OrderDetails::where('orders.table_end_date', '>=', $from)
                                     ->where('orders.table_end_date', '<=', $to)
                                     ->where('outlet_id', '=', $outlet->id)
                                     ->where('orders.invoice_no', "!=", '')
@@ -935,7 +935,7 @@ class HomeController extends Controller
                                     } else {
                                         $daily_summarry->tot_sale_per_person = $t_sell / $t_person;
                                     }
-                                    $cancel_order = order_details::leftJoin('order_cancellation_mapper as ocm', 'ocm.order_id', '=', 'orders.order_id')
+                                    $cancel_order = OrderDetails::leftJoin('order_cancellation_mapper as ocm', 'ocm.order_id', '=', 'orders.order_id')
                                         ->leftJoin('owners as o', 'o.id', '=', 'ocm.created_by')
                                         ->select('orders.*', 'ocm.reason as reason', 'o.user_name as user_name')
                                         ->where('orders.table_end_date', '>=', $from)
@@ -1027,7 +1027,7 @@ class HomeController extends Controller
                 $code = $prefix_check->$ord_type;
             }
             //check last invoice no.
-            $check_invoice_no = order_details::where('outlet_id', $res_id)
+            $check_invoice_no = OrderDetails::where('outlet_id', $res_id)
                 ->whereRaw($condition)
                 ->get();
             $inv_digit = $outlet->invoice_digit;
@@ -1104,7 +1104,7 @@ class HomeController extends Controller
     public function autoProcessOrders()
     {
         $outlet_id = Input::get("outlet_id");
-        $orders = order_details::join("outlets", "outlets.id", "=", "orders.outlet_id")
+        $orders = OrderDetails::join("outlets", "outlets.id", "=", "orders.outlet_id")
             ->where("outlet_id", "=", $outlet_id)
             ->where("invoice_no", "=", "")
             ->where("cancelorder", "=", 0)
@@ -1115,7 +1115,7 @@ class HomeController extends Controller
             $owner = Owner::where('user_name', $order->name)->first();
             $user_identifier = $owner->user_identifier;
             $invoice_arr = $this->getLastInvoiceNo($order->order_type, $outlet_id, $user_identifier);
-            $order_obj = order_details::find($order->order_id);
+            $order_obj = OrderDetails::find($order->order_id);
             $taxes = $this->calculateTaxes($order, $order->order_type);
             if (isset($order_obj) && !empty($order_obj)) {
                 $order_obj->invoice_no = $invoice_arr['invoice_number'];
@@ -1224,7 +1224,7 @@ class HomeController extends Controller
         $from = Utils::getSessionTime($date, 'from');
         $to = Utils::getSessionTime($date, 'to');
         if ($flag == "dashboard") {
-            $orders = order_details::where('table_end_date', '>=', $from)
+            $orders = OrderDetails::where('table_end_date', '>=', $from)
                 ->where('table_end_date', '<=', $to)
                 ->where('outlet_id', '=', $outlet_id)
                 ->where('invoice_no', "!=", '')
@@ -1244,7 +1244,7 @@ class HomeController extends Controller
             echo "retry: 5000\n";
             echo "data: kot:$tot_kots\n\n";
         } else if ($flag == 'orders') {
-            $orders = order_details::where('orders.table_end_date', '>=', $from)
+            $orders = OrderDetails::where('orders.table_end_date', '>=', $from)
                 ->where('orders.table_end_date', '<=', $to)
                 ->where('orders.outlet_id', '=', $outlet_id)
                 ->where('orders.cancelorder', '!=', 1)
@@ -1260,7 +1260,7 @@ class HomeController extends Controller
     function add_order_payment_mode()
     {
         ini_set('max_execution_time', 0);
-        $all_orders = order_details::all();
+        $all_orders = OrderDetails::all();
         $added_order = 0;
         $skip_order = 0;
         foreach ($all_orders as $order) {
@@ -1325,8 +1325,8 @@ class HomeController extends Controller
     {
         $sess_outlet_id = Session::get('outlet_session');
         if (isset($sess_outlet_id) && trim($sess_outlet_id) != "") {
-            $order_count = order_details::where('outlet_id', $sess_outlet_id)->where('table_end_date', '<=', $date)->count();
-            $order_arr = order_details::where('outlet_id', $sess_outlet_id)->where('table_end_date', '<=', $date)->lists('order_id');
+            $order_count = OrderDetails::where('outlet_id', $sess_outlet_id)->where('table_end_date', '<=', $date)->count();
+            $order_arr = OrderDetails::where('outlet_id', $sess_outlet_id)->where('table_end_date', '<=', $date)->lists('order_id');
             $order_cancellation_mapper_count = OrderCancellation::where('outlet_id', $sess_outlet_id)->where('created_at', '<=', $date)->count();
             $order_history_count = OrderHistory::whereIn('order_id', $order_arr)->count();
             $order_item_option_count = OrderItemOption::whereIn('order_id', $order_arr)->count();
@@ -1349,7 +1349,7 @@ class HomeController extends Controller
             print_r($order_payment_mode_count . " ---> Order payment modes deleted successfully<br/>");
             OrderItem::whereIn('order_id', $order_arr)->delete();
             print_r($order_items_count . " ---> Order items deleted successfully<br/>");
-            order_details::where('outlet_id', $sess_outlet_id)->where('table_end_date', '<=', $date)->delete();
+            OrderDetails::where('outlet_id', $sess_outlet_id)->where('table_end_date', '<=', $date)->delete();
             print_r($order_count . " ---> Order deleted successfully<br/>");
         } else {
             print_r("Please select outlet.");

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\order_details;
+use App\OrderDetails;
 use App\Outlet;
 use App\Menu;
 use App\OutletMapper;
@@ -63,7 +63,7 @@ class OrderdetailsController extends Controller
         foreach ($Outlet as $restid) {
             $retname = Outlet::findoutlet($restid->id);
 
-            $ord_details = order_details::getorderdetailsbyrestaurantid($restid->id);
+            $ord_details = OrderDetails::getorderdetailsbyrestaurantid($restid->id);
 
             foreach ($ord_details as $ord_details) {
                 $allorder[$i] = array(
@@ -117,7 +117,7 @@ class OrderdetailsController extends Controller
 
             if (isset($getnextstatus) && sizeof($getnextstatus) > 0) {
 
-                $ordstat = order_details::where('order_id', $oid)->first();
+                $ordstat = OrderDetails::where('order_id', $oid)->first();
                 // print_r($ordstat);exit;
                 DB::table('orders')->where('status', $currents)->where('order_id', $oid)->update(array('status' => $getnextstatus->status));
 
@@ -171,13 +171,13 @@ class OrderdetailsController extends Controller
 
 
 
-                order_details::updateorderstatus($currents, $oid, $getnextstatus->status);
+                OrderDetails::updateorderstatus($currents, $oid, $getnextstatus->status);
 
                 $restname = Outlet::Outletbyid($ordstat['outlet_id']);
 
                 $currentstatus = $getnextstatus->status;
 
-                order_details::sendpushnotification($ordstat['device_id'], $currents, $currentstatus, $oid, $ordstat['created_at'], $oid);
+                OrderDetails::sendpushnotification($ordstat['device_id'], $currents, $currentstatus, $oid, $ordstat['created_at'], $oid);
             }
         }
 
@@ -202,7 +202,7 @@ class OrderdetailsController extends Controller
         foreach ($restloggedinuser as $restidsarray) {
             array_push($array, $restidsarray->id);
         }
-        $ord = order_details::searchorder($date, $order_id, $phone_number, $name, $status, $address, $table, $ordertype, $array);
+        $ord = OrderDetails::searchorder($date, $order_id, $phone_number, $name, $status, $address, $table, $ordertype, $array);
         return view('orderdetails.searchorder', array("orders" => $ord));
     }
 
@@ -223,13 +223,13 @@ class OrderdetailsController extends Controller
                 array_push($arrayofrestids, $getrestids->id);
             }
 
-        $orddetails = order_details::getordernotification($datetime, $arrayofrestids);
+        $orddetails = OrderDetails::getordernotification($datetime, $arrayofrestids);
 
         return $orddetails;
     }
     public function updateorderdetailstable()
     {
-        order_details::updateorderreadstatus();
+        OrderDetails::updateorderreadstatus();
         return 'success';
     }
     public function getallorderdetails()
@@ -246,9 +246,9 @@ class OrderdetailsController extends Controller
 
 
         if ($status == 'all') {
-            $orddetails = order_details::where('outlet_id', $outlet_id)->where('created_at', '>', new Carbon($datetime))->orderBy('created_at', 'desc')->get();
+            $orddetails = OrderDetails::where('outlet_id', $outlet_id)->where('created_at', '>', new Carbon($datetime))->orderBy('created_at', 'desc')->get();
         } else {
-            $orddetails = order_details::where('outlet_id', $outlet_id)->where('status', $status)->where('created_at', '>', new Carbon($datetime))->orderBy('created_at', 'desc')->get();
+            $orddetails = OrderDetails::where('outlet_id', $outlet_id)->where('status', $status)->where('created_at', '>', new Carbon($datetime))->orderBy('created_at', 'desc')->get();
         }
 
 

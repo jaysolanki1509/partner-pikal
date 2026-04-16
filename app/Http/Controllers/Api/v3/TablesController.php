@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\v3;
 
-use App\order_details;
+use App\OrderDetails;
 use App\OrderItem;
 use App\OutletMapper;
 use App\Owner;

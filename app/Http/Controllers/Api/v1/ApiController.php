@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 // use App\Libraries\Image;
 use App\Itemreview;
 use App\MenuOption;
-use App\order_details;
+use App\OrderDetails;
 use App\OrderCancellation;
 use App\OrderCouponMappers;
 use App\OutletMapper;
@@ -581,7 +581,7 @@ class Apicontroller extends Controller
     }
 
     //order added from here in backend
-    public function orderdetails($order_from_web = null,Request $request)
+    public function orderdetails($order_from_web = null, Request $request)
     {
         $order = '';
         $flag = '';
@@ -605,17 +605,13 @@ class Apicontroller extends Controller
             } else {
                 $status = '';
             }
-            $order_ids = order_details::getorderid();
-            $suborder_id = order_details::getorderidofrestaurant($order['restaurant_id']);
+            $order_ids = OrderDetails::getorderid();
+            $suborder_id = OrderDetails::getorderidofrestaurant($order['restaurant_id']);
             $a = $Outlet->lists('code');
-            echo "Web From Order <pre>";
-            print_r($order);
-            echo "</pre>";
-            exit;
             if (isset($order['mobile_number'])) {
                 DB::table('orders')->where('user_mobile_number', $order['mobile_number'])->update(array('device_id' => $order['device_id']));
             }
-            $saveorder = order_details::insertorderdetails($a, $order_ids, $order, $status, $suborder_id);
+            $saveorder = OrderDetails::insertorderdetails($a, $order_ids, $order, $status, $suborder_id);
 
             foreach ($order['menu_item'] as $asd) {
                 $orderid = OrderItem::insertmenuitemoforders($saveorder['id'], $asd);
@@ -897,7 +893,8 @@ class Apicontroller extends Controller
     public function forgotpassword(Request $request)
     {
         $mobile = $request->input('user_mobile');
-        echo "mobile" . $mobile; exit;
+        echo "mobile" . $mobile;
+        exit;
         if (isset($mobile)) {
             $num = users::generateotp();
             $affectedRows = users::updateotp($mobile, $num);
@@ -927,20 +924,16 @@ class Apicontroller extends Controller
 
     public function updatepassword(Request $request)
     {
-
-        $mobile = Input::json('user_mobile');
-        $getotp = Input::json('otp');
-        $password = Input::json('updated_password');
-
-
+        $mobile = $request->input('user_mobile');
+        $getotp = $request->input('otp');
+        $password = $request->input('updated_password');
         if (isset($mobile)) {
-
             $affectedRows = users::updatepassword($mobile, $getotp, $password);
             if ($affectedRows > 0) {
                 return Response::json(
                     array(
                         'message' => 'Password Updated Successfully',
-                        'userid' => (string)$affectedRows->id,
+                        'userid' => $affectedRows,
                         'statuscode' => 200,
                     ),
                     200
@@ -963,7 +956,7 @@ class Apicontroller extends Controller
         $locality = $request->input('locality');
         $pincode = $request->input('pincode');
         $addressuniq = $request->input('addressid');
-        
+
         if (isset($mobile)) {
             if (isset($address)) {
                 $adressarray['address'] = $address;
@@ -974,7 +967,7 @@ class Apicontroller extends Controller
             if (isset($pincode)) {
                 $adressarray['pincode'] = $pincode;
             }
-            if ($addressuniq=='') {
+            if ($addressuniq == '') {
                 $id = users::getidofuserinserted($mobile);
                 if ($id !== null) {
                     $adressarray['customer_id'] = (string) $id[0]->id;
@@ -1507,19 +1500,16 @@ class Apicontroller extends Controller
             );
         }
     }
-    public function autoorders()
+    public function autoorders(Request $request)
     {
-
-        $date = Input::json('maxdt');
-
+        $date = $request->input('maxdt');
         // $user=User::find(Auth::user()->id);
         $star = [];
         //  $id=$user->restaurant->lists('id');
         $a = '';
         $b = '';
         //$restaurant_id=$id[0];
-
-        $restaurant_id = Input::json('restaurant_id');
+        $restaurant_id = $request->input('restaurant_id');
         $retname = Outlet::find($restaurant_id);
         $totalprice = [];
         $orderappend = '';
@@ -1537,9 +1527,13 @@ class Apicontroller extends Controller
                 $totalpr = 0;
                 $it = array();
                 foreach ($item as $t) {
-
                     $itemnew = $t->menuitem;
-                    array_push($it, array("item" => $itemnew->item, "quantity" => $t->item_quantity, "price" => $itemnew->price));
+                    // array_push($it, array("item" => $itemnew->item, "quantity" => $t->item_quantity, "price" => $itemnew->price));
+                    array_push($it, array(
+                        "item" => $itemnew ? $itemnew->item : '',
+                        "quantity" => $t->item_quantity,
+                        "price" => $itemnew ? $itemnew->price : 0
+                    ));
                     if (isset($itemnew['price']) && $itemnew['price'] != '') {
                         $totalpr += $t->item_quantity * $itemnew['price'];
                     } else {
@@ -1549,9 +1543,7 @@ class Apicontroller extends Controller
                 array_push($items, $it);
                 //$totalprice[$order->order_id]=$totalpr;
                 array_push($totalprice, array($order->suborder_id => $order->totalcost_afterdiscount));
-
                 // echo in_array($order->user_mobile_number,$uniquepricearray);
-
                 if ($key == 0) {
                     $maxdt[0] = $order->created_at;
                 }
@@ -1577,16 +1569,12 @@ class Apicontroller extends Controller
             }
             $i = 1;
             foreach ($forrating as $key => $value) {
-
-
                 if (!array_key_exists($value->user_mobile_number, $rating)) {
                     $rating[$value->user_mobile_number] = 1;
                 } else {
                     $rating[$value->user_mobile_number] = $rating[$value->user_mobile_number] + 1;
                 }
                 //$totalprice[$order->order_id]=$totalpr;
-
-
             }
             return Response::json(
                 array(
@@ -1601,7 +1589,6 @@ class Apicontroller extends Controller
                     'rating' => $rating,
                     'maxprice' => $uniquepricearray,
                     'othercount' => $othercount
-
                 ),
                 200
             );
@@ -1611,40 +1598,31 @@ class Apicontroller extends Controller
                     'message' => 'No Order Data',
                     'statuscode' => 434,
                     'status' => 'Success',
-
                 ),
                 200
             );
         }
     }
 
-    public function nextstatus()
+    public function nextstatus(Request $request)
     {
-        $currents = Input::json('currentstatus');
-        $oid = Input::json('oid');
-        $resid = Input::json('restaurant_id');
-        $position = Input::json('position');
-        $useragent = Input::json('user_agent');
+        $currents = $request->input('currentstatus');
+        $oid = $request->input('oid');
+        $resid = $request->input('restaurant_id');
+        $position = $request->input('position');
+        $useragent = $request->input('user_agent');
         $getcurrentstatus = Status::where('status', $currents)->where('outlet_id', $resid)->get();
-
-        $order_date = Input::json('order_date');
+        $order_date = $request->input('order_date');
         $currentstatus = '';
         $status = '';
         $f = array();
         $order_summary = array();
         foreach ($getcurrentstatus as $getstatus) {
-
             $getnextstatus = Status::where('order', '>', $getstatus->order)->where('outlet_id', $resid)->orderby('order', 'ASC')->first();
-
-
-
+            
             if (isset($getnextstatus) > 0) {
-
-                $ordstat = order_details::where('status', $currents)->where('suborder_id', $oid)->where('outlet_id', $resid)->where('created_at', $order_date)->first();
-
-
-                order_details::where('status', $currents)->where('suborder_id', $oid)->where('outlet_id', $resid)->where('created_at', $order_date)->update(array('status' => $getnextstatus->status));
-
+                $ordstat = OrderDetails::where('status', $currents)->where('suborder_id', $oid)->where('outlet_id', $resid)->where('created_at', $order_date)->first();
+                OrderDetails::where('status', $currents)->where('suborder_id', $oid)->where('outlet_id', $resid)->where('created_at', $order_date)->update(array('status' => $getnextstatus->status));
                 $restname = Outlet::where('id', $ordstat['restaurant_id'])->first();
 
                 $currentstatus = $getnextstatus->status;
@@ -1655,8 +1633,6 @@ class Apicontroller extends Controller
                 } else if ($currentstatus == "delivered") {
                     $status = "";
                 }
-
-
                 array_push($f, $ordstat['device_id']);
                 array_push($f, $currents);
                 array_push($f, $oid);
@@ -1664,8 +1640,6 @@ class Apicontroller extends Controller
                 array_push($f, $order_date);
             }
         }
-
-
         if ($useragent == "android") {
             Queue::push('App\Commands\OrderNotification@getordersnotification', array('fields' => $f));
         } else {
@@ -1863,7 +1837,7 @@ class Apicontroller extends Controller
         if (isset($contact)) {
             //for finding customer by phone_number
             $usercheck = users::findcustomerbyphonenumber($contact);
-            //   $orders=order_details::where('user_mobile_number',$contact)->get();
+            //   $orders=OrderDetails::where('user_mobile_number',$contact)->get();
             $password = users::generateotp();
             users::sendotpbymessage($password, $contact);
             //                $ordarray=array();
@@ -1982,9 +1956,10 @@ class Apicontroller extends Controller
     }
     public function ownerfetchdata(Request $request)
     {
-        $username = Input::json('owner_name');
-        $pass = Input::json('owner_pass');
-        $restaurant_id = Input::json('resid');
+        $username = $request->input('owner_name');
+        $pass = $request->input('owner_pass');
+        $restaurant_id = $request->input('resid');
+
         $maxdt = Carbon::now();
         $field = filter_var($username, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
 
@@ -2000,7 +1975,6 @@ class Apicontroller extends Controller
         $retname = Outlet::find($restaurant_id);
         $star = [];
         $orders = $retname->orderdetail()->where('status', '!=', 'delivered')->where('cancelorder', '!=', 1)->orderBy('created_at', 'asc')->get();
-
         $totalprice = [];
         $rating = [];
         $uniquepricearray = [];
@@ -2010,6 +1984,10 @@ class Apicontroller extends Controller
         if (count($orders) > 0) {
             $forrating = $retname->orderdetail()->where('status', '=', 'delivered')->orderBy('created_at', 'desc')->get();
             $otheroutletordercount = DB::table('orders')->where('status', '=', 'delivered')->where('outlet_id', '!=', $restaurant_id)->get();
+            // echo "Res <pre>";
+            // print_r($otheroutletordercount);
+            // echo "</pre>";
+            // exit;
             $uniqueprice = DB::table('orders')->where('status', '=', 'delivered')->get();
             if (sizeof($uniqueprice) > 0) {
                 foreach ($uniqueprice as $k1 => $v1) {
@@ -2022,7 +2000,7 @@ class Apicontroller extends Controller
                     }
                 }
             }
-            if (sizeof($otheroutletordercount) > 0) {
+            if (!empty($otheroutletordercount)) {
                 foreach ($otheroutletordercount as $k => $v) {
                     if (!array_key_exists($v->user_mobile_number, $rating)) {
                         $othercount[$v->user_mobile_number] = 1;
@@ -2031,7 +2009,7 @@ class Apicontroller extends Controller
                     }
                 }
             }
-            if (sizeof($forrating) > 0) {
+            if (!empty($forrating)) {
                 foreach ($forrating as $key => $value) {
                     $item = OrderItem::where('order_id', $value->order_id)->get();
                     $totalpr = 0;
@@ -2060,7 +2038,7 @@ class Apicontroller extends Controller
 
             foreach ($orders as $key => $order) {
                 $printcount = Printsummary::where('order_id', $order->suborder_id)->where('order_created_at', $order->created_at)->first();
-                if (sizeof($printcount) > 0) {
+                if (!empty($printcount)) {
                     $order->printcount = $printcount['print_number'];
                 } else {
                     $order->printcount = 0;
@@ -2085,10 +2063,19 @@ class Apicontroller extends Controller
                 $totalpr = 0;
                 $it = array();
                 foreach ($item as $t) {
-
+                    // echo "Items <pre>";print_r($t); echo "</pre>"; exit;
                     $itemnew = $t->menuitem;
                     $madt = date("Y-m-d H:i:s", strtotime($order->created_at));
-                    array_push($it, array("item" => $itemnew->item, "quantity" => $t->item_quantity, "price" => $itemnew->price, "suborder_id" => $order->suborder_id, "created_at" => $madt, "item_options" => $t->item_options, "item_options_price" => $t->item_options_price));
+                    // array_push($it, array("item" => $itemnew->item, "quantity" => $t->item_quantity, "price" => $itemnew->price, "suborder_id" => $order->suborder_id, "created_at" => $madt, "item_options" => $t->item_options, "item_options_price" => $t->item_options_price));
+                    $it[] = array(
+                        "item" => $t->item_name,
+                        "quantity" => $t->item_quantity,
+                        "price" => $t->item_price,
+                        "suborder_id" => $order->suborder_id,
+                        "created_at" => $madt,
+                        "item_options" => $t->item_options,
+                        "item_options_price" => $t->item_options_price
+                    );
                     if (isset($itemnew['price']) && $itemnew['price'] != '') {
                         $totalpr += $t->item_quantity * $itemnew['price'];
                     } else {
@@ -2123,14 +2110,13 @@ class Apicontroller extends Controller
                 'othercount' => $othercount,
                 'ownername' => $user->user_name,
                 'outletname' => $retname->name
-
             ),
             200
         );
     }
-    public function matchcouponcode()
+    public function matchcouponcode(Request $request)
     {
-        $flag = Input::get('flag');
+        $flag = $request->input('flag');
         $user_entered_couponcode = '';
         $total_cost = '';
         $mobile_number = '';
@@ -2139,18 +2125,16 @@ class Apicontroller extends Controller
             $total_cost = Input::get('total_cost');
             $mobile_number = Input::get('mobile_number');
         } else {
-            $user_entered_couponcode = Input::json('coupon_code');
-            $total_cost = Input::json('total_cost');
-            $mobile_number = Input::json('mobile_number');
+            $user_entered_couponcode = $request->input('coupon_code');
+            $total_cost = $request->input('total_cost');
+            $mobile_number = $request->input('mobile_number');
         }
         $date = Date("Y-m-d");
-
         //print_r($user_entered_couponcode.'==='.$total_cost.'==='.$mobile_number.'==='.$flag);exit;
-
         $coupondata = CouponCodes::where('coupon_code', $user_entered_couponcode)->first();
         if ($mobile_number != '') {
             $couponordermapper = OrderCouponMappers::where('coupon_applied', $user_entered_couponcode)->where('user_mobile_number', $mobile_number)->first();
-            if (sizeof($couponordermapper) > 0) {
+            if (!empty($couponordermapper)) {
                 $msg = 'Coupon code is already used.';
                 if (isset($flag) && $flag == 'web_app_order') {
                     return array('message' => $msg, 'status' => 'already');
@@ -2166,7 +2150,7 @@ class Apicontroller extends Controller
                 }
             }
         }
-        if (sizeof($coupondata) > 0) {
+        if (!empty($coupondata)) {
             if ($coupondata->min_value > $total_cost) {
                 $roundedvalue = round($coupondata->min_value);
                 $msg = 'Minimum order price should be equal/more than ' . $roundedvalue;
@@ -2312,20 +2296,16 @@ class Apicontroller extends Controller
     }
 
 
-    public function resetorderid()
+    public function resetorderid(Request $request)
     {
-        $resid = Input::json('resid');
-
-
-        $setorderid = order_details::where('outlet_id', $resid)->orderBy('created_at', 'desc')->get();
+        $resid = $request->input('resid');
+        $setorderid = OrderDetails::where('outlet_id', $resid)->orderBy('created_at', 'desc')->get();
         $i = 0;
         foreach ($setorderid as $orderid) {
             $suborder_id[] = $orderid->suborder_id;
             $i++;
         }
-
-        $resetupdate = order_details::where('suborder_id', $suborder_id[0])->update(array('reset' => 'true'));
-
+        $resetupdate = OrderDetails::where('suborder_id', $suborder_id[0])->update(array('reset' => 'true'));
         if (count($setorderid) > 0) {
             return Response::json(array(
                 'message' => 'Order id reset successfully',
@@ -2351,7 +2331,7 @@ class Apicontroller extends Controller
 
         $getrestaurant = Outlet::where('owner_id', $userid)->get();
 
-        $getorders = order_details::where('outlet_id', $getrestaurant[0]->id)->whereBetween('created_at', array($startdate, $enddate))->get();
+        $getorders = OrderDetails::where('outlet_id', $getrestaurant[0]->id)->whereBetween('created_at', array($startdate, $enddate))->get();
         $result = array();
 
         $i = 0;
@@ -2477,14 +2457,14 @@ class Apicontroller extends Controller
         $reason = Input::json('reason');
         $orderdate = Input::json('order_date');
 
-        order_details::where('suborder_id', $order_id)->where('created_at', $orderdate)->update(array('cancelorder' => 1));
+        OrderDetails::where('suborder_id', $order_id)->where('created_at', $orderdate)->update(array('cancelorder' => 1));
         $ordercancellation = new OrderCancellation();
         $ordercancellation->outlet_id = $resid;
         $ordercancellation->suborder_id = $order_id;
         $ordercancellation->reason = $reason;
         $ordercancellation->order_date = $orderdate;
         $ordercancellation->save();
-        $orderdetails = order_details::where('suborder_id', $order_id)->where('created_at', $orderdate)->get();
+        $orderdetails = OrderDetails::where('suborder_id', $order_id)->where('created_at', $orderdate)->get();
         $cancel = array('device_id' => $orderdetails[0]->device_id, 'order_id' => $order_id, 'reason' => $reason, 'created_at' => $orderdate);
         Queue::push('App\Commands\CancelOrderNotification@getcancelorder', array('cancellation' => $cancel));
         return Response::json(array(
@@ -2560,7 +2540,7 @@ class Apicontroller extends Controller
 
         $reviews = Reviews::where('resid', $resid)->get();
         if (isset($mobile_number) && $mobile_number != "") {
-            $rev = order_details::where('outlet_id', $resid)->where('user_mobile_number', $mobile_number)->get();
+            $rev = OrderDetails::where('outlet_id', $resid)->where('user_mobile_number', $mobile_number)->get();
         } else {
             $ordercount = 0;
         }
@@ -2862,9 +2842,9 @@ class Apicontroller extends Controller
                         $status = '';
                     }
 
-                    $order_ids = order_details::getorderid();
+                    $order_ids = OrderDetails::getorderid();
 
-                    $suborder_id = order_details::getorderidofrestaurant($order['restaurant_id']);
+                    $suborder_id = OrderDetails::getorderidofrestaurant($order['restaurant_id']);
 
                     $tempdata['local_id'] = $order['primary_id'];
                     $tempdata['suborder_id'] = $suborder_id;
@@ -2872,7 +2852,7 @@ class Apicontroller extends Controller
 
                     $a = $Outlet->lists('code');
 
-                    $saveorder = order_details::insertorderdetails($a, $order_ids, $order, $status, $suborder_id);
+                    $saveorder = OrderDetails::insertorderdetails($a, $order_ids, $order, $status, $suborder_id);
 
 
                     foreach ($order['menu_item'] as $asd) {

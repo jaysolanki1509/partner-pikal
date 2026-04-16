@@ -12,7 +12,7 @@ use App\Owner;
 use Carbon\Carbon;
 use App\TableLevel;
 use App\Utils;
-use App\order_details;
+use App\OrderDetails;
 // use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -325,7 +325,7 @@ class TablesController extends Controller
 		$tables = Tables::select('tables.*')->groupBy('tables.table_no')->where('tables.outlet_id', $sess_outlet_id)->where('tables.deleted_at', "=", NULL)->get();
 
 		foreach ($tables as $key => $value) {
-			$orders = order_details::select(DB::raw('Max(orders.totalprice) as totalprice'), DB::raw('Max(orders.round_off) as round_off'), DB::raw('Max(orders.table_no) as tableno'), DB::raw('Max(orders.table_start_date) as startdate'), DB::raw('Max(orders.order_id) as order_id'), DB::raw('Max(orders.person_no) as person_no'), DB::raw('Max(orders.read) as status'))->where('orders.' . $order_date_field, '>=', $from)->where('orders.' . $order_date_field, '<=', $to)->where('orders.cancelorder', '!=', '1')->where('orders.table_no', $value['table_no'])->where('orders.payment_status', '!=', '1')->where('orders.outlet_id', $sess_outlet_id)->groupBy('orders.table_no')->orderBy('orders.' . $order_date_field, 'Asc')->first();
+			$orders = OrderDetails::select(DB::raw('Max(orders.totalprice) as totalprice'), DB::raw('Max(orders.round_off) as round_off'), DB::raw('Max(orders.table_no) as tableno'), DB::raw('Max(orders.table_start_date) as startdate'), DB::raw('Max(orders.order_id) as order_id'), DB::raw('Max(orders.person_no) as person_no'), DB::raw('Max(orders.read) as status'))->where('orders.' . $order_date_field, '>=', $from)->where('orders.' . $order_date_field, '<=', $to)->where('orders.cancelorder', '!=', '1')->where('orders.table_no', $value['table_no'])->where('orders.payment_status', '!=', '1')->where('orders.outlet_id', $sess_outlet_id)->groupBy('orders.table_no')->orderBy('orders.' . $order_date_field, 'Asc')->first();
 
 			if (isset($orders) != NULL) {
 				$formatted_dt1 = Carbon::parse($orders->startdate);

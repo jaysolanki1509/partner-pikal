@@ -1,10 +1,13 @@
-<?php namespace App\Console\Commands;
+<?php
 
-use App\order_details;
+namespace App\Console\Commands;
+
+use App\OrderDetails;
 use App\Outlet;
 use Illuminate\Console\Command;
 
-class UploadSalesDataToZoho extends Command {
+class UploadSalesDataToZoho extends Command
+{
 
     /**
      * The console command name.
@@ -38,21 +41,17 @@ class UploadSalesDataToZoho extends Command {
     public function fire()
     {
 
-        $outlets = Outlet::where('zoho_config',1)->get();
+        $outlets = Outlet::where('zoho_config', 1)->get();
 
         $to = date('Y:m:d H:i:s');
-        $from =  date('Y-m-d H:i:s',strtotime('-1 day'));
+        $from =  date('Y-m-d H:i:s', strtotime('-1 day'));
 
-        if (isset($outlets) && sizeof($outlets) > 0 ) {
+        if (isset($outlets) && sizeof($outlets) > 0) {
 
             foreach ($outlets as $ot) {
 
-                order_details::syncZohoOrders( $ot->id, $from, $to );
-
+                OrderDetails::syncZohoOrders($ot->id, $from, $to);
             }
-
         }
-
     }
-
 }

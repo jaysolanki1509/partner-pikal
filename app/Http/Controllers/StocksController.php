@@ -11,7 +11,7 @@ use App\Ingredients;
 use App\Location;
 use App\Menu;
 use App\MenuTitle;
-use App\order_details;
+use App\OrderDetails;
 use App\OrderItem;
 use App\OutletMapper;
 use App\Owner;
@@ -378,7 +378,7 @@ class StocksController extends Controller
                 $from = $to = date('Y-m-d');
             }
 
-            $orders = order_details::where('orders.table_start_date', '>=', (new Carbon($from))->startOfDay())
+            $orders = OrderDetails::where('orders.table_start_date', '>=', (new Carbon($from))->startOfDay())
                 ->where('orders.table_start_date', '<=', (new Carbon($to))->endOfDay())
                 ->where('orders.outlet_id', '=', $outlet_id)
                 ->orderBy('orders.created_at', 'desc')

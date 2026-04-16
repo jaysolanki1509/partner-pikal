@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\order_details;
+use App\OrderDetails;
 use App\Outletlatlong;
 use App\OutletType;
 use App\CuisineType;

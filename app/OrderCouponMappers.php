@@ -2,7 +2,6 @@
 namespace App;
 use Illuminate\Database\Eloquent\Model;
 class OrderCouponMappers extends Model {
-
     protected $table = 'ordercouponmappers';
     public static function insertcoupondetails($order_id,$coupondata,$discount,$afterdiscountvalue,$totalcost,$usermobile=""){
         $ordercoupondata=new OrderCouponMappers();

@@ -14,7 +14,7 @@ use App\Kot;
 use App\Location;
 use App\Menu;
 use App\MenuItemOption;
-use App\order_details;
+use App\OrderDetails;
 use App\order_item_attributes;
 use App\OrderCancellation;
 use App\OrderHistory;
@@ -115,7 +115,7 @@ class newordercontroller extends Controller
         if ($res_id != '' && $res_id != 'undefined' && $res_id != null) {
             if ($res_id == 'all') {
                 $maxdt = $date;
-                $orders = order_details::join('outlets', 'outlets.id', '=', 'orders.outlet_id')
+                $orders = OrderDetails::join('outlets', 'outlets.id', '=', 'orders.outlet_id')
                     ->where('status', '!=', 'delivered')
                     ->where('cancelorder', '!=', 1)
                     ->where('outlets.active', 'Yes')
@@ -229,7 +229,7 @@ class newordercontroller extends Controller
     public function printOrder()
     {
         $order_no = Input::get('order_id');
-        $order = order_details::leftJoin('outlets as ot', 'orders.outlet_id', '=', 'ot.id')->select('orders.*', 'ot.name as ot_name', 'ot.city_id as city_id', 'ot.invoice_title as invoice_title', 'ot.order_lable as order_lable', 'ot.taxes as ot_taxes', 'ot.tax_details as tax_details', 'ot.company_name as company_name', 'ot.address as ot_address', 'ot.servicetax_no as service_tax_no', 'ot.vat as vat_no', 'ot.url as url', 'ot.duplicate_watermark as duplicate_watermark')->where('orders.order_id', $order_no)->first();
+        $order = OrderDetails::leftJoin('outlets as ot', 'orders.outlet_id', '=', 'ot.id')->select('orders.*', 'ot.name as ot_name', 'ot.city_id as city_id', 'ot.invoice_title as invoice_title', 'ot.order_lable as order_lable', 'ot.taxes as ot_taxes', 'ot.tax_details as tax_details', 'ot.company_name as company_name', 'ot.address as ot_address', 'ot.servicetax_no as service_tax_no', 'ot.vat as vat_no', 'ot.url as url', 'ot.duplicate_watermark as duplicate_watermark')->where('orders.order_id', $order_no)->first();
         $outlet_id = Session::get('outlet_session');
         $outlet_obj = Outlet::find($outlet_id);
         $order_info = array();
@@ -397,7 +397,7 @@ class newordercontroller extends Controller
         $result = $order_cancel_mapper->save();
         $status = '';
         if ($result) {
-            $order = order_details::where('order_id', $order_id)->update(['cancelorder' => 1]);
+            $order = OrderDetails::where('order_id', $order_id)->update(['cancelorder' => 1]);
             //decrement stock when auto decrement selected
             $outlet_setting = Outlet::find($outlet_id);
             if ($outlet_setting->stock_auto_decrement == '1') {
@@ -433,7 +433,7 @@ class newordercontroller extends Controller
                 OrderItemOption::where('order_item_id', $or_itm->id)->forceDelete();
             }
         }
-        $order = order_details::find($order_id);
+        $order = OrderDetails::find($order_id);
         if (isset($order) && !empty($order)) {
             //Order Kot Delete
             $kots = Kot::where("order_unique_id", $order->order_unique_id)->forceDelete();
@@ -451,11 +451,11 @@ class newordercontroller extends Controller
     {
         $o_id = Input::get('order_id');
         //get order detail
-        $order = order_details::where('order_id', $o_id)->join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')->select('orders.*', 'ot.invoice_prefix as invoice_prefix', 'ot.invoice_date as inv_date', 'ot.invoice_digit as inv_digit', 'ot.name as ot_name', 'ot.taxes as taxes', 'ot.default_taxes as default_taxes', 'ot.code as ot_code', 'ot.order_no_reset as order_reset', 'ot.payment_options as payment_options')->first();
+        $order = OrderDetails::where('order_id', $o_id)->join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')->select('orders.*', 'ot.invoice_prefix as invoice_prefix', 'ot.invoice_date as inv_date', 'ot.invoice_digit as inv_digit', 'ot.name as ot_name', 'ot.taxes as taxes', 'ot.default_taxes as default_taxes', 'ot.code as ot_code', 'ot.order_no_reset as order_reset', 'ot.payment_options as payment_options')->first();
 
         $outlet_id = Session::get('outlet_session');
         //get invoice detail
-        //$invoice = order_details::where('order_id',$o_id)->first();
+        //$invoice = OrderDetails::where('order_id',$o_id)->first();
         $consumer = array();
 
         if (isset($order) && !empty($order)) {
@@ -529,7 +529,7 @@ class newordercontroller extends Controller
                                 </div>
                                 <div style="clear:both"></div>';*/
         }
-        $order_info = order_details::find($o_id);
+        $order_info = OrderDetails::find($o_id);
         $response['consumer'] = $consumer;
         // $response['pay_options'] = $pay_option;
         //$response['source'] = $source;
@@ -683,7 +683,7 @@ class newordercontroller extends Controller
             $tax = '';
         }
         if (isset($ord_id)) {
-            $order = order_details::join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')->where('order_id', $ord_id)->first();
+            $order = OrderDetails::join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')->where('order_id', $ord_id)->first();
             if (isset($order) && !empty($order)) {
                 $inv = substr($inv_no, -$order->invoice_digit);
             }
@@ -770,7 +770,7 @@ class newordercontroller extends Controller
                 }
             }
             \Log::info("here orderdetails" . $total);
-            order_details::where('order_id', $ord_id)
+            OrderDetails::where('order_id', $ord_id)
                 ->update([
                     'invoice_no' => $inv_no,
                     'invoice' => intval($inv),
@@ -829,7 +829,7 @@ class newordercontroller extends Controller
             $histroy->taxes = $tax;
             $histroy->delivery_charge = isset($delivery_charge) ? $delivery_charge : 0.00;
             $histroy->save();
-            //$order_obj = order_details::where('order_id',$ord_id)->first();
+            //$order_obj = OrderDetails::where('order_id',$ord_id)->first();
             //$outlet_setting = Outlet::find($order_obj->outlet_id);
             if ($outlet->stock_auto_decrement == '1') {
                 $default_location = Location::where('outlet_id', $sess_outlet_id)->where('default_location', 1)->first();
@@ -861,7 +861,7 @@ class newordercontroller extends Controller
         $outlet_id = Session::get('outlet_session');
         $outlet = Outlet::findOutlet($outlet_id);
         $user_identifier = Auth::user()->user_identifier;
-        $order = order_details::where('order_id', $ord_id)->join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')
+        $order = OrderDetails::where('order_id', $ord_id)->join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')
             ->select('orders.*', 'ot.invoice_date as inv_date', 'ot.invoice_prefix as invoice_prefix', 'ot.invoice_digit as inv_digit', 'ot.name as ot_name', 'ot.taxes as taxes', 'ot.default_taxes as default_taxes', 'ot.code as ot_code', 'ot.order_no_reset as order_reset')
             ->first();
         $invoice_number = $this->generateInvoiceNumber($outlet_id, $ord_id, $type);
@@ -901,7 +901,7 @@ class newordercontroller extends Controller
     {
         $o_id = Input::get('order_id');
         //get order detail
-        $order = order_details::where('order_id', $o_id)->join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')->select('orders.*', 'ot.invoice_date as inv_date', 'ot.name as ot_name', 'ot.taxes as taxes', 'ot.default_taxes as default_taxes')->first();
+        $order = OrderDetails::where('order_id', $o_id)->join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')->select('orders.*', 'ot.invoice_date as inv_date', 'ot.name as ot_name', 'ot.taxes as taxes', 'ot.default_taxes as default_taxes')->first();
         $item_arr = array();
         if (isset($order) && !empty($order)) {
             $order_items = OrderItem::select('order_items.id as item_id', 'order_items.item_price as itm_price', 'order_items.item_quantity as itm_quantity', 'order_items.item_name as itm_name')->where('order_items.order_id', $o_id)->get();
@@ -982,7 +982,7 @@ class newordercontroller extends Controller
             $tax = '';
         }
         if (isset($ord_id)) {
-            $order = order_details::join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')->where('order_id', $ord_id)->first();
+            $order = OrderDetails::join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')->where('order_id', $ord_id)->first();
             if (isset($order) && !empty($order)) {
                 $inv = substr($inv_no, -$order->invoice_digit);
             }
@@ -1041,7 +1041,7 @@ class newordercontroller extends Controller
             } else {
                 $final_custom_fields = NULL;
             }
-            order_details::where('order_id', $ord_id)->update([
+            OrderDetails::where('order_id', $ord_id)->update([
                 'invoice_no' => $inv_no,
                 'invoice' => intval($inv),
                 'discount_value' => $discount,
@@ -1172,7 +1172,7 @@ class newordercontroller extends Controller
                 $to = Utils::getSessionTime($to, 'to');
             }
             /*->join("invoice_details as inv","inv.order_id","=","orders.order_id")*/
-            $orders = order_details::join("order_items", "order_items.order_id", "=", "orders.order_id")->select('orders.*', 'order_items.item_quantity as Quantity', 'order_items.item_name as item_name')->where('orders.' . $order_date_field, '>=', $from)->where('orders.' . $order_date_field, '<=', $to)->where('orders.outlet_id', '=', $outlet_id)->orderBy('orders.' . $order_date_field, 'desc')->where('orders.cancelorder', '!=', '1')->get();
+            $orders = OrderDetails::join("order_items", "order_items.order_id", "=", "orders.order_id")->select('orders.*', 'order_items.item_quantity as Quantity', 'order_items.item_name as item_name')->where('orders.' . $order_date_field, '>=', $from)->where('orders.' . $order_date_field, '<=', $to)->where('orders.outlet_id', '=', $outlet_id)->orderBy('orders.' . $order_date_field, 'desc')->where('orders.cancelorder', '!=', '1')->get();
             $itemlist = array();
             $itemlist_excel = array();
             $data['orders'] = array();
@@ -1519,7 +1519,7 @@ class newordercontroller extends Controller
                 if (isset($chk_bifurcation)) {
                     foreach ($outlet_source_arr as $key => $value) {
                         foreach ($value as $src_id => $src) {
-                            $excel_data[$n][$po_array[$key] . ' ' . $src] = order_details::where('source_id', $src_id)->where('orders.' . $order_date_field, '>=', $from)
+                            $excel_data[$n][$po_array[$key] . ' ' . $src] = OrderDetails::where('source_id', $src_id)->where('orders.' . $order_date_field, '>=', $from)
                                 ->where('orders.' . $order_date_field, '<=', $to)
                                 ->where('orders.outlet_id', '=', $outlet_id)
                                 ->where('payment_option_id', $key)->sum('totalprice');
@@ -1640,7 +1640,7 @@ class newordercontroller extends Controller
             $ot_id = Input::get('outlet_id');
             $orders = array();
             if ($ot_id == 'all') {
-                $orders = order_details::join('outlets', 'outlets.id', '=', 'orders.outlet_id')
+                $orders = OrderDetails::join('outlets', 'outlets.id', '=', 'orders.outlet_id')
                     ->join("order_items", "order_items.order_id", "=", "orders.order_id")
                     ->select('orders.*', 'order_items.item_quantity as Quantity', 'order_items.item_name as item_name', 'outlets.name as ot_name', 'outlets.contact_no as ot_phone', 'outlets.address as ot_address')
                     ->where('orders.status', '!=', 'delivered')
@@ -1650,7 +1650,7 @@ class newordercontroller extends Controller
                     ->orderBy('orders.created_at', 'desc')
                     ->get();
             } else {
-                $orders = order_details::join('outlets', 'outlets.id', '=', 'orders.outlet_id')
+                $orders = OrderDetails::join('outlets', 'outlets.id', '=', 'orders.outlet_id')
                     ->join("order_items", "order_items.order_id", "=", "orders.order_id")
                     ->select('orders.*', 'order_items.item_quantity as Quantity', 'order_items.item_name as item_name', 'outlets.name as ot_name', 'outlets.contact_no as ot_phone', 'outlets.address as ot_address')
                     ->where('outlets.active', 'Yes')
@@ -2013,7 +2013,7 @@ class newordercontroller extends Controller
             $itemWiseTax = OutletSetting::checkAppSetting($outlet_id, "itemWiseTax");
             $itemWiseDiscount = OutletSetting::checkAppSetting($outlet_id, "itemWiseDiscount");
             $discAfterTax = OutletSetting::checkAppSetting($outlet_id, "discountAfterTax");
-            $guid = order_details::guid();
+            $guid = OrderDetails::guid();
             DB::beginTransaction();
             $order_details = new order_details();
             $order_details->name = $name;
@@ -2046,7 +2046,7 @@ class newordercontroller extends Controller
             if ($result) {
                 $order_id = $order_details->order_id;
                 for ($i = 0; $i < sizeof($item_id); $i++) {
-                    $itm_uq_id = order_details::guid();
+                    $itm_uq_id = OrderDetails::guid();
                     $orderitems = new OrderItem();
                     $orderitems->order_id = $order_id;
                     $orderitems->item_quantity = $item_qty[$i];
@@ -2268,7 +2268,7 @@ class newordercontroller extends Controller
         $order_id = Input::get('order_id');
         $history = OrderHistory::where('order_id', $order_id)->orderBy('updated_at')->get();
         $history_arr = array();
-        if (isset($history) && sizeof($history) > 0) {
+        if (isset($history) && !empty($history)) {
             $i = 0;
             foreach ($history as $hist) {
                 $history_arr[$i]['invoice_no'] = $hist->invoice_no;
@@ -2294,7 +2294,7 @@ class newordercontroller extends Controller
                 }
                 $history_arr[$i]['round_off'] = $hist->round_off;
                 $history_arr[$i]['total'] = $hist->total;
-                if (isset($hist->payment_modes) && sizeof($hist->payment_modes) > 0) {
+                if (isset($hist->payment_modes) && !empty($hist->payment_modes)) {
                     $history_arr[$i]['payment_modes'] = $hist->payment_modes;
                 } else {
                     $history_arr[$i]['payment_modes'] = 'Not set';
@@ -2312,7 +2312,7 @@ class newordercontroller extends Controller
         $vpa = Input::get('vpa');
         $order_id = Input::get('order_id');
         $total = Input::get('total');
-        $order = order_details::join('outlets as o', 'orders.outlet_id', '=', 'o.id')->select('orders.*', 'o.name as ot_name')->where('orders.order_id', $order_id)->first();
+        $order = OrderDetails::join('outlets as o', 'orders.outlet_id', '=', 'o.id')->select('orders.*', 'o.name as ot_name')->where('orders.order_id', $order_id)->first();
         if (isset($order) && sizeof($order) > 0) {
             $param = array(
                 'amount' => $total,
@@ -2335,7 +2335,7 @@ class newordercontroller extends Controller
     {
         $order_id = Input::get('order_id');
         $txn_id = Input::get('txn_id');
-        $order = order_details::join('outlets as o', 'orders.outlet_id', '=', 'o.id')
+        $order = OrderDetails::join('outlets as o', 'orders.outlet_id', '=', 'o.id')
             ->select('orders.*', 'o.name as ot_name')
             ->where('orders.order_id', $order_id)->first();
         if (isset($order) && sizeof($order) > 0) {
@@ -2363,7 +2363,7 @@ class newordercontroller extends Controller
         $payment_opt_ids = Input::get('payment_option_ids');
         $payment_mode_amounts = Input::get('payment_mode_amount');
         $trn_ids = Input::get('trn_ids');
-        $result = order_details::where('order_id', $order_id)
+        $result = OrderDetails::where('order_id', $order_id)
             ->update([
                 'note' => $note,
                 'source_id' => $source,
@@ -2400,7 +2400,7 @@ class newordercontroller extends Controller
         $html = '';
         //payment modes
         $modes = OrderPaymentMode::where('order_id', $order_id)->get();
-        $order_amount = order_details::where('order_id', $order_id)->pluck('totalprice');
+        $order_amount = OrderDetails::where('order_id', $order_id)->pluck('totalprice');
         return view('orderlist.orderPaymentModes', array('payment_modes' => $modes, 'pay_option' => $payment_options, 'bill_amount' => $order_amount));
     }
     #TODO: Bill layout
@@ -2415,7 +2415,7 @@ class newordercontroller extends Controller
         $delivery_charge = Input::get('delivery_charge');
         $order_type = Input::get('order_type');
         //get order detail
-        $order = order_details::where('order_id', $order_id)->join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')->select('orders.*', 'ot.invoice_prefix as invoice_prefix', 'ot.invoice_date as inv_date', 'ot.invoice_digit as inv_digit', 'ot.name as ot_name', 'ot.taxes as taxes', 'ot.default_taxes as default_taxes', 'ot.code as ot_code', 'ot.order_no_reset as order_reset', 'ot.payment_options as payment_options')->first();
+        $order = OrderDetails::where('order_id', $order_id)->join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')->select('orders.*', 'ot.invoice_prefix as invoice_prefix', 'ot.invoice_date as inv_date', 'ot.invoice_digit as inv_digit', 'ot.name as ot_name', 'ot.taxes as taxes', 'ot.default_taxes as default_taxes', 'ot.code as ot_code', 'ot.order_no_reset as order_reset', 'ot.payment_options as payment_options')->first();
         //get calculation block
         $html = "<div id='tax_calculation_div'>";
         \Log::info($order_id);
@@ -2437,12 +2437,12 @@ class newordercontroller extends Controller
             print_r("Please enter required data");
             exit;
         }
-        $orders_list = order_details::where("outlet_id", $outlet_id)->where("table_start_date", ">=", $from_date . " 00:00:00")->where("table_start_date", "<=", $to_date . " 23:59:59")->lists('order_id');
+        $orders_list = OrderDetails::where("outlet_id", $outlet_id)->where("table_start_date", ">=", $from_date . " 00:00:00")->where("table_start_date", "<=", $to_date . " 23:59:59")->lists('order_id');
         $actual_item_price = 0;
         if (isset($orders_list) && !empty($orders_list)) {
             foreach ($orders_list as $order_id) {
                 if (isset($order_id) && !empty($order_id)) {
-                    $order = order_details::find($order_id);
+                    $order = OrderDetails::find($order_id);
                     $actual_item_price = 0;
                     if (isset($order) && !empty($order)) {
                         if ($order->itemwise_tax) {
@@ -2506,10 +2506,10 @@ class newordercontroller extends Controller
     {
         $invoice_no = Input::get("invoice_no");
         $outlet_id = Session::get('outlet_session');
-        $orders = order_details::where('invoice_no', $invoice_no)->where('outlet_id', $outlet_id)->orderby('table_start_date')->first();
+        $orders = OrderDetails::where('invoice_no', $invoice_no)->where('outlet_id', $outlet_id)->orderby('table_start_date')->first();
         if (isset($orders) && !empty($orders)) {
             $outlet = Outlet::find($outlet_id);
-            $last_orders = order_details::where('outlet_id', $outlet_id)->where('table_start_date', '>=', $orders->table_start_date)->orderby('table_start_date')->get();
+            $last_orders = OrderDetails::where('outlet_id', $outlet_id)->where('table_start_date', '>=', $orders->table_start_date)->orderby('table_start_date')->get();
             // echo "Hello <pre>"; print_r($last_orders); echo "</pre>"; exit;
             // echo "prints" . $last_orders->count() ; exit;
             if (sizeof($last_orders) && $last_orders->count() > 1) {
@@ -2540,7 +2540,7 @@ class newordercontroller extends Controller
     public function generateInvoiceNumber($outlet, $ord_id, $type)
     {
         $user_identifier = Auth::user()->user_identifier;
-        $order = order_details::where('order_id', $ord_id)->join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')
+        $order = OrderDetails::where('order_id', $ord_id)->join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')
             ->select('orders.*', 'ot.invoice_date as inv_date', 'ot.invoice_prefix as invoice_prefix', 'ot.invoice_digit as inv_digit', 'ot.name as ot_name', 'ot.taxes as taxes', 'ot.default_taxes as default_taxes', 'ot.code as ot_code', 'ot.order_no_reset as order_reset')
             ->first();
         $condition = '1=1';
@@ -2560,7 +2560,7 @@ class newordercontroller extends Controller
             $code = $prefix_check->$type;
         }
         //check last invoice no.
-        $check_invoice_no = order_details::where('outlet_id', $order->outlet_id)
+        $check_invoice_no = OrderDetails::where('outlet_id', $order->outlet_id)
             ->whereRaw($condition)
             ->get();
         $inv_digit = $order->inv_digit;
@@ -2623,7 +2623,7 @@ class newordercontroller extends Controller
         $result = array();
         if (isset($item_id) && isset($order_id) && trim($item_id) != "" && trim($order_id) != "") {
             $order_item = OrderItem::find($item_id);
-            $order = order_details::find($order_id);
+            $order = OrderDetails::find($order_id);
             $final_total = $order->totalcost_afterdiscount - $order_item->item_total;
             $order->totalcost_afterdiscount = $final_total;
             $outlet_id = Session::get('outlet_session');
@@ -2674,7 +2674,7 @@ class newordercontroller extends Controller
     {
         $o_id = $orderid;
         //get order detail
-        $order = order_details::where('order_id', $o_id)->join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')
+        $order = OrderDetails::where('order_id', $o_id)->join('outlets as ot', 'orders.outlet_id', '=', 'ot.id')
             ->join('tables as tb', 'orders.table_no', '=', 'tb.table_no')
             ->select('orders.*', 'ot.invoice_date as inv_date', 'ot.name as ot_name', 'ot.taxes as taxes', 'ot.default_taxes as default_taxes', 'orders.person_no as no_of_person')
             ->first();
@@ -2846,9 +2846,9 @@ class newordercontroller extends Controller
             $itemWiseTax = OutletSetting::checkAppSetting($outlet_id, "itemWiseTax");
             $itemWiseDiscount = OutletSetting::checkAppSetting($outlet_id, "itemWiseDiscount");
             $discAfterTax = OutletSetting::checkAppSetting($outlet_id, "discountAfterTax");
-            $guid = order_details::guid();
+            $guid = OrderDetails::guid();
             DB::beginTransaction();
-            $order_details = order_details::find($out_id);
+            $order_details = OrderDetails::find($out_id);
             $order_details->name = $name;
             $order_details->user_id = $customer_id;
             $order_details->outlet_id = $outlet_id;
@@ -2881,7 +2881,7 @@ class newordercontroller extends Controller
             if ($result) {
                 $order_id = $order_details->order_id;
                 for ($i = 0; $i < sizeof($item_id); $i++) {
-                    $itm_uq_id = order_details::guid();
+                    $itm_uq_id = OrderDetails::guid();
                     $orderitems = OrderItem::where('item_id', $item_id[$i])->where('order_id', $order_id)->first();
                     if (isset($orderitems)) {
                         $orderitems = OrderItem::where('item_id', $item_id[$i])->where('order_id', $order_id)->first();
@@ -3109,7 +3109,7 @@ class newordercontroller extends Controller
     {
         $order_no = $request->get('order_id');
         $item_id = $request->get('item_id');
-        $order = order_details::leftJoin('outlets as ot', 'orders.outlet_id', '=', 'ot.id')
+        $order = OrderDetails::leftJoin('outlets as ot', 'orders.outlet_id', '=', 'ot.id')
             ->select('orders.*', 'ot.name as ot_name', 'ot.city_id as city_id', 'ot.invoice_title as invoice_title', 'ot.order_lable as order_lable', 'ot.taxes as ot_taxes', 'ot.tax_details as tax_details', 'ot.company_name as company_name', 'ot.address as ot_address', 'ot.servicetax_no as service_tax_no', 'ot.vat as vat_no', 'ot.url as url', 'ot.duplicate_watermark as duplicate_watermark')
             ->where('orders.order_id', $order_no)
             ->first();
@@ -3258,7 +3258,7 @@ class newordercontroller extends Controller
         } else {
             $paymentmod = 1;
         }
-        $data = order_details::where('order_id', $order_id)->update(['payment_status' => 1, 'payment_option_id' => $paymentmod, 'read' => 1]);
+        $data = OrderDetails::where('order_id', $order_id)->update(['payment_status' => 1, 'payment_option_id' => $paymentmod, 'read' => 1]);
         $payment = OrderPaymentMode::where('order_id', $order_id)->update(['payment_option_id' => $paymentmod]);
         $result['status'] = 'success';
         $result['data'] = $data;

@@ -12,7 +12,7 @@ use App\Http\Controllers\Controller;
 //use App\Libraries\Image;
 use App\Itemreview;
 use App\MenuOption;
-use App\order_details;
+use App\OrderDetails;
 use App\OrderCancellation;
 use App\OrderCouponMappers;
 use App\OutletMapper;
@@ -706,16 +706,16 @@ class ApicontrollerV2 extends Controller
                 $status = '';
             }
 
-            $order_ids = order_details::getorderid();
+            $order_ids = OrderDetails::getorderid();
 
-            $suborder_id = order_details::getorderidofrestaurant($order['restaurant_id']);
+            $suborder_id = OrderDetails::getorderidofrestaurant($order['restaurant_id']);
             $a = $Outlet->lists('code');
             if (isset($order['mobile_number'])) {
                 DB::table('orders')->where('user_mobile_number', $order['mobile_number'])->update(array('device_id' => $order['device_id']));
             }
 
-            $invoice_no = order_details::generateinvoicenumber($order['restaurant_id'], $suborder_id);
-            $saveorder = order_details::insertorderdetails($a, $order_ids, $order, $status, $suborder_id, $invoice_no);
+            $invoice_no = OrderDetails::generateinvoicenumber($order['restaurant_id'], $suborder_id);
+            $saveorder = OrderDetails::insertorderdetails($a, $order_ids, $order, $status, $suborder_id, $invoice_no);
 
 
             foreach ($order['menu_item'] as $asd) {
@@ -1802,10 +1802,10 @@ class ApicontrollerV2 extends Controller
 
             if (isset($getnextstatus) > 0) {
 
-                $ordstat = order_details::where('status', $currents)->where('suborder_id', $oid)->where('outlet_id', $resid)->where('created_at', $order_date)->first();
+                $ordstat = OrderDetails::where('status', $currents)->where('suborder_id', $oid)->where('outlet_id', $resid)->where('created_at', $order_date)->first();
 
 
-                order_details::where('status', $currents)->where('suborder_id', $oid)->where('outlet_id', $resid)->where('created_at', $order_date)->update(array('status' => $getnextstatus->status));
+                OrderDetails::where('status', $currents)->where('suborder_id', $oid)->where('outlet_id', $resid)->where('created_at', $order_date)->update(array('status' => $getnextstatus->status));
 
                 $restname = Outlet::where('id', $ordstat['restaurant_id'])->first();
 
@@ -2031,7 +2031,7 @@ class ApicontrollerV2 extends Controller
         if (isset($contact)) {
             //for finding customer by phone_number
             $usercheck = users::findcustomerbyphonenumber($contact);
-            //   $orders=order_details::where('user_mobile_number',$contact)->get();
+            //   $orders=OrderDetails::where('user_mobile_number',$contact)->get();
 
             $password = users::generateotp();
             users::sendotpbymessage($password, $contact);
@@ -2499,14 +2499,14 @@ class ApicontrollerV2 extends Controller
         $resid = Input::json('resid');
 
 
-        $setorderid = order_details::where('outlet_id', $resid)->orderBy('created_at', 'desc')->get();
+        $setorderid = OrderDetails::where('outlet_id', $resid)->orderBy('created_at', 'desc')->get();
         $i = 0;
         foreach ($setorderid as $orderid) {
             $suborder_id[] = $orderid->suborder_id;
             $i++;
         }
 
-        $resetupdate = order_details::where('suborder_id', $suborder_id[0])->update(array('reset' => 'true'));
+        $resetupdate = OrderDetails::where('suborder_id', $suborder_id[0])->update(array('reset' => 'true'));
 
         if (count($setorderid) > 0) {
             return Response::json(array(
@@ -2533,7 +2533,7 @@ class ApicontrollerV2 extends Controller
 
         $getrestaurant = Outlet::where('owner_id', $userid)->get();
 
-        $getorders = order_details::where('outlet_id', $getrestaurant[0]->id)->whereBetween('created_at', array($startdate, $enddate))->get();
+        $getorders = OrderDetails::where('outlet_id', $getrestaurant[0]->id)->whereBetween('created_at', array($startdate, $enddate))->get();
         $result = array();
 
         $i = 0;
@@ -2659,14 +2659,14 @@ class ApicontrollerV2 extends Controller
         $reason = Input::json('reason');
         $orderdate = Input::json('order_date');
 
-        order_details::where('suborder_id', $order_id)->where('created_at', $orderdate)->update(array('cancelorder' => 1));
+        OrderDetails::where('suborder_id', $order_id)->where('created_at', $orderdate)->update(array('cancelorder' => 1));
         $ordercancellation = new OrderCancellation();
         $ordercancellation->outlet_id = $resid;
         $ordercancellation->suborder_id = $order_id;
         $ordercancellation->reason = $reason;
         $ordercancellation->order_date = $orderdate;
         $ordercancellation->save();
-        $orderdetails = order_details::where('suborder_id', $order_id)->where('created_at', $orderdate)->get();
+        $orderdetails = OrderDetails::where('suborder_id', $order_id)->where('created_at', $orderdate)->get();
         $cancel = array('device_id' => $orderdetails[0]->device_id, 'order_id' => $order_id, 'reason' => $reason, 'created_at' => $orderdate);
         Queue::push('App\Commands\CancelOrderNotification@getcancelorder', array('cancellation' => $cancel));
         return Response::json(array(
@@ -2751,7 +2751,7 @@ class ApicontrollerV2 extends Controller
 
         $reviews = Reviews::where('resid', $resid)->get();
         if (isset($mobile_number) && $mobile_number != "") {
-            $rev = order_details::where('outlet_id', $resid)->where('user_mobile_number', $mobile_number)->get();
+            $rev = OrderDetails::where('outlet_id', $resid)->where('user_mobile_number', $mobile_number)->get();
         } else {
             $ordercount = 0;
         }
@@ -3062,9 +3062,9 @@ class ApicontrollerV2 extends Controller
                         $status = '';
                     }
 
-                    $order_ids = order_details::getorderid();
+                    $order_ids = OrderDetails::getorderid();
 
-                    $suborder_id = order_details::getorderidofrestaurant($order['restaurant_id']);
+                    $suborder_id = OrderDetails::getorderidofrestaurant($order['restaurant_id']);
 
                     $tempdata['local_id'] = $order['primary_id'];
                     $tempdata['suborder_id'] = $suborder_id;
@@ -3072,8 +3072,8 @@ class ApicontrollerV2 extends Controller
 
                     $a = $Outlet->lists('code');
 
-                    $invoice_no = order_details::generateinvoicenumber($order['restaurant_id'], $suborder_id);
-                    $saveorder = order_details::insertorderdetails($a, $order_ids, $order, $status, $suborder_id, $invoice_no);
+                    $invoice_no = OrderDetails::generateinvoicenumber($order['restaurant_id'], $suborder_id);
+                    $saveorder = OrderDetails::insertorderdetails($a, $order_ids, $order, $status, $suborder_id, $invoice_no);
 
 
                     foreach ($order['menu_item'] as $asd) {

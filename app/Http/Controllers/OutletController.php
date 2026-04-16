@@ -13,7 +13,7 @@ use App\LogDetails;
 use App\LogLevel;
 use App\Menu;
 use App\MenuTitle;
-use App\order_details;
+use App\OrderDetails;
 use App\Outlet;
 use App\OutletCuisineType;
 use App\Outletimage;
@@ -1524,7 +1524,7 @@ class OutletController extends Controller
 
         $getrestaurant = Outlet::where('owner_id', $userid)->get();
 
-        $getorders = order_details::where('outlet_id', $getrestaurant[0]->id)->whereBetween('created_at', array($fromdate, $todate))->get();
+        $getorders = OrderDetails::where('outlet_id', $getrestaurant[0]->id)->whereBetween('created_at', array($fromdate, $todate))->get();
         $result = array();
 
         $i = 0;

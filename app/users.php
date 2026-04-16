@@ -98,9 +98,23 @@ class users extends Model {
     }
 
     //for updating password after call of forgot password
-    public static function updatepassword($contact,$otp,$password){
-        $updatedpassword=DB::table('users')->where('mobile_number',$contact)->where('otp',$otp)->update(array('password'=>$password));
-        return $updatedpassword;
+    // public static function updatepassword($contact,$otp,$password){
+    //     $updatedpassword = DB::table('users')->where('mobile_number',$contact)->where('otp',$otp)->update(array('password'=>$password));
+    //     return $updatedpassword;
+    // }
+    public static function updatepassword($contact, $otp, $password)
+    {
+        $user = DB::table('users')->where('mobile_number', $contact)->where('otp', $otp)->first();
+        if (!$user) {
+            return 0;
+        }
+        // if same password, do nothing
+        if ($user->password == $password) {
+            return 0;
+        }
+        // update password
+        DB::table('users')->where('id', $user->id)->update(['password' => $password]);
+        return $user->id;
     }
 
     //for verifing user status if there otp is verified or not

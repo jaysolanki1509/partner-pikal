@@ -17,7 +17,7 @@ use App\Kot;
 use App\Location;
 use App\Menu;
 use App\MenuTitle;
-use App\order_details;
+use App\OrderDetails;
 use App\OrderItem;
 use App\OrderPaymentMode;
 use App\Outlet;
@@ -380,7 +380,7 @@ class ReportController extends Controller
                 foreach ($date_arr as $arr) {
                     $from = Utils::getSessionTime($arr, 'from');
                     $to = Utils::getSessionTime($arr, 'to');
-                    $orders = order_details::where('table_end_date', '>=', $from)
+                    $orders = OrderDetails::where('table_end_date', '>=', $from)
                         ->where('table_end_date', '<=', $to)
                         ->where('orders.outlet_id', $outlet_id)
                         ->where('cancelorder', '!=', 1)
@@ -610,7 +610,7 @@ class ReportController extends Controller
             $outlet_session_to = Utils::getSessionTime(date('Y-m-d', strtotime($date)), 'to');
             $excel_data[$n]['Report Date'] = date('Y-m-d', strtotime($date));
             //get order as per outlet session time
-            $orders = order_details::where('orders.table_end_date', '>=', $outlet_session_from)
+            $orders = OrderDetails::where('orders.table_end_date', '>=', $outlet_session_from)
                 ->where('orders.table_end_date', '<=', $outlet_session_to)
                 ->where('outlet_id', '=', $outlet_id)
                 ->where('orders.invoice_no', "!=", '')
@@ -804,7 +804,7 @@ class ReportController extends Controller
                     }
                     $total_item_sell += $item->count;
                 }
-                $cancel_order = order_details::leftJoin('order_cancellation_mapper as ocm', 'ocm.order_id', '=', 'orders.order_id')
+                $cancel_order = OrderDetails::leftJoin('order_cancellation_mapper as ocm', 'ocm.order_id', '=', 'orders.order_id')
                     ->leftJoin('owners as o', 'o.id', '=', 'ocm.created_by')
                     ->select('orders.*', 'ocm.reason as reason', 'o.user_name as user_name')
                     ->where('orders.table_end_date', '>=', $outlet_session_from)
@@ -895,7 +895,7 @@ class ReportController extends Controller
                 $excel_data[$n]['Total Sale Per Person'] = $g_total / $t_person;
             }
             //today's unique number
-            $today_unique_mobile = order_details::join("users as u", "u.id", "=", "orders.user_id")
+            $today_unique_mobile = OrderDetails::join("users as u", "u.id", "=", "orders.user_id")
                 ->where('orders.table_end_date', '>=', $outlet_session_from)
                 ->where('orders.table_end_date', '<=', $outlet_session_to)
                 ->where('outlet_id', '=', $outlet_id)
@@ -904,7 +904,7 @@ class ReportController extends Controller
                 ->where('u.mobile_number', '!=', 0)
                 ->distinct()->count('u.mobile_number');
             //total unique number
-            $total_unique_mobile = order_details::join("users as u", "u.id", "=", "orders.user_id")
+            $total_unique_mobile = OrderDetails::join("users as u", "u.id", "=", "orders.user_id")
                 ->where('outlet_id', '=', $outlet_id)
                 ->where('orders.invoice_no', "!=", '')
                 ->where('cancelorder', '!=', 1)
@@ -1071,7 +1071,7 @@ class ReportController extends Controller
                         $purchase = 0;
                     }
                     $expense = Expense::where('expense_for', $outlet_id)->where('expense_date', $dt)->where('type', 'expense')->whereRaw('( status = "verified" || status = "paid" )')->sum('amount');
-                    $sales = order_details::where('outlet_id', $outlet_id)->where('orders.table_end_date', '>=', $from)->where('orders.table_end_date', '<=', $to)->where('cancelorder', '!=', 1)->where('invoice_no', '!=', '')->sum('totalprice');
+                    $sales = OrderDetails::where('outlet_id', $outlet_id)->where('orders.table_end_date', '>=', $from)->where('orders.table_end_date', '<=', $to)->where('cancelorder', '!=', 1)->where('invoice_no', '!=', '')->sum('totalprice');
                     //stock transferred
                     $stock_transferred = 0;
                     if (isset($loc_ids) && sizeof($loc_ids) > 0) {
@@ -1240,15 +1240,15 @@ class ReportController extends Controller
                         $to = Utils::getSessionTime($dt, 'to');
                         foreach ($outlet_options_arr as $po_id => $option) {
                             if ($po_id == 0) {                                    //unpaid orders
-                                $result = order_details::join('order_payment_modes as opm', 'orders.order_id', '=', 'opm.order_id')->where('orders.outlet_id', $outlet_id)->where('orders.table_end_date', '>=', $from)->where('orders.table_end_date', '<=', $to)->where('orders.cancelorder', '!=', 1)->where('orders.invoice_no', '!=', '')->where('opm.source_id', 0)->where('opm.payment_option_id', 0)->selectRaw('sum(opm.amount) as sum')->get();
+                                $result = OrderDetails::join('order_payment_modes as opm', 'orders.order_id', '=', 'opm.order_id')->where('orders.outlet_id', $outlet_id)->where('orders.table_end_date', '>=', $from)->where('orders.table_end_date', '<=', $to)->where('orders.cancelorder', '!=', 1)->where('orders.invoice_no', '!=', '')->where('opm.source_id', 0)->where('opm.payment_option_id', 0)->selectRaw('sum(opm.amount) as sum')->get();
                                 $data[$dt][0][0] = $result[0]['sum'];
                             } else {                                             //source and payment method both are selected
                                 foreach ($outlet_source_arr[$po_id] as $s_id => $source) {
                                     if ($s_id != 0) {
-                                        $result = order_details::join('order_payment_modes as opm', 'orders.order_id', '=', 'opm.order_id')->where('orders.outlet_id', $outlet_id)->where('orders.table_end_date', '>=', $from)->where('orders.table_end_date', '<=', $to)->where('orders.cancelorder', '!=', 1)->where('orders.invoice_no', '!=', '')->where('opm.source_id', $s_id)->where('opm.payment_option_id', $po_id)->selectRaw('sum(opm.amount) as sum')->get();
+                                        $result = OrderDetails::join('order_payment_modes as opm', 'orders.order_id', '=', 'opm.order_id')->where('orders.outlet_id', $outlet_id)->where('orders.table_end_date', '>=', $from)->where('orders.table_end_date', '<=', $to)->where('orders.cancelorder', '!=', 1)->where('orders.invoice_no', '!=', '')->where('opm.source_id', $s_id)->where('opm.payment_option_id', $po_id)->selectRaw('sum(opm.amount) as sum')->get();
                                         $data[$dt][$po_id][$s_id] = $result[0]['sum'];
                                     } else {                                      //only source is selected
-                                        $result = order_details::join('order_payment_modes as opm', 'orders.order_id', '=', 'opm.order_id')->where('orders.outlet_id', $outlet_id)->where('orders.table_end_date', '>=', $from)->where('orders.table_end_date', '<=', $to)->where('orders.cancelorder', '!=', 1)->where('orders.invoice_no', '!=', '')->where('opm.source_id', 0)->where('opm.payment_option_id', $po_id)->selectRaw('sum(opm.amount) as sum')->get();
+                                        $result = OrderDetails::join('order_payment_modes as opm', 'orders.order_id', '=', 'opm.order_id')->where('orders.outlet_id', $outlet_id)->where('orders.table_end_date', '>=', $from)->where('orders.table_end_date', '<=', $to)->where('orders.cancelorder', '!=', 1)->where('orders.invoice_no', '!=', '')->where('opm.source_id', 0)->where('opm.payment_option_id', $po_id)->selectRaw('sum(opm.amount) as sum')->get();
                                         $data[$dt][$po_id][0] = $result[0]['sum'];
                                     }
                                 }
@@ -1976,7 +1976,7 @@ class ReportController extends Controller
             $from = Utils::getSessionTime($from_date, 'from');
             $to = Utils::getSessionTime($to_date, 'to');
             if ($report_type == 'order') {
-                $orders = order_details::join('order_cancellation_mapper', 'order_cancellation_mapper.order_id', '=', 'orders.order_id')
+                $orders = OrderDetails::join('order_cancellation_mapper', 'order_cancellation_mapper.order_id', '=', 'orders.order_id')
                     ->leftjoin('order_items', 'order_items.order_id', '=', 'orders.order_id')
                     ->select('orders.*', 'order_cancellation_mapper.created_by as created_by', 'order_items.item_name as item_name', 'order_items.item_quantity as Quantity', 'order_cancellation_mapper.reason')
                     ->where('orders.table_end_date', '>=', $from)
@@ -2352,7 +2352,7 @@ class ReportController extends Controller
         }
         $result['lbl'] = $lbl_date;
         $result['outlets'] = array();
-        $date_ord_pax = order_details::where('orders.outlet_id', $outlet_id)
+        $date_ord_pax = OrderDetails::where('orders.outlet_id', $outlet_id)
             ->where('orders.table_end_date', '>=', $from)
             ->where('orders.table_end_date', '<=', $to)
             ->where('orders.cancelorder', '!=', '1')
@@ -2571,7 +2571,7 @@ class ReportController extends Controller
             $to = Input::get('to_date');
             $pay_opt = PaymentOption::where('name', 'Online')->first();
             $source = Sources::where('name', 'UPI')->first();
-            $result = order_details::join('icici_upi_transaction as icici', 'orders.order_unique_id', '=', 'icici.bill_no')
+            $result = OrderDetails::join('icici_upi_transaction as icici', 'orders.order_unique_id', '=', 'icici.bill_no')
                 ->join('outlets as ot', 'ot.id', '=', 'orders.outlet_id')
                 ->select('orders.*', 'ot.name as outlet_name', 'icici.status as upi_status')
                 ->where('orders.invoice_no', "!=", '')
@@ -2608,7 +2608,7 @@ class ReportController extends Controller
             Session::set('from_session', $from_date);
             Session::set('to_session', $to_date);
             $where = '1=1';
-            $result = order_details::join('order_payment_modes as opm', 'opm.order_id', '=', 'orders.order_id')->where('orders.table_end_date', '>=', $from)->where('orders.table_end_date', '<=', $to)->where('opm.payment_option_id', 0)->where('orders.outlet_id', $outlet_id)->where('orders.invoice_no', "!=", '')->where('orders.cancelorder', '!=', 1)->orderBy('orders.order_id', 'desc');
+            $result = OrderDetails::join('order_payment_modes as opm', 'opm.order_id', '=', 'orders.order_id')->where('orders.table_end_date', '>=', $from)->where('orders.table_end_date', '<=', $to)->where('opm.payment_option_id', 0)->where('orders.outlet_id', $outlet_id)->where('orders.invoice_no', "!=", '')->where('orders.cancelorder', '!=', 1)->orderBy('orders.order_id', 'desc');
             if (isset($mobile) && $mobile != '') {
                 $where .= " && user_mobile_number = " . $mobile;
             }
@@ -2647,7 +2647,7 @@ class ReportController extends Controller
             //convert to session time
             $from = Utils::getSessionTime($from_date, 'from');
             $to = Utils::getSessionTime($to_date, 'to');
-            $orders = order_details::leftjoin("order_items", "order_items.order_id", "=", "orders.order_id")
+            $orders = OrderDetails::leftjoin("order_items", "order_items.order_id", "=", "orders.order_id")
                 ->leftjoin("menus as m", "m.id", "=", "order_items.item_id")
                 ->leftjoin("order_payment_modes as opm", "opm.order_id", "=", "orders.order_id")
                 ->select(
@@ -2748,7 +2748,7 @@ class ReportController extends Controller
             $outlet_id = Input::get('outlet_id');
             Session::set('from_session', $from_date);
             Session::set('to_session', $to_date);
-            $orders = order_details::join("outlets", "outlets.id", "=", "orders.outlet_id")
+            $orders = OrderDetails::join("outlets", "outlets.id", "=", "orders.outlet_id")
                 ->select('invoice_no', DB::raw('count(*) as record'))
                 ->where('orders.table_end_date', '>=', (new Carbon($from_date))->startOfDay())
                 ->where('orders.table_end_date', '<=', (new Carbon($to_date))->endOfDay())
@@ -2766,7 +2766,7 @@ class ReportController extends Controller
             $total = 0;
             if (isset($result) && sizeof($result) > 0) {
                 foreach ($result as $ord) {
-                    $dup_inv = order_details::join("outlets", "outlets.id", "=", "orders.outlet_id")
+                    $dup_inv = OrderDetails::join("outlets", "outlets.id", "=", "orders.outlet_id")
                         ->select('invoice_no', 'outlets.name as name', 'table_end_date as date')
                         ->where('invoice_no', $ord->invoice_no);
                     if ($outlet_id == 'all') {
@@ -2821,7 +2821,7 @@ class ReportController extends Controller
             $from = Utils::getSessionTime($from_date, 'from');
             $to = Utils::getSessionTime($to_date, 'to');
             if ($flag == 'show') {
-                $orders = order_details::where('orders.table_end_date', '>=', $from)
+                $orders = OrderDetails::where('orders.table_end_date', '>=', $from)
                     ->where('orders.table_end_date', '<=', $to)
                     ->where('orders.outlet_id', '=', $outlet_id)
                     ->orderBy('orders.order_id', 'desc')
@@ -2832,7 +2832,7 @@ class ReportController extends Controller
                     ->get();
                 return view('report.zohoUnsyncOrdersList', array('orders' => $orders));
             } else {
-                order_details::syncZohoOrders($outlet_id, $from, $to);
+                OrderDetails::syncZohoOrders($outlet_id, $from, $to);
                 echo 'success';
                 exit;
             }

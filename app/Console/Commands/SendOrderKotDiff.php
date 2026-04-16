@@ -1,8 +1,10 @@
-<?php namespace App\Console\Commands;
+<?php
+
+namespace App\Console\Commands;
 
 
 use App\Kot;
-use App\order_details;
+use App\OrderDetails;
 use App\Outlet;
 use App\Owner;
 use Carbon\Carbon;
@@ -12,7 +14,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 
-class SendOrderKotDiff extends Command {
+class SendOrderKotDiff extends Command
+{
 
     /**
      * The console command name.
@@ -50,13 +53,13 @@ class SendOrderKotDiff extends Command {
 
         $to_date = Carbon::yesterday()->endOfDay();
         $from_date =  Carbon::yesterday()->startOfDay();
-        if( sizeof($owners) > 0 ) {
-            $all_outlets_diff =array();
-            $all_owners_diff =array();
+        if (sizeof($owners) > 0) {
+            $all_outlets_diff = array();
+            $all_owners_diff = array();
             $isdata = 0;
             foreach ($owners as $owner) {
                 $all_owners_diff[$owner->name] = array();
-                $outlets = Outlet::where('owner_id', $owner->id)->where('id','!=',44)->where('id','!=',45)->get(); //not send to chinahut outlet
+                $outlets = Outlet::where('owner_id', $owner->id)->where('id', '!=', 44)->where('id', '!=', 45)->get(); //not send to chinahut outlet
 
                 if (sizeof($outlets) > 0) {
                     foreach ($outlets as $outlet) {
@@ -65,7 +68,7 @@ class SendOrderKotDiff extends Command {
                         $outlet_id = $outlet->id;
 
                         $notmatch = Kot::kotOrderDiff($outlet_id, $from_date, $to_date);
-                        if(sizeof($notmatch) > 0)
+                        if (sizeof($notmatch) > 0)
                             $isdata = 1;
 
                         array_push($all_outlets_diff[$data['outlet_name']], $notmatch);
@@ -73,12 +76,12 @@ class SendOrderKotDiff extends Command {
                 }
             }
 
-            if($isdata > 0 && $isdata != 0) {
+            if ($isdata > 0 && $isdata != 0) {
                 try {
-                    if(env("APP_ENV")=="production") {
+                    if (env("APP_ENV") == "production") {
                         $email[0] = "raj@savitriya.com";
                         //$email[1] = "dev@savitriya.com";
-                    }else{
+                    } else {
                         $email[0] = "raj@savitriya.com";
                         //$email[1] = "np@savitriya.com";
                     }
@@ -97,11 +100,10 @@ class SendOrderKotDiff extends Command {
                     $message = 'error';
                     //Log::info('Email error : ' . $e->getMessage());
                 }
-            }else{
+            } else {
                 Log::info("No KOT Order DIfference Found.");
             }
         }
-
     }
 
     /**
@@ -127,6 +129,4 @@ class SendOrderKotDiff extends Command {
             ['example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null],
         ];
     }*/
-
 }
-

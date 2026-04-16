@@ -1,4 +1,6 @@
-<?php namespace App\Console\Commands;
+<?php
+
+namespace App\Console\Commands;
 
 use App\Attendance;
 use App\Expense;
@@ -7,7 +9,7 @@ use App\InvoiceBill;
 use App\ItemRequest;
 use App\Location;
 use App\Menu;
-use App\order_details;
+use App\OrderDetails;
 use App\Outlet;
 use App\OutletMapper;
 use App\Owner;
@@ -22,40 +24,41 @@ use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
-class DashboardMail extends Command {
+class DashboardMail extends Command
+{
 
-	/**
-	 * The console command name.
-	 *
-	 * @var string
-	 */
-	protected $name = 'pikal:dashboardmail';
+    /**
+     * The console command name.
+     *
+     * @var string
+     */
+    protected $name = 'pikal:dashboardmail';
 
-	/**
-	 * The console command description.
-	 *
-	 * @var string
-	 */
-	protected $description = 'Dashboard Mail.';
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Dashboard Mail.';
 
-	/**
-	 * Create a new command instance.
-	 *
-	 * @return void
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-	}
-
-	/**
-	 * Execute the console command.
-	 *
-	 * @return mixed
-	 */
-	public function fire()
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
     {
-       /* $from_time = "00:00";
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function fire()
+    {
+        /* $from_time = "00:00";
         $to_time = "23:59";
         $fromdate = date('Y-m-d');
         $todate = date('Y-m-d');
@@ -68,18 +71,18 @@ class DashboardMail extends Command {
 
         $sod = date('Y:m:d H:i:s');  //start of day
         $som = Carbon::now()->startOfMonth();  //start of month
-        $eod = date('Y-m-d H:i:s',strtotime('-1 day'));    //end of day
+        $eod = date('Y-m-d H:i:s', strtotime('-1 day'));    //end of day
 
-        $outlets = Outlet::where('active','=','Yes')->where('id','!=',44)->where('id','!=',45)->get(); //not send to chinahut outlet
+        $outlets = Outlet::where('active', '=', 'Yes')->where('id', '!=', 44)->where('id', '!=', 45)->get(); //not send to chinahut outlet
 
-        foreach ($outlets as $outlet){
+        foreach ($outlets as $outlet) {
 
             $user_id = $outlet->owner_id;
             $auth_user = $outlet->authorised_users;
             $auth_user_find = Owner::find($auth_user);
             $owner = Owner::find($user_id);
 
-            if(isset($auth_user_find) && sizeof($auth_user_find)) {
+            if (isset($auth_user_find) && sizeof($auth_user_find)) {
                 if ($auth_user_find->user_name == 'govind') {
 
                     $data = array();
@@ -90,7 +93,7 @@ class DashboardMail extends Command {
                     $yesterdayDate = Carbon::yesterday()->format('d');
 
                     //Revenue & persons & orders
-                    $date_ord = order_details::where('orders.outlet_id', $outlet->id)
+                    $date_ord = OrderDetails::where('orders.outlet_id', $outlet->id)
                         ->where('orders.table_end_date', '>=', $sod)
                         ->where('orders.table_end_date', '<=', $eod)
                         ->where('orders.cancelorder', '!=', '1')
@@ -104,7 +107,7 @@ class DashboardMail extends Command {
                         $date_revenue += $dorder->totalprice;
                     }
 
-                    $month_ord = order_details::where('orders.outlet_id', $outlet->id)
+                    $month_ord = OrderDetails::where('orders.outlet_id', $outlet->id)
                         ->where('orders.table_end_date', '>=', $som)
                         ->where('orders.table_end_date', '<=', $eod)
                         ->where('orders.cancelorder', '!=', '1')
@@ -192,12 +195,10 @@ class DashboardMail extends Command {
                                             }
                                         }
                                     }
-
                                 }
 
                                 //get transferred price
                                 $day_stock += $satisfy_qty * $req->price;
-
                             }
                         }
 
@@ -219,10 +220,8 @@ class DashboardMail extends Command {
                                 }
                                 //get transferred price
                                 $month_stock += $satisfy_qty * $req->price;
-
                             }
                         }
-
                     }
 
                     $avg_stock = number_format($month_stock / $yesterdayDate, 2);
@@ -284,11 +283,8 @@ class DashboardMail extends Command {
 
                                         $secs = strtotime($elapsed) - strtotime("00:00:00");
                                         $time = date("H:i:s", strtotime($time) + $secs);
-
                                     }
-
                                 }
-
                             }
                             //$data[$date][$stf->id] = $time;
 
@@ -306,7 +302,6 @@ class DashboardMail extends Command {
                                     $spent_arr = explode(':', $time);
                                     $spent_time = $spent_arr[0] * 60;
                                     $spent_time = $spent_time + $spent_arr[1];
-
                                 }
 
                                 if ($spent_time >= $full_time) {
@@ -315,30 +310,25 @@ class DashboardMail extends Command {
                                         $salary[$stf->id] = $stf->per_day;
                                     else
                                         $salary[$stf->id] += $stf->per_day;
-
                                 } elseif ($spent_time >= $half_time && $spent_time != 0) {
 
                                     if (!isset($salary[$stf->id]))
                                         $salary[$stf->id] = $stf->per_day / 2;
                                     else
                                         $salary[$stf->id] += $stf->per_day / 2;
-
                                 } else {
 
                                     if (!isset($salary[$stf->id]))
                                         $salary[$stf->id] = 0.00;
                                     else
                                         $salary[$stf->id] += 0.00;
-
                                 }
-
                             } else {
 
                                 if (!isset($salary[$stf->id]))
                                     $salary[$stf->id] = 0.00;
                                 else
                                     $salary[$stf->id] += 0.00;
-
                             }
                             $staff_cost_day += $salary[$stf->id];
                         }
@@ -372,11 +362,8 @@ class DashboardMail extends Command {
 
                                         $secs = strtotime($elapsed) - strtotime("00:00:00");
                                         $time = date("H:i:s", strtotime($time) + $secs);
-
                                     }
-
                                 }
-
                             }
                             //$data[$date][$stf->id] = $time;
 
@@ -394,7 +381,6 @@ class DashboardMail extends Command {
                                     $spent_arr = explode(':', $time);
                                     $spent_time = $spent_arr[0] * 60;
                                     $spent_time = $spent_time + $spent_arr[1];
-
                                 }
 
                                 if ($spent_time >= $full_time) {
@@ -403,14 +389,12 @@ class DashboardMail extends Command {
                                         $salary[$stf->id] = $stf->per_day;
                                     else
                                         $salary[$stf->id] += $stf->per_day;
-
                                 } elseif ($spent_time >= $half_time && $spent_time != 0) {
 
                                     if (!isset($salary[$stf->id]))
                                         $salary[$stf->id] = $stf->per_day / 2;
                                     else
                                         $salary[$stf->id] += $stf->per_day / 2;
-
                                 } else {
 
                                     if (!isset($salary[$stf->id]))
@@ -418,14 +402,12 @@ class DashboardMail extends Command {
                                     else
                                         $salary[$stf->id] += 0.00;
                                 }
-
                             } else {
 
                                 if (!isset($salary[$stf->id]))
                                     $salary[$stf->id] = 0.00;
                                 else
                                     $salary[$stf->id] += 0.00;
-
                             }
                             $staff_cost_per_day += $salary[$stf->id];
                         }
@@ -440,13 +422,13 @@ class DashboardMail extends Command {
 
 
                     //cancel order report
-                    $cancel_order_amount = order_details::where('table_end_date', '>=', $sod)
+                    $cancel_order_amount = OrderDetails::where('table_end_date', '>=', $sod)
                         ->where('table_end_date', '<=', $eod)
                         ->where('outlet_id', '=', $outlet->id)
                         ->where('cancelorder', "1")
                         ->sum('totalprice');
 
-                    $cancel_order_count = order_details::where('table_end_date', '>=', $sod)
+                    $cancel_order_count = OrderDetails::where('table_end_date', '>=', $sod)
                         ->where('table_end_date', '<=', $eod)
                         ->where('outlet_id', '=', $outlet->id)
                         ->where('cancelorder', "1")
@@ -460,7 +442,7 @@ class DashboardMail extends Command {
                     //Profit or Loss
 
                     $total = $date_revenue - ($date_expense + $day_stock + $day_purchase + $staff_cost_day);
-                    $data['result_value'] = number_format($total,2);
+                    $data['result_value'] = number_format($total, 2);
 
                     if ($total > 0)
                         $data['result'] = 'profit';
@@ -475,11 +457,11 @@ class DashboardMail extends Command {
                         $emails = explode(',', $outlet->report_emails);
                     }
 
-                   /* if (env("APP_ENV") == "production") {
+                    /* if (env("APP_ENV") == "production") {
                         $emails1 = array("dev@savitriya.com");
                         $allemail = array_merge($emails, $emails1);
                     } else {*/
-                        $allemail = $emails;
+                    $allemail = $emails;
                     //}
 
                     if (sizeof($allemail) > 0) {
@@ -503,11 +485,11 @@ class DashboardMail extends Command {
         }
     }
 
-	/**
-	 * Get the console command arguments.
-	 *
-	 * @return array
-	 */
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
 	/*protected function getArguments()
 	{
 		return [
@@ -515,16 +497,15 @@ class DashboardMail extends Command {
 		];
 	}*/
 
-	/**
-	 * Get the console command options.
-	 *
-	 * @return array
-	 */
-	/*protected function getOptions()
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    /*protected function getOptions()
 	{
 		return [
 			['example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null],
 		];
 	}*/
-
 }
