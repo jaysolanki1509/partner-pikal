@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\OrderItem;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use App\OrderCouponMappers;
@@ -49,8 +50,6 @@ class OrderDetails extends Model
 
         return sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
     }
-
-
     public static function getorderidofrestaurant($restaurantid)
     {
         /*$getallorders=OrderDetails::all();
@@ -74,7 +73,6 @@ class OrderDetails extends Model
             }
             $neworderid=$last_inserted_id+1;
         }*/
-
         $getallor = OrderDetails::where('outlet_id', $restaurantid)->whereDate('created_at', '>=', gmdate('Y-m-d'))->get();
         $last_inserted_id = 0;
         foreach ($getallor as $odids) {
@@ -83,8 +81,6 @@ class OrderDetails extends Model
         $neworderid = $last_inserted_id + 1;
         return $neworderid;
     }
-
-
     public static function insertorderdetails($a, $order_ids, $order, $status, $suborder_id, $invoice_no = '', $service_tax)
     {
         $address = $combime_address = $mobile = $device_id = $name = $outlet_id = $tax_type = $status1 = $local_id = $order_type = $table_no = $person_no = "";
@@ -146,10 +142,8 @@ class OrderDetails extends Model
                 $outlet = Outlet::find($outlet_id);
                 $outlet_custom_fields = json_decode($outlet->custom_bill_print_fields);
                 $custom_fields_arr = array();
-
-                if (isset($outlet_custom_fields) && sizeof($outlet_custom_fields) > 0 && isset($custom_fields) && sizeof($custom_fields) > 0) {
+                if (isset($outlet_custom_fields) && !empty($outlet_custom_fields) && isset($custom_fields) && !empty($custom_fields)) {
                     foreach (json_decode($custom_fields) as $key => $field) { //Actual value comming from app
-
                         if ($key == "email") {
                             $customer_email = $field->value;
                         }
@@ -293,7 +287,7 @@ class OrderDetails extends Model
         if (trim($mobile) != '' || trim($first_name) != '' || trim($email) != "" || trim($customer_email) != "") {
 
             $check_customer = Customer::where('mobile_number', $mobile)->where('mobile_number', '!=', 0)->first();
-            if (isset($check_customer) && sizeof($check_customer) > 0) {
+            if (isset($check_customer) && !empty($check_customer)) {
 
                 $check_customer->address = $address;
                 $check_customer->email = isset($email) ? $email : $customer_email;
@@ -315,7 +309,7 @@ class OrderDetails extends Model
             } elseif (isset($email) || isset($customer_email)) {
 
                 $check_customer = Customer::where('email', $email)->where("email", $customer_email)->first();
-                if (isset($check_customer) && sizeof($check_customer) > 0) {
+                if (isset($check_customer) && !empty($check_customer)) {
 
                     $check_customer->address = $address;
                     $check_customer->email = isset($email) ? $email : $customer_email;
@@ -476,7 +470,7 @@ class OrderDetails extends Model
 
         $payment_arr = array();
         //check payment modes and add order payment modes
-        if (isset($order['payment_modes']) && sizeof($order['payment_modes']) > 0) {
+        if (isset($order['payment_modes']) && !empty($order['payment_modes'])) {
 
             foreach ($order['payment_modes'] as $mode) {
 
@@ -524,7 +518,7 @@ class OrderDetails extends Model
             if ($user_id == 0) {
                 //get user_id from username
                 $user_arr = Owner::where('user_name', $name)->first();
-                if (isset($user_arr) && sizeof($user_arr) > 0) {
+                if (isset($user_arr) && !empty($user_arr)) {
                     $user_id = $user_arr->id;
                 }
             }
@@ -799,43 +793,42 @@ class OrderDetails extends Model
             $pay_status = 0;
             if (isset($order['provider_name']) && strtolower($order['provider_name']) == 'cod') {
                 $check_pay_opt = PaymentOption::whereRaw('LOWER(name) = "cash"')->first();
-                if (isset($check_pay_opt) && sizeof($check_pay_opt) > 0) {
+                if (isset($check_pay_opt) && !empty($check_pay_opt)) {
                     $pay_option_id = $check_pay_opt->id;
                 }
             } else if (isset($order['provider_name']) && strtolower($order['provider_name']) == 'paytm') {
                 $check_pay_opt = PaymentOption::whereRaw('LOWER(name) = "online"')->first();
-                if (isset($check_pay_opt) && sizeof($check_pay_opt) > 0) {
+                if (isset($check_pay_opt) && !empty($check_pay_opt)) {
                     $pay_option_id = $check_pay_opt->id;
                 }
                 $check_pay_src = Sources::whereRaw('LOWER(name) = "paytm"')->first();
-                if (isset($check_pay_src) && sizeof($check_pay_src) > 0) {
+                if (isset($check_pay_src) && !empty($check_pay_src)) {
                     $pay_source_id = $check_pay_src->id;
                 }
                 $pay_status = 1;
             } else if (isset($order['provider_name']) && strtolower($order['provider_name']) == 'payu') {
                 $check_pay_opt = PaymentOption::whereRaw('LOWER(name) = "online"')->first();
-                if (isset($check_pay_opt) && sizeof($check_pay_opt) > 0) {
+                if (isset($check_pay_opt) && !empty($check_pay_opt)) {
                     $pay_option_id = $check_pay_opt->id;
                 }
                 $check_pay_src = Sources::whereRaw('LOWER(name) = "payu"')->first();
-                if (isset($check_pay_src) && sizeof($check_pay_src) > 0) {
+                if (isset($check_pay_src) && !empty($check_pay_src)) {
                     $pay_source_id = $check_pay_src->id;
                 }
                 $pay_status = 1;
             } else if (isset($order['provider_name']) && strtolower($order['provider_name']) == 'upi') {
                 $check_pay_opt = PaymentOption::whereRaw('LOWER(name) = "online"')->first();
-                if (isset($check_pay_opt) && sizeof($check_pay_opt) > 0) {
+                if (isset($check_pay_opt) && !empty($check_pay_opt)) {
                     $pay_option_id = $check_pay_opt->id;
                 }
                 $check_pay_src = Sources::whereRaw('LOWER(name) = "upi"')->first();
-                if (isset($check_pay_src) && sizeof($check_pay_src) > 0) {
+                if (isset($check_pay_src) && !empty($check_pay_src)) {
                     $pay_source_id = $check_pay_src->id;
                 }
                 $pay_status = 1;
             }
 
             if (isset($order_id) && $order_id != '') {
-
                 OrderDetails::where('order_id', $order_id)->update([
                     'table_no' => $table_no,
                     'person_no' => $person_no,
@@ -1660,7 +1653,7 @@ class OrderDetails extends Model
         //array_push($deviceid,$device_id);
         Log::info($device_id);
         // Replace with real client registration IDs
-        if (isset($device_id) && sizeof($device_id) > 0) {
+        if (isset($device_id) && !empty($device_id)) {
             $registrationIDs = $device_id;
 
             // Set POST variables
@@ -1792,7 +1785,7 @@ class OrderDetails extends Model
 
         if (isset($sess_outlet_id) && $sess_outlet_id != '') {
             $outlet_ids[0] = $sess_outlet_id;
-        } else if (isset($outlet) && sizeof($outlet) > 0) {
+        } else if (isset($outlet) && !empty($outlet)) {
             foreach ($outlet as $o_key => $o_val) {
                 $outlet_ids[] = $o_val->id;
             }
@@ -1814,7 +1807,7 @@ class OrderDetails extends Model
         $outlet = Outlet::find($outlet_id);
         $outlet_settings = OutletSetting::checkAppSetting($outlet_id, "orderNoReset");
 
-        if (isset($outlet) && sizeof($outlet) > 0) {
+        if (isset($outlet) && !empty($outlet)) {
             $invoice_array = array();
             if ($outlet->invoice_prefix != "") {
                 $invoice_prefix = json_decode($outlet->invoice_prefix);
@@ -1833,7 +1826,7 @@ class OrderDetails extends Model
 
                     $code = $outlet->ot_code;
                     $prefix_check = json_decode($outlet->invoice_prefix);
-                    if (isset($prefix_check) && sizeof($prefix_check) > 0) {
+                    if (isset($prefix_check) && !empty($prefix_check)) {
                         $condition .= " && order_type='$type'";
                         $code = $prefix_check->$type;
                     }
@@ -1842,7 +1835,7 @@ class OrderDetails extends Model
                         ->whereRaw($condition)
                         ->get();
 
-                    if (isset($check_invoice_no) && sizeof($check_invoice_no) > 0) {
+                    if (isset($check_invoice_no) && !empty($check_invoice_no)) {
                         $max_id = 0;
                         foreach ($check_invoice_no as $inv_record) {
                             $inv = $inv_record->invoice;
@@ -1862,7 +1855,7 @@ class OrderDetails extends Model
 
                     $invoice_array[$type] = $invoice_no;
                 }
-            } elseif (isset($outlet->code) && sizeof($outlet->code) > 0) {
+            } elseif (isset($outlet->code) && !empty($outlet->code)) {
 
                 $condition = '1=1';
                 $to = (new Carbon(date('Y-m-d')))->endOfDay();
@@ -1879,7 +1872,7 @@ class OrderDetails extends Model
                     ->whereRaw($condition)
                     ->get();
 
-                if (isset($check_invoice_no) && sizeof($check_invoice_no) > 0) {
+                if (isset($check_invoice_no) && !empty($check_invoice_no)) {
                     $max_id = 0;
                     foreach ($check_invoice_no as $inv_record) {
                         $inv = $inv_record->invoice;
@@ -1927,7 +1920,7 @@ class OrderDetails extends Model
                 if (isset($token_string) && $token_string != '') {
 
                     $token_str = explode(PHP_EOL, $token_string);
-                    if (isset($token_str[2]) && sizeof($token_str) > 0) {
+                    if (isset($token_str[2]) && !empty($token_str)) {
                         $token_arr = explode('=', $token_str[2]);
                         $token = $token_arr[1];
                     }
@@ -1951,7 +1944,7 @@ class OrderDetails extends Model
                 ->orderBy('orders.order_id', 'desc')
                 ->get();
 
-            if (isset($orders) && sizeof($orders) > 0) {
+            if (isset($orders) && !empty($orders)) {
 
                 $i = 0;
                 foreach ($orders as $ord) {
@@ -1963,7 +1956,7 @@ class OrderDetails extends Model
                         ->select('order_items.*', 'm.item_code as item_code')
                         ->where('order_id', $ord->order_id)->get();
 
-                    if (isset($order_items) && sizeof($order_items) > 0) {
+                    if (isset($order_items) && !empty($order_items)) {
 
                         $itm_arr = array();
                         $data['line_items'] = array();
@@ -1978,9 +1971,7 @@ class OrderDetails extends Model
                             $discount = $ord->discount_value / $discount_length;
                         }
                         foreach ($order_items as $itm) {
-
                             if ($itm->item_code == '') {
-
                                 $check_item_code = 1;
                                 if ($itm_name == '') {
                                     $itm_name = $itm->item_name;
@@ -1988,11 +1979,9 @@ class OrderDetails extends Model
                                     $itm_name .= ", " . $itm->item_name;
                                 }
                             }
-
                             if ($discount > 0) {
                                 $itm_arr['discount'] = $discount;
                             }
-
                             $itm_arr['name'] = $itm->item_code;
                             $itm_arr['description'] = $itm->item_name;
                             $itm_arr['rate'] = $itm->item_price;
@@ -2019,10 +2008,9 @@ class OrderDetails extends Model
                     if (isset($ot->payment_option_identifier) && $ot->payment_option_identifier != '') {
 
                         $identifier_arr = json_decode($ot->payment_option_identifier, true);
-                        if (isset($identifier_arr) && sizeof($identifier_arr) > 0) {
-
+                        if (isset($identifier_arr) && !empty($identifier_arr)) {
                             $payment_mode = OrderPaymentMode::where('order_id', $ord->order_id)->get();
-                            if (isset($payment_mode) && sizeof($payment_mode) > 0) {
+                            if (isset($payment_mode) && !empty($payment_mode)) {
 
                                 if (isset($identifier_arr['zoho_payment_ids'][$payment_mode[0]->payment_option_id][$payment_mode[0]->source_id])) {
                                     $data['customer_id'] = $identifier_arr['zoho_payment_ids'][$payment_mode[0]->payment_option_id][$payment_mode[0]->source_id];

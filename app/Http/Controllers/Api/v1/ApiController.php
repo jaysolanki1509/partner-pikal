@@ -54,13 +54,11 @@ use Illuminate\Contracts\Auth\Guard;
 
 class Apicontroller extends Controller
 {
-
     public function __construct(Guard $auth)
     {
         $this->auth = $auth;
         $this->beforeFilter('csrf', ['on' => '']);
     }
-
     /**
      * Display a listing of the resource.
      *
@@ -91,7 +89,6 @@ class Apicontroller extends Controller
             $restdetails = Outlet::searchoutlet($start, $limit, $location, $cuistype, $resttype, $restname, $costmin, $costmax, $lat, $long, $delivery_type);
             $i = 0;
             foreach ($restdetails['restaurantdetails'] as $restcuisine) {
-
                 $restid = $restcuisine->id;
 
                 $restinfo = Outlet::find($restid);
@@ -118,7 +115,7 @@ class Apicontroller extends Controller
                 foreach ($restresttype as $resrest) {
                     $cui = OutletType::Outlettypebyid($resrest->outlet_type_id);
 
-                    if (sizeof($cui) > 0) {
+                    if (!empty($cui)) {
                         $cutype = $cui['type'];
                     } else {
                         $cutype = "";
@@ -293,7 +290,6 @@ class Apicontroller extends Controller
             );
         }
     }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -303,7 +299,6 @@ class Apicontroller extends Controller
     {
         //
     }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -313,7 +308,6 @@ class Apicontroller extends Controller
     {
         //
     }
-
     /**
      * Display the specified resource.
      *
@@ -324,7 +318,6 @@ class Apicontroller extends Controller
     {
         //
     }
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -335,7 +328,6 @@ class Apicontroller extends Controller
     {
         //
     }
-
     /**
      * Update the specified resource in storage.
      *
@@ -346,7 +338,6 @@ class Apicontroller extends Controller
     {
         //
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -581,18 +572,22 @@ class Apicontroller extends Controller
     }
 
     //order added from here in backend
-    public function orderdetails($order_from_web = null, Request $request)
+    public function orderdetails(Request $request)
     {
         $order = '';
         $flag = '';
+        $order_from_web = null;
         if (isset($order_from_web)) {
-            $order = $order_from_web['order'];
+            // $order = $order_from_web['order'];
+            $order = json_decode($request->input('order'), true);
             $flag = $order['flag'];
         } else {
             $order = $request->input('order');
         }
         $array = array();
-        $Outlet = Outlet::Outletbyid($order['restaurant_id']);
+        $restaurant_id = $order['restaurant_id'] ?? null;
+        $Outlet = Outlet::Outletbyid($restaurant_id);
+        // $Outlet = Outlet::Outletbyid($order['restaurant_id']);
         if (isset($Outlet)) {
             $startingstatus = Status::getallstatusofOutlet($order['restaurant_id']);
             $lastindex = count($startingstatus) - 1;
@@ -611,7 +606,8 @@ class Apicontroller extends Controller
             if (isset($order['mobile_number'])) {
                 DB::table('orders')->where('user_mobile_number', $order['mobile_number'])->update(array('device_id' => $order['device_id']));
             }
-            $saveorder = OrderDetails::insertorderdetails($a, $order_ids, $order, $status, $suborder_id);
+            // $saveorder = OrderDetails::insertorderdetails($a, $order_ids, $order, $status, $suborder_id);
+            $saveorder = OrderDetails::insertorderdetails($a, $order_ids, $order, $status, $suborder_id, '', '');
 
             foreach ($order['menu_item'] as $asd) {
                 $orderid = OrderItem::insertmenuitemoforders($saveorder['id'], $asd);
@@ -723,11 +719,9 @@ class Apicontroller extends Controller
             );
         }
     }
-
     //for login request from mobileend
     public function login(Request $request)
     {
-
         $mob = Input::json('user_mobile');
         $pass = Input::json('user_password');
         $user = DB::table('users');
@@ -1003,11 +997,15 @@ class Apicontroller extends Controller
             }
         }
     }
-    public function owneroutlet()
+    public function owneroutlet(Request $request)
     {
-        $username = Input::json('owner_name');
-        $pass = Input::json('owner_pass');
-        $device_id = Input::json('device_id');
+        // $username = Input::json('owner_name');
+        // $pass = Input::json('owner_pass');
+        // $device_id = Input::json('device_id');
+        $username = $request->input('owner_name');
+        $pass = $request->input('owner_pass');
+        $device_id = $request->input('device_id');
+
         $maxdt = Carbon::now();
         $field = filter_var($username, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
 
@@ -1016,8 +1014,8 @@ class Apicontroller extends Controller
         } else {
             $user = Owner::where('user_name', $username)->first();
         }
-
-        if (count($user) > 0) {
+        // echo "User <pre>"; print_r($user); echo "</pre>"; exit;
+        if ($user) {
             $a = Hash::check($pass, $user->password);
         } else {
             $a = false;
@@ -1041,32 +1039,31 @@ class Apicontroller extends Controller
                 DB::table('owners')->where($field, '=', $username)->update(array('device_id' => $device_id));
             }
             $islogin = Owner::where($field, '=', $username)->first();
-
-
             //            $where = ['owner_id' => $user->id,'active' => 'Yes'];
             //            $Outlet=Outlet::where($where)->get();
-
             $where = ['owner_id' => $user->id];
             $mappers = OutletMapper::getOutletIdByOwnerId($where);
-
+            $mapper_arr = [];
             foreach ($mappers as $mapper) {
                 $mapper_arr[] = $mapper['outlet_id'];
             }
+            // foreach ($mappers as $mapper) {
+            //     $mapper_arr[] = $mapper['outlet_id'];
+            // }
             $Outlet = Outlet::whereIn('id', $mapper_arr)->where('active', 'Yes')->get();
-
-
-
             //            $Outlet=Outlet::where('owner_id',$user->id)->get();
 
             $i = 0;
-            foreach ($Outlet as $outlet) {
-                $outlet[$i];
-                $i++;
-            }
+            // foreach ($Outlet as $outlet) {
+            //     $outlet[$i];
+            //     $i++;
+            // }
+            $i = $Outlet->count();
             if ($i == 1) {
                 $maxdt = [];
                 array_push($maxdt, Carbon::now());
-                $restaurant = $user->outlet->lists('id');
+                // $restaurant = $user->outlet->lists('id');
+                $restaurant = $user->outlet->pluck('id');
                 $restaurant_id = $restaurant[0];
                 $retname = Outlet::find($restaurant_id);
                 $islogin = Owner::where($field, '=', $username)->first();
@@ -1079,11 +1076,12 @@ class Apicontroller extends Controller
                 $uniquepricearray = [];
                 $othercount = [];
                 $items = [];
-                if (count($orders) > 0) {
+                // if (count($orders) > 0) {
+                if ($orders->isNotEmpty()) {
                     $forrating = $retname->orderdetail()->where('status', '=', 'delivered')->orderBy('created_at', 'desc')->get();
                     $otheroutletordercount = DB::table('orders')->where('status', '=', 'delivered')->where('outlet_id', '!=', $restaurant_id)->get();
                     $uniqueprice = DB::table('orders')->where('status', '=', 'delivered')->get();
-                    if (sizeof($uniqueprice) > 0) {
+                    if (!empty($uniqueprice)) {
                         foreach ($uniqueprice as $k1 => $v1) {
                             if (!array_key_exists($v1->user_mobile_number, $uniquepricearray)) {
                                 //array_push($uniquepricearray,array($order->user_mobile_number=>number_format($totalpr, 2, '.', '')));
@@ -1095,7 +1093,7 @@ class Apicontroller extends Controller
                         }
                     }
 
-                    if (sizeof($otheroutletordercount) > 0) {
+                    if (!empty($otheroutletordercount)) {
                         foreach ($otheroutletordercount as $k => $v) {
                             if (!array_key_exists($v->user_mobile_number, $rating)) {
                                 $othercount[$v->user_mobile_number] = 1;
@@ -1104,23 +1102,20 @@ class Apicontroller extends Controller
                             }
                         }
                     }
-                    if (sizeof($forrating) > 0) {
+                    if (!empty($forrating)) {
                         foreach ($forrating as $key => $value) {
-
                             if (!array_key_exists($value->user_mobile_number, $rating)) {
                                 $rating[$value->user_mobile_number] = 1;
                             } else {
                                 $rating[$value->user_mobile_number] = $rating[$value->user_mobile_number] + 1;
                             }
                             //$totalprice[$order->order_id]=$totalpr;
-
                             // echo in_array($order->user_mobile_number,$uniquepricearray);
-
                         }
                     }
                     foreach ($orders as $key => $order) {
                         $printcount = Printsummary::where('order_id', $order->suborder_id)->where('order_created_at', $order->created_at)->first();
-                        if (sizeof($printcount) > 0) {
+                        if ($printcount) {
                             $order->printcount = $printcount['print_number'];
                         } else {
                             $order->printcount = 0;
@@ -1144,7 +1139,6 @@ class Apicontroller extends Controller
                         $totalpr = 0;
                         $it = array();
                         foreach ($item as $t) {
-
                             $itemnew = $t->menuitem;
                             $madt = date("Y-m-d H:i:s", strtotime($order->created_at));
                             array_push($it, array("item" => $itemnew->item, "quantity" => $t->item_quantity, "price" => $itemnew->price, "suborder_id" => $order->suborder_id, "created_at" => $madt, "item_options" => $t->options, "item_options_price" => $t->item_options_price));
@@ -1165,11 +1159,9 @@ class Apicontroller extends Controller
                     }
                     // print_r();exit;
                 }
-
                 // MENU
                 $feedback = DB::table('feedback')->where('outlet_id', '=', $restaurant_id)->get();
                 $menu = Apicontroller::getoutletmemu($restaurant_id);
-
                 return Response::json(
                     array(
                         'message' => 'Valid User',
@@ -1217,15 +1209,11 @@ class Apicontroller extends Controller
                 array(
                     'message' => 'Your outlet is not added in Foodklub.',
                     'statuscode' => 436,
-
                 ),
                 200
             );
         }
     }
-
-
-
     public function getoutletmemu($restaurant_id)
     {
         $restmenu = array();
@@ -1266,9 +1254,6 @@ class Apicontroller extends Controller
         }
         return $restmenu;
     }
-
-
-
     public function ownerlogin(Request $request)
     {
         $username = Input::json('owner_name');
@@ -1279,20 +1264,16 @@ class Apicontroller extends Controller
         // print_r($input);exit;
         $maxdt = Carbon::now();
         $field = filter_var($username, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
-
         if ($field == 'email') {
             $user = Owner::where('email', $username)->first();
         } else {
             $user = Owner::where('user_name', $username)->first();
         }
-
         if (count($user) > 0) {
             $a = Hash::check($pass, $user->password);
         } else {
             $a = false;
         }
-
-
         if ($a == true) {
             if ($field == 'email') {
                 if ($this->auth->attempt(array('email' => $username, 'password' => $pass))) {
@@ -1329,7 +1310,7 @@ class Apicontroller extends Controller
                 $forrating = $retname->orderdetail()->where('status', '=', 'delivered')->orderBy('created_at', 'desc')->get();
                 $otheroutletordercount = DB::table('orders')->where('status', '=', 'delivered')->where('outlet_id', '!=', $restaurant_id)->get();
                 $uniqueprice = DB::table('orders')->where('status', '=', 'delivered')->get();
-                if (sizeof($uniqueprice) > 0) {
+                if (!empty($uniqueprice)) {
                     foreach ($uniqueprice as $k1 => $v1) {
                         if (!array_key_exists($v1->user_mobile_number, $uniquepricearray)) {
                             //array_push($uniquepricearray,array($order->user_mobile_number=>number_format($totalpr, 2, '.', '')));
@@ -1340,8 +1321,7 @@ class Apicontroller extends Controller
                         }
                     }
                 }
-
-                if (sizeof($otheroutletordercount) > 0) {
+                if (!empty($otheroutletordercount)) {
                     foreach ($otheroutletordercount as $k => $v) {
                         if (!array_key_exists($v->user_mobile_number, $rating)) {
                             $othercount[$v->user_mobile_number] = 1;
@@ -1350,7 +1330,7 @@ class Apicontroller extends Controller
                         }
                     }
                 }
-                if (sizeof($forrating) > 0) {
+                if (!empty($forrating)) {
                     foreach ($forrating as $key => $value) {
 
                         if (!array_key_exists($value->user_mobile_number, $rating)) {
@@ -1366,7 +1346,7 @@ class Apicontroller extends Controller
                 }
                 foreach ($orders as $key => $order) {
                     $printcount = Printsummary::where('order_id', $order->suborder_id)->where('order_created_at', $order->created_at)->first();
-                    if (sizeof($printcount) > 0) {
+                    if (!empty($printcount)) {
                         $order->printcount = $printcount['print_number'];
                     } else {
                         $order->printcount = 0;
@@ -1469,7 +1449,6 @@ class Apicontroller extends Controller
             }
         }
     }
-
     public function ownerlogout()
     {
         $restaurantid = Input::get("resid");
@@ -1619,7 +1598,7 @@ class Apicontroller extends Controller
         $order_summary = array();
         foreach ($getcurrentstatus as $getstatus) {
             $getnextstatus = Status::where('order', '>', $getstatus->order)->where('outlet_id', $resid)->orderby('order', 'ASC')->first();
-            
+
             if (isset($getnextstatus) > 0) {
                 $ordstat = OrderDetails::where('status', $currents)->where('suborder_id', $oid)->where('outlet_id', $resid)->where('created_at', $order_date)->first();
                 OrderDetails::where('status', $currents)->where('suborder_id', $oid)->where('outlet_id', $resid)->where('created_at', $order_date)->update(array('status' => $getnextstatus->status));
@@ -2298,8 +2277,10 @@ class Apicontroller extends Controller
 
     public function resetorderid(Request $request)
     {
+
         $resid = $request->input('resid');
         $setorderid = OrderDetails::where('outlet_id', $resid)->orderBy('created_at', 'desc')->get();
+        // echo "Res ID <pre>";print_r($resid);echo "</pre>";exit;
         $i = 0;
         foreach ($setorderid as $orderid) {
             $suborder_id[] = $orderid->suborder_id;
@@ -2323,31 +2304,42 @@ class Apicontroller extends Controller
         }
     }
 
-    public function generatereport()
+    public function generatereport(Request $request)
     {
-        $startdate = date('Y-m-d 00:00:00', strtotime(Input::json('start_date')));
-        $enddate = date('Y-m-d 12:00:00', strtotime(Input::json('end_date')));
-        $userid = Input::json('userid');
+        // $startdate = date('Y-m-d 00:00:00', strtotime(Input::json('start_date')));
+        // $enddate = date('Y-m-d 12:00:00', strtotime(Input::json('end_date')));
+        $startdate = $request->input('start_date') ? date('Y-m-d 00:00:00', strtotime($request->input('start_date'))) : null;
+        $enddate = $request->input('end_date') ? date('Y-m-d 23:59:59', strtotime($request->input('end_date'))) : null;
+        // $userid = Input::json('userid');
+        $userid = $request->input('userid');
 
         $getrestaurant = Outlet::where('owner_id', $userid)->get();
-
+        // echo "Get Restaurent <pre>"; print_r($getrestaurant); echo "</pre>"; 
+        // exit;
         $getorders = OrderDetails::where('outlet_id', $getrestaurant[0]->id)->whereBetween('created_at', array($startdate, $enddate))->get();
+        // echo "Get Orders <pre>";print_r($getorders);echo "</pre>";
+        // exit;
         $result = array();
 
         $i = 0;
-        $totalprice = '';
+        $totalprice = 0;
         $ordersummary = array();
 
         foreach ($getorders as $orderdetails) {
             $name = $orderdetails->name;
-
+            // echo "Orders Deails <pre>";print_r($orderdetails);echo "</pre>";
+            // exit;
             $orderitem = DB::table('order_items')->where('order_id', $orderdetails->order_id)->get();
+            // echo "Orders Items <pre>";print_r($orderitem);echo "</pre>";
+            // exit;
             foreach ($orderitem as $orderit) {
                 $menuitemname = DB::table('menus')->where('id', $orderit->item_id)->get();
+                // echo "Menu Items Name <pre>";print_r($menuitemname);echo "</pre>";
+                // exit;
                 $result[$i]['Outlet Name'] = $getrestaurant[0]->name;
                 $result[$i]['Order Id'] = $orderdetails->suborder_id;
 
-                if (sizeof($menuitemname) && isset($menuitemname[0]->item) && $menuitemname[0]->item != '') {
+                if (!empty($menuitemname) && isset($menuitemname[0]->item) && $menuitemname[0]->item != '') {
                     $result[$i]['Item Name'] = $menuitemname[0]->item;
                 }
                 $result[$i]['Item Quantity'] = $orderit->item_quantity;
@@ -2361,15 +2353,17 @@ class Apicontroller extends Controller
                 $result[$i]['Status'] = $orderdetails->status;
                 $result[$i]['Created At'] = date('g:ia \o\n l jS F Y', strtotime($orderdetails->created_at));
                 if ($orderdetails->discount_value != '' && $orderdetails->discount_value != 0) {
-                    $totalprice += $orderit->item_price;
+                    // $totalprice += $orderit->item_price;
+                    $totalprice += (float) $orderit->item_price;
                 } else {
-                    $totalprice += $orderit->item_price;
+                    // $totalprice += $orderit->item_price;
+                    // echo "Orders Item Price" . $orderit->item_price; exit;
+                    // echo "Total Price" . $totalprice;exit;
+                    $totalprice = $totalprice + $orderit->item_price;
                 }
-
                 $i++;
             }
         }
-
         ob_end_clean();
         ob_start();
         Excel::create('foodklub_report', function ($excel) use ($result, $totalprice) {
@@ -2381,13 +2375,13 @@ class Apicontroller extends Controller
         })->store('xls');
         $restaurant_name = $getrestaurant[0]->name;
         Mail::send('emails.dailyreport', [], function ($message) {
-            $message->from('we@pikal.io', 'Pikal');
-            $message->to('parag@savitriya.com', 'Parag');
+            // $message->from('we@pikal.io', 'Pikal');
+            $message->from('js@savitriya.com', 'Pikal');
+            $message->to('js@savitriya.com', 'JS');
             $message->subject('Foodklub Report');
             $message->attach(app_path() . '/../storage/exports/foodklub_report.xls', ['as' => 'foodklub_report.xls', 'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']);
         });
         //Queue::push('App\Commands\GenerateReport@generatereport', array('restaurant_name'=>$restaurant_name));
-
         return Response::json(array(
             'message' => 'Report sent successfully',
             'status' => 'success',
@@ -2396,48 +2390,62 @@ class Apicontroller extends Controller
         ), 200);
     }
 
-    public function updatemenuitem()
+    public function updatemenuitem(Request $request)
     {
-        $resid = Input::json('resid');
-        $menuitemid = Input::json('itemid');
-        $active = Input::json('itemactive');
-        $itemname = Input::json('itemname');
-        $price = Input::json('itemPrice');
+        // $resid = Input::json('resid');
+        // $menuitemid = Input::json('itemid');
+        // $active = Input::json('itemactive');
+        // $itemname = Input::json('itemname');
+        // $price = Input::json('itemPrice');
+        $resid = $request->input('outlet_id');
+        $menuitemid = $request->input('menu_title_id');
+        $active = $request->input('active');
+        $itemname = $request->input('item');
+        $price = $request->input('price');
 
         $update = array();
 
-
-        $menu = DB::table('menus');
-        if (isset($active)) {
+        if ($active !== null && $active !== '') {
             $update['active'] = $active;
         }
-        if (isset($itemname)) {
+
+        if ($itemname !== null && $itemname !== '') {
             $update['item'] = $itemname;
         }
-        if (isset($price)) {
+
+        if ($price !== null && $price !== '') {
             $update['price'] = $price;
         }
-
-
-
-        $affectedRows = $menu->where('id', $menuitemid)->where('outlet_id', $resid)->update($update);
-
-        return Response::json(array(
-            'message' => 'Menu Updated Successfully',
-            'status' => 'success',
-            'statuscode' => 200
-        ), 200);
+        // $affectedRows = $menu->where('id', $menuitemid)->where('outlet_id', $resid)->update($update);
+        // return Response::json(array(
+        //     'message' => 'Menu Updated Successfully',
+        //     'status' => 'success',
+        //     'statuscode' => 200
+        // ), 200);
+        // echo "Update Array <pre>"; print_r($update); echo "</pre>"; exit;
+        $affectedRows = DB::table('menus')->where('menu_title_id', $menuitemid)->where('outlet_id', $resid)->update($update);
+        if ($affectedRows) {
+            return Response::json([
+                'message' => 'Menu Updated Successfully',
+                'status' => 'success',
+                'statuscode' => 200
+            ], 200);
+        } else {
+            return Response::json([
+                'message' => 'Menu Update Failed or No Changes Made',
+                'status' => 'error',
+                'statuscode' => 400
+            ], 400);
+        }
     }
-
-    public function cancellationreason()
+    public function cancellationreason(Request $request)
     {
-
         $array = array();
-        $resid = Input::json('resid');
+        // $resid = Input::json('resid');
+        $resid = $request->input('resid');
         $i = 0;
         $cancel = CancellationReason::where('outlet_id', $resid)->get();
         foreach ($cancel as $can) {
-
             $array[$i]['reason'] = $can->reason_of_cancellation;
             $i++;
         }
@@ -2448,44 +2456,73 @@ class Apicontroller extends Controller
             'cancelreasons' => $array
         ), 200);
     }
-
-
-    public function ordercancellation()
+    public function ordercancellation(Request $request)
     {
-        $resid = Input::json('resid');
-        $order_id = Input::json('order_id');
-        $reason = Input::json('reason');
-        $orderdate = Input::json('order_date');
-
-        OrderDetails::where('suborder_id', $order_id)->where('created_at', $orderdate)->update(array('cancelorder' => 1));
-        $ordercancellation = new OrderCancellation();
-        $ordercancellation->outlet_id = $resid;
-        $ordercancellation->suborder_id = $order_id;
-        $ordercancellation->reason = $reason;
-        $ordercancellation->order_date = $orderdate;
-        $ordercancellation->save();
-        $orderdetails = OrderDetails::where('suborder_id', $order_id)->where('created_at', $orderdate)->get();
-        $cancel = array('device_id' => $orderdetails[0]->device_id, 'order_id' => $order_id, 'reason' => $reason, 'created_at' => $orderdate);
-        Queue::push('App\Commands\CancelOrderNotification@getcancelorder', array('cancellation' => $cancel));
-        return Response::json(array(
-            'message' => 'Order Cancelled Successfully',
-            'status' => 'success',
-            'statuscode' => 200,
-            'type' => 'cancelorder',
-            'suborder_id' => $order_id,
-            'created_at' => $orderdate
-        ), 200);
+        // $resid = Input::json('resid');
+        // $order_id = Input::json('order_id');
+        // $reason = Input::json('reason');
+        // $orderdate = Input::json('order_date');
+        $resid = $request->input('resid');
+        $order_id = $request->input('order_id');
+        $reason = $request->input('reason');
+        $orderdate = $request->input('order_date');
+        $res = OrderDetails::where('order_id', $order_id)->whereRaw('DATE(created_at) = ?', [$orderdate])->update(['cancelorder' => 1]);
+        // echo "OrderDetails <pre>";print_r($res);echo "</pre>";
+        // exit;
+        if ($res) {
+            // echo "IFFFFFF";exit;
+            $ordercancellation = new OrderCancellation();
+            $ordercancellation->outlet_id = $resid;
+            $ordercancellation->order_id = $order_id;
+            $ordercancellation->reason = $reason;
+            // $ordercancellation->order_date = $orderdate;
+            $ordercancellation->save();
+            // echo "Order Cancellation <pre>"; print_r($ordercancellation); echo "</pre>"; exit;
+            $orderdetails = OrderDetails::where('order_id', $order_id)->get();
+            // echo "Order <pre>";print_r($orderdetails);echo "</pre>";exit;
+            $cancel = array(
+                'device_id' => $orderdetails[0]->device_id,
+                'order_id' => $order_id,
+                'reason' => $reason,
+                'created_at' => $orderdate
+            );
+            // echo "Order <pre>";print_r($cancel);echo "</pre>";exit;
+            Queue::push(
+                'App\Commands\CancelOrderNotification@getcancelorder',
+                array('cancellation' => $cancel)
+            );
+            return Response::json(array(
+                'message' => 'Order Cancelled Successfully',
+                'status' => 'success',
+                'statuscode' => 200,
+                'type' => 'cancelorder',
+                'suborder_id' => $order_id,
+                'created_at' => $orderdate
+            ), 200);
+        } else {
+            // echo "Elseeee";exit;
+            return Response::json(array(
+                'message' => 'Order Cancellation Failed',
+                'status' => 'failed',
+                'statuscode' => 400
+            ), 400);
+        }
     }
-
-
-    public function printsummary()
+    public function printsummary(Request $request)
     {
-
-        $getorderprintsuborder_id = Input::json('suborder_id');
-        $getorderordercreated_at = Input::json('order_created_at');
-
+        // $getorderprintsuborder_id = Input::json('suborder_id');
+        // $getorderordercreated_at = Input::json('order_created_at');
+        $getorderprintsuborder_id = $request->input('suborder_id');
+        $getorderordercreated_at = $request->input('order_created_at');
+        if (!$getorderprintsuborder_id || !$getorderordercreated_at) {
+            return response()->json([
+                'message' => 'getorderprintsuborder_id and getorderordercreated_at are required',
+                'status' => 'failed',
+                'statuscode' => 400
+            ], 400);
+        }
         $print = DB::table('print_summary')->where('order_id', $getorderprintsuborder_id)->where('order_created_at', $getorderordercreated_at)->first();
-        if (count($print) > 0) {
+        if ($print) {
             $print_count = $print->print_number + 1;
             DB::table('print_summary')->where('order_id', $getorderprintsuborder_id)->where('order_created_at', $getorderordercreated_at)->update(array('print_number' => $print_count, 'order_created_at' => $getorderordercreated_at));
         } else {
@@ -2600,18 +2637,39 @@ class Apicontroller extends Controller
             'totallikes' => $totallikes
         ), 200);
     }
-    public function addrecipes()
+    public function addrecipes(Request $request)
     {
-        $outlet_id = Input::json('outlet_id');
-        $title = Input::json('title');
-        $recipe = Input::json('recipe');
-        $ingrediants = Input::json('ingrediants');
-        $shop_url = Input::json('shop_url');
-        $ingrediants_url = Input::json('ingrediant_url');
-        $owner = Input::json('owner');
+        // $outlet_id = Input::json('outlet_id');
+        // $title = Input::json('title');
+        // $recipe = Input::json('recipe');
+        // $ingrediants = Input::json('ingrediants');
+        // $shop_url = Input::json('shop_url');
+        // $ingrediants_url = Input::json('ingrediant_url');
+        // $owner = Input::json('owner');
+        $outlet_id = $request->input('outlet_id');
+        $title = $request->input('title');
+        $recipe = $request->input('recipe');
+        $ingrediants = $request->input('ingrediants');
+        $shop_url = $request->input('shop_url');
+        $ingrediants_url = $request->input('ingrediant_url');
+        $owner = $request->input('owner');
+
+        if (!$outlet_id || !$title || !$recipe || !$owner) {
+            return response()->json([
+                'message' => 'Required fields missing',
+                'status' => 'failed',
+                'statuscode' => 400
+            ], 400);
+        }
 
         $getownerid = Owner::where('user_name', $owner)->first();
-
+        if (!$getownerid) {
+            return response()->json([
+                'message' => 'Owner not found',
+                'status' => 'failed',
+                'statuscode' => 404
+            ], 404);
+        }
 
         $recipes = new Recipe();
         $recipes->owner_id = $getownerid->id;
@@ -2621,25 +2679,27 @@ class Apicontroller extends Controller
         $recipes->recipes = $recipe;
         $recipes->shop_url = $shop_url;
         $recipes->ingrediants_url = $ingrediants_url;
-        $success = $recipes->save();
-
+        $recipes->save();
+        // foreach ($allrecipe as $recipe) {
+        //     $recipe->formated_created_at = date("F j, Y g:i a", strtotime($recipe->created_at));
+        // }
         $allrecipe = Recipe::all();
-        foreach ($allrecipe as $recipe) {
-            $recipe->formated_created_at = date("F j, Y g:i a", strtotime($recipe->created_at));
+
+        foreach ($allrecipe as $rec) {
+            $rec->formated_created_at = date("F j, Y g:i a", strtotime($rec->created_at));
         }
         return Response::json(array(
             'message' => 'Recipe Added successfully',
             'status' => 'success',
             'statuscode' => 200,
-            'recipe' => $allrecipe
+            'recipe' => $recipes
         ), 200);
     }
     public function getrecipes()
     {
         //$owner=Input::json('owner');
         //$getownerid=Owner::where('user_name',$owner)->first();
-
-        $allrecipe = Recipe::all();
+        $allrecipe = Recipe::orderBy('created_at', 'desc')->get();
         foreach ($allrecipe as $recipe) {
             $recipe->formated_created_at = date("F j, Y g:i a", strtotime($recipe->created_at));
         }
@@ -2667,29 +2727,43 @@ class Apicontroller extends Controller
         return $types[$type];
     }
 
-    public function pastorders()
+    public function pastorders(Request $request)
     {
+        // $restaurant_id = Input::json('resid');
+        $restaurant_id = $request->input('resid');
+        if (!$restaurant_id) {
+            return response()->json([
+                'message' => 'resid is required',
+                'statuscode' => 400,
+                'status' => 'failed'
+            ], 400);
+        }
+        // $maxdt = [];
+        // array_push($maxdt, Carbon::now());
+        $maxdt = [Carbon::now()];
 
-        $restaurant_id = Input::json('resid');
-
-
-        $maxdt = [];
-        array_push($maxdt, Carbon::now());
-
+        // $retname = Outlet::find($restaurant_id);
         $retname = Outlet::find($restaurant_id);
+        // echo "Orders <pre>";print_r($retname);echo "</pre>";exit;
+        if (!$retname) {
+            return response()->json([
+                'message' => 'Outlet not found',
+                'statuscode' => 404,
+                'status' => 'failed'
+            ], 404);
+        }
         $star = [];
-        $orders = $retname->orderdetail()->where('status', '=', 'delivered')->where('cancelorder', '!=', 1)
-            ->where('orders.created_at', '>=', Carbon::now()->startOfDay())
-            ->where('orders.created_at', '<=', Carbon::now()->endOfDay())
-            ->orderBy('created_at', 'asc')->get();
-
+        // $rr = Carbon::now()->endOfDay();
+        // echo "res <pre>";print_r($rr);echo "</pre>";exit;
+        $orders = Outlet::find($restaurant_id)->orderdetail()->where('status', '=', 'delivered')->where('cancelorder', '!=', 1)->where('orders.created_at', '>=', Carbon::now()->startOfDay())->where('orders.created_at', '<=', Carbon::now()->endOfDay())->orderBy('created_at', 'asc')->get();
+        // echo "Orders <pre>"; print_r($orders); echo "</pre>"; exit;
         $totalprice = [];
         $rating = [];
         $uniquepricearray = [];
         $othercount = [];
         $items = [];
 
-        if (count($orders) > 0) {
+        if (!empty($orders)) {
             $forrating = $retname->orderdetail()->where('status', '=', 'delivered')->orderBy('created_at', 'desc')->get();
             $otheroutletordercount = DB::table('orders')->where('status', '=', 'delivered')->where('outlet_id', '!=', $restaurant_id)->get();
             $uniqueprice = DB::table('orders')->where('status', '=', 'delivered')->get();
@@ -2704,7 +2778,7 @@ class Apicontroller extends Controller
                     }
                 }
             }
-            if (sizeof($otheroutletordercount) > 0) {
+            if (!empty($otheroutletordercount)) {
                 foreach ($otheroutletordercount as $k => $v) {
                     if (!array_key_exists($v->user_mobile_number, $rating)) {
                         $othercount[$v->user_mobile_number] = 1;
@@ -2713,13 +2787,12 @@ class Apicontroller extends Controller
                     }
                 }
             }
-            if (sizeof($forrating) > 0) {
+            if (!empty($forrating)) {
                 foreach ($forrating as $key => $value) {
                     $item = OrderItem::where('order_id', $value->order_id)->get();
                     $totalpr = 0;
                     $it = array();
                     foreach ($item as $t) {
-
                         $itemnew = $t->menuitem;
                         if (isset($itemnew['price']) && $itemnew['price'] != '') {
                             $totalpr += $t->item_quantity * $itemnew['price'];
@@ -2734,15 +2807,13 @@ class Apicontroller extends Controller
                         $rating[$value->user_mobile_number] = $rating[$value->user_mobile_number] + 1;
                     }
                     //$totalprice[$order->order_id]=$totalpr;
-
                     // echo in_array($order->user_mobile_number,$uniquepricearray);
-
                 }
             }
-
+            // echo "Orders <pre>";print_r($orders);echo "</pre>";exit;
             foreach ($orders as $key => $order) {
                 $printcount = Printsummary::where('order_id', $order->suborder_id)->where('order_created_at', $order->created_at)->first();
-                if (sizeof($printcount) > 0) {
+                if (!empty($printcount)) {
                     $order->printcount = $printcount['print_number'];
                 } else {
                     $order->printcount = 0;
@@ -2767,7 +2838,6 @@ class Apicontroller extends Controller
                 $totalpr = 0;
                 $it = array();
                 foreach ($item as $t) {
-
                     $itemnew = $t->menuitem;
                     $madt = date("Y-m-d H:i:s", strtotime($order->created_at));
                     array_push($it, array("item" => $itemnew->item, "quantity" => $t->item_quantity, "price" => $itemnew->price, "suborder_id" => $order->suborder_id, "created_at" => $madt, "item_options" => $t->item_options, "item_options_price" => $t->item_options_price));
@@ -2781,15 +2851,11 @@ class Apicontroller extends Controller
                 $star[$order->order_id] = DB::table('orders')->where('user_mobile_number', $order->phone_number)->count();
                 //$totalprice[$order->order_id]=$totalpr;
                 array_push($totalprice, array($order->suborder_id => $order->totalcost_afterdiscount));
-
-
                 if ($key == 0) {
                     $maxdt[0] = $order->created_at;
                 }
             }
         }
-
-
         $a = Response::json(
             array(
                 'message' => 'Valid User',
@@ -2804,22 +2870,21 @@ class Apicontroller extends Controller
                 'maxprice' => $uniquepricearray,
                 'othercount' => $othercount,
                 'outletname' => $retname->name
-
             ),
             200
         );
-
         return $a;
     }
 
 
     public function syncorderadd(Request $request)
     {
-
-
-
-        $orders = Input::json('data');
-        $serverids = array();
+        // $orders = Input::json('data');
+        // $orders = $request->input('data');
+        $orders = json_decode($request->input('data'), true);
+        // $serverids = array();
+        // echo "Orders <pre>"; print_r($orders); echo "</pre>"; exit;
+        $serverids = [];
         for ($i = 0; $i < count($orders); $i++) {
             $order = $orders[$i];
 
@@ -2828,9 +2893,8 @@ class Apicontroller extends Controller
             $orders_count = DB::table('orders')->where('order_unique_id', $order['orderuniqueid'])->count();
             if ($orders_count == 0) {
                 $Outlet = Outlet::Outletbyid($order['restaurant_id']);
-
                 if (isset($Outlet)) {
-                    $startingstatus = Status::getallstatusofOutlet($order['restaurant_id']);
+                    $startingstatus = status::getallstatusofOutlet($order['restaurant_id']);
                     $lastindex = count($startingstatus) - 1;
                     if (isset($startingstatus)) {
                         if ($order['order_type'] == "dine_in") {
@@ -2848,28 +2912,29 @@ class Apicontroller extends Controller
 
                     $tempdata['local_id'] = $order['primary_id'];
                     $tempdata['suborder_id'] = $suborder_id;
-                    array_push($serverids, $tempdata);
+                    // array_push($serverids, $tempdata);
+                    $serverids[] = $tempdata;
+                    $service_tax = 0;
+                    $a = $Outlet->pluck('code');
 
-                    $a = $Outlet->lists('code');
+                    // $saveorder = OrderDetails::insertorderdetails($a, $order_ids, $order, $status, $suborder_id);
+                    $saveorder = OrderDetails::insertorderdetails($a, $order_ids, $order, $status, $suborder_id, '', $service_tax);
 
-                    $saveorder = OrderDetails::insertorderdetails($a, $order_ids, $order, $status, $suborder_id);
-
-
+                    // foreach ($order['menu_item'] as $asd) {
+                    //     $orderid = OrderItem::insertmenuitemoforders($saveorder['id'], $asd);
+                    // }
                     foreach ($order['menu_item'] as $asd) {
-                        $orderid = OrderItem::insertmenuitemoforders($saveorder['id'], $asd);
+                        $orderid = OrderItem::insertmenuitemoforders($saveorder['id'], $asd, $order['restaurant_id']);
                     }
-
                     // Queue::push('App\Commands\MailNotification@getorderdetails', array('orderdetails'=>$saveorder));
 
                     // $date = $saveorder['order_date'];
                     // $date = str_replace('/', '-', $date);
 
                     // $orddate = date("F j, Y g:i a", strtotime($date));
-
                 }
             }
         }
-
         return Response::json(
             array(
                 'message' => 'Order Placed Successfully.Go To My Order To Check Your Status',
@@ -2883,23 +2948,32 @@ class Apicontroller extends Controller
 
     public function closeCounter(Request $request)
     {
-        $outlet_id = Input::json('res_id');
-        $start_date = Carbon::parse(Input::json('start_date'));
-        $end_date = Carbon::parse(Input::json('close_date'));
-        $amount = Input::json('total');
-        $amount_byuser = Input::json('total_byuser') ? Input::json('total_byuser') : 0;
-        $amount_fromdb = Input::json('total_fromdb') ? Input::json('total_fromdb') : 0;
-        $remarks = Input::json('remarks');
+        // $outlet_id = Input::json('res_id');
+        // $start_date = Carbon::parse(Input::json('start_date'));
+        // $end_date = Carbon::parse(Input::json('close_date'));
+        // $amount = Input::json('total');
+        // $amount_byuser = Input::json('total_byuser') ? Input::json('total_byuser') : 0;
+        // $amount_fromdb = Input::json('total_fromdb') ? Input::json('total_fromdb') : 0;
+        // $remarks = Input::json('remarks');
+        $outlet_id = $request->input('res_id');
+        $start_date = Carbon::parse($request->input('start_date'));
+        $end_date   = Carbon::parse($request->input('close_date'));
+        // echo "Outlet <pre>";print_r($end_date);echo "</pre>";exit;
+        $amount = $request->input('total');
+        $amount_byuser = $request->input('total_byuser', 0);
+        $amount_fromdb = $request->input('total_fromdb', 0);
+        $remarks = $request->input('remarks');
 
         $a = $start_date->diff($end_date);
         $total_hours = $a->format("%H:%i");
         $start_time = $start_date->format("H:i");
         $end_time = $end_date->format("H:i");
-
         $outlet = Outlet::where('id', $outlet_id)->first();
+        // echo "Outlet <pre>"; print_r($outlet); echo "</pre>"; exit;
         //  $emails=explode(',',$outlet->report_emails);
-
-        Queue::push('App\Commands\ReportsMail@sendmails', array('outlet_id' => $outlet_id, 'amount_byuser' => $amount_byuser, 'amount_fromdb' => $amount_fromdb, 'total' => $amount, "total_hours" => $total_hours, "start_time" => $start_time, "end_time" => $end_time, 'start_date' => Input::json('start_date'), 'end_date' => Input::json('close_date'), 'remark' => $remarks));
+        Queue::push('App\Commands\ReportsMail@sendmails', array('outlet_id' => $outlet_id, 'amount_byuser' => $amount_byuser, 'amount_fromdb' => $amount_fromdb, 'total' => $amount, "total_hours" => $total_hours, "start_time" => $start_time, "end_time" => $end_time, 'start_date' => $request->input('start_date'), 'end_date'   => $request->input('close_date'), 'remark' => $remarks));
+        // 'start_date' => Input::json('start_date'), 
+        // 'end_date' => Input::json('close_date'), 
         return Response::json(array(
             'message' => 'Counter closed successfully',
             'status' => 'success',

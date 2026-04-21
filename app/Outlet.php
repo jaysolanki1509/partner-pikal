@@ -8,10 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class Outlet extends Model
 {
-
-
     protected $table = 'outlets';
-
     protected $fillable = array(
         'name',
         'company_name',
@@ -67,6 +64,8 @@ class Outlet extends Model
 
     public static function Outletbyid($outlet_id)
     {
+        echo "Hello" . $outlet_id;
+        exit;
         $Outlet = Outlet::where('id', $outlet_id)->get();
         return $Outlet;
     }
